@@ -17,6 +17,7 @@ ARTICLE_SOURCES = [
 ]
 MODEL_NAME = "gpt-4o"
 PROMPT_FILE = "prompt.txt"
+LINK_PROMPT_FILE = "link_prompt.txt"
 SYSTEM_PROMPT_FILE = "system_prompt.txt"
 
 # --- Parse arguments ---
@@ -39,7 +40,7 @@ else:
         sys.exit("Could not infer date from filename. Use --date to specify manually.")
 
 date_heading = f"## 📰 News Summary for {summary_date.strftime('%A, %d %B %Y')}\n\n"
-date_heading += "Here is a summary of the RIK 8pm news broadcast, with links to related newspaper articles from the Cyprus Mail and In-Cyprus. This is an AI-generated summary, so mistakes may occur."
+date_heading += "Here is a summary of the 8pm RIK news broadcast. Where available, links to related articles from the Cyprus Mail and In-Cyprus are provided for further reading. Please note that this summary was generated with the assistance of AI and may contain inaccuracies."
 
 summary_file = os.path.join(SUMMARY_DIR, f"8news{summary_date.strftime('%d%m%y')}_summary.md")
 output_file = summary_file
@@ -55,6 +56,8 @@ with open(PROMPT_FILE, "r", encoding="utf-8") as f:
     prompt_text = f.read().strip().replace("[DATE]", summary_date.strftime('%A, %d %B %Y'))
 with open(SYSTEM_PROMPT_FILE, "r", encoding="utf-8") as f:
     system_prompt = f.read().strip()
+with open(LINK_PROMPT_FILE, "r", encoding="utf-8") as f:
+    link_prompt = f.read().strip()
 
 client = OpenAI()
 
@@ -108,20 +111,14 @@ def link_articles_to_summary(summary_text, filtered_articles):
         print("No article metadata found, skipping link injection.")
         return summary_text, None
 
-    linking_prompt = f"""
-Match the following newspaper articles to the relevant story summaries. For each bullet point, if one of the articles clearly corresponds to the story, append a markdown link in this format:
+    linking_prompt = f"""{link_prompt}
 
-- [(CM)](https://cyprus-mail.com/...) for Cyprus Mail
-- [(IC)](https://in-cyprus.philenews.com/...) for In-Cyprus
+    SUMMARY:
+    {summary_text}
 
-Use the article's actual link. If no article fits, leave the line unchanged. Do not modify or rewrite the text otherwise.
-
-SUMMARY:
-{summary_text}
-
-ARTICLES:
-{json.dumps(filtered_articles, ensure_ascii=False)}
-"""
+    ARTICLES:
+    {json.dumps(filtered_articles, ensure_ascii=False)}
+    """
 
     print("Sending to OpenAI for article-linking...")
     response = client.chat.completions.create(

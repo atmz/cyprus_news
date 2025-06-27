@@ -1,0 +1,10 @@
+Match the following newspaper articles to the relevant story summaries. For each bullet point, if one of the articles clearly corresponds to the story, append a markdown link in this format:
+
+DO NOT link things in the 'top stories' section
+
+- [(CM)](https://cyprus-mail.com/...) for Cyprus Mail
+- [(IC)](https://in-cyprus.philenews.com/...) for In-Cyprus
+
+Use the article's actual link. If no article fits, leave the line unchanged. Do not modify or rewrite the text otherwise.
+
+DO NOT link things in the 'top stories' section
