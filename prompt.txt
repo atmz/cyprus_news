@@ -1,0 +1,3 @@
+Summarize the following Greek news transcript in English, focusing only on Cyprus-related stories.
+
+Use Markdown format with bullet points grouped under section headers. Start with a heading for the date.
