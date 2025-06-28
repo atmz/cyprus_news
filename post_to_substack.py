@@ -51,7 +51,6 @@ def post_to_substack(md_path, publish=False):
 
 
         markdown_link_pattern = re.compile(r"\[([^\]]+)\]\((https?://[^\)]+)\)")
-
         for paragraph in body.split("\n\n"):
             for line in paragraph.splitlines():
                 line = line.strip()
@@ -59,40 +58,42 @@ def post_to_substack(md_path, publish=False):
                     page.keyboard.type("• ")
                     line = line[2:].strip()
 
-                match = markdown_link_pattern.search(line)
-                if match:
-                    before = line[:match.start()]
+                # Track cursor position through the line
+                pos = 0
+                for match in markdown_link_pattern.finditer(line):
+                    
+                    start, end = match.span()
+                    before = line[pos:start]
                     label = match.group(1)
                     url = match.group(2)
-                    after = line[match.end():]
+                    print(f"Typing link: label={label}, url={url}")
 
                     if before:
                         page.keyboard.type(before)
 
-                    # Trigger link popup
+                    # Trigger link insertion popup
                     page.keyboard.down("Meta")
                     page.keyboard.press("KeyK")
                     page.keyboard.up("Meta")
                     time.sleep(0.2)
-
-                    # Fill in label
                     page.keyboard.type(label)
                     page.keyboard.press("Tab")
-                    time.sleep(.2)
+                    time.sleep(0.2)
                     page.keyboard.type(url)
-                    time.sleep(.2)
+                    time.sleep(0.2)
                     page.keyboard.press("Enter")
                     time.sleep(0.2)
                     page.keyboard.press("ArrowRight")
 
+                    pos = end
 
-                    if after:
-                        page.keyboard.type(after)
-                else:
-                    page.keyboard.type(line)
+                # Type any remaining text after last link
+                if pos < len(line):
+                    page.keyboard.type(line[pos:])
 
                 page.keyboard.press("Enter")
             page.keyboard.press("Enter")
+
 
         # Add a short delay before UI interaction
         page.wait_for_timeout(1000)

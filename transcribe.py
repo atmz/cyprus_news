@@ -20,6 +20,33 @@ prefix = f"news/8news{args.date}_"
 txt_output = f"news/8news{args.date}_gr.txt"
 json_output = f"news/8news{args.date}_gr.json"
 
+MAX_RETRIES = 3
+MIN_EXPECTED_CHARS = 1000  # Adjust depending on your clip length/content
+
+def transcribe_with_retry(audio_file, retries=3, min_chars=200):
+    best_result = None
+    best_length = 0
+
+    for attempt in range(retries):
+        result = client.audio.transcriptions.create(
+            model="gpt-4o-transcribe",
+            file=audio_file
+        )
+        text = result.text.strip()
+        length = len(text)
+
+        if length > best_length:
+            best_result = result
+            best_length = length
+
+        if length >= min_chars:
+            return result  # Good enough, return immediately
+
+        print(f"⚠️ Attempt {attempt+1}: possibly truncated (len={length}) — retrying...")
+
+    print(f"❌ All retries failed to reach threshold ({min_chars} chars). Returning longest result (len={best_length}).")
+    return best_result
+
 client = OpenAI()
 combined_text = []
 combined_json = []
@@ -31,9 +58,8 @@ while True:
         break
     print(f"Transcribing {filename}...")
     with open(filename, "rb") as audio_file:
-        result = client.audio.transcriptions.create(
-            model="gpt-4o-transcribe",
-            file=audio_file
+        result = transcribe_with_retry(
+            audio_file
         )
         combined_text.append(result.text)
         combined_json.append(result.model_dump())  # Convert to dict for JSON

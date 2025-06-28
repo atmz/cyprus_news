@@ -16,7 +16,7 @@ def fetch_new_articles(base_url, known_urls=None):
     page = 1
     keep_going = True
 
-    while keep_going:
+    while keep_going and page<10:
         url = f"{base_url}/page/{page}"
         print(f"Fetching {url}...")
         try:
@@ -64,6 +64,24 @@ def fetch_new_articles(base_url, known_urls=None):
 if __name__ == "__main__":
     base_url = "https://cyprus-mail.com/category/cyprus"
     json_path = "data/cyprus_articles.json"
+
+    # Load existing
+    existing_articles = load_existing_articles(json_path)
+    existing_urls = {article["url"] for article in existing_articles}
+
+    # Fetch new until first known article
+    new_articles = fetch_new_articles(base_url, known_urls=existing_urls)
+
+    # Prepend new articles (to keep chronological order)
+    all_articles = new_articles + existing_articles
+
+    # Save
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(all_articles, f, ensure_ascii=False, indent=2)
+
+    print(f"Found {len(new_articles)} new articles. Total stored: {len(all_articles)}")
+    base_url = "https://cyprus-mail.com/category/crime"
+    json_path = "data/cm_crime_articles.json"
 
     # Load existing
     existing_articles = load_existing_articles(json_path)

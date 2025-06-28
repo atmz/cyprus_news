@@ -1,6 +1,7 @@
 # summarize.py – Refactored with flexible sources and modular structure
 
 import os
+import re
 import sys
 import argparse
 import json
@@ -12,6 +13,7 @@ from dateutil.parser import parse as parse_datetime, ParserError
 SUMMARY_DIR = "summaries"
 ARTICLE_SOURCES = [
     {"name": "Cyprus Mail", "tag": "CM", "file": "data/cyprus_articles.json"},
+    {"name": "Cyprus Mail", "tag": "CM", "file": "data/cm_crime_articles.json"},
     {"name": "In-Cyprus", "tag": "IC", "file": "data/in_cyprus_local_articles.json"},
     {"name": "In-Cyprus", "tag": "IC", "file": "data/in_cyprus_local_economy_articles.json"}
 ]
@@ -40,10 +42,10 @@ else:
         sys.exit("Could not infer date from filename. Use --date to specify manually.")
 
 date_heading = f"## 📰 News Summary for {summary_date.strftime('%A, %d %B %Y')}\n\n"
-date_heading += "Here is a summary of the 8pm RIK news broadcast. Where available, links to related articles from the Cyprus Mail and In-Cyprus are provided for further reading. Please note that this summary was generated with the assistance of AI and may contain inaccuracies."
+date_heading += "This is a summary of yesterday's 8pm RIK news broadcast. Where available, links to related English-language articles from the Cyprus Mail and In-Cyprus are provided for further reading. Please note that this summary was generated with the assistance of AI and may contain inaccuracies."
 
-summary_file = os.path.join(SUMMARY_DIR, f"8news{summary_date.strftime('%d%m%y')}_summary.md")
-output_file = summary_file
+summary_file = os.path.join(SUMMARY_DIR, f"8news{summary_date.strftime('%d%m%y')}_summary_without_links.md")
+output_file = os.path.join(SUMMARY_DIR, f"8news{summary_date.strftime('%d%m%y')}_summary.md")
 
 # --- Load required files ---
 for required_file in [args.transcript_file, PROMPT_FILE, SYSTEM_PROMPT_FILE]:
@@ -71,7 +73,7 @@ def generate_summary():
             {"role": "user", "content": prompt_text},
             {"role": "user", "content": transcript_text}
         ],
-        temperature=0.5
+        temperature=0.0
     )
     return response.choices[0].message.content.strip(), response.usage
 
@@ -105,8 +107,26 @@ def load_articles(start_date, end_date):
                 })
     return results
 
+
+def split_summary(summary):
+    split_match = re.split(r'(?m)^### [^\n]+', summary)
+    headers = re.findall(r'(?m)^### [^\n]+', summary)
+    sections = [h.strip() + "\n" + b.strip() for h, b in zip(headers, split_match[1:])]
+    top_stories_text = ""
+    main_summary_text = ""
+
+    if sections and sections[0].strip().startswith("### Top stories"):
+        top_stories_text = sections[0].strip()
+        main_summary_text = "\n".join(sections[1:]).strip()
+    else:
+        print("⚠️ No Top stories section found, sending entire summary.")
+        main_summary_text = summary
+
+    return top_stories_text, main_summary_text
+
 # --- Linking Logic ---
 def link_articles_to_summary(summary_text, filtered_articles):
+    
     if not filtered_articles:
         print("No article metadata found, skipping link injection.")
         return summary_text, None
@@ -147,9 +167,12 @@ else:
 start_date = summary_date - timedelta(days=1)
 end_date = summary_date + timedelta(days=1)
 filtered_articles = load_articles(start_date, end_date)
-linked_summary, usage2 = link_articles_to_summary(summary, filtered_articles)
 
-final_output = date_heading + "\n\n" + linked_summary
+top_stories, main_summary = split_summary(summary)
+
+linked_main_summary, usage2 = link_articles_to_summary(main_summary, filtered_articles)
+
+final_output = date_heading + "\n\n" + top_stories + "\n\n" + linked_main_summary
 
 with open(output_file, "w", encoding="utf-8") as f:
     f.write(final_output)

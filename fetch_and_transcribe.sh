@@ -68,7 +68,7 @@ if [ -f "$summary" ]; then
     echo "$summary exists."
 else
 # --- 6a. Update news sources ---
-    python3 in_cyprus_loader.py
+    # python3 in_cyprus_loader.py
     python3 cm_loader.py
 # --- 6a.  Generat summary and post ---
     python3 summarize.py "$text_gr" --date "$today"
