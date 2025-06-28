@@ -1,5 +1,6 @@
 # summarize.py – Refactored with flexible sources and modular structure
 
+from collections import defaultdict
 import os
 import re
 import sys
@@ -8,6 +9,10 @@ import json
 from datetime import datetime, timedelta
 from openai import OpenAI
 from dateutil.parser import parse as parse_datetime, ParserError
+from textwrap import dedent
+import time
+import tiktoken
+
 
 # --- Configuration ---
 SUMMARY_DIR = "summaries"
@@ -21,6 +26,8 @@ MODEL_NAME = "gpt-4o"
 PROMPT_FILE = "prompt.txt"
 LINK_PROMPT_FILE = "link_prompt.txt"
 SYSTEM_PROMPT_FILE = "system_prompt.txt"
+FIRST_CHUNK_SYSTEM_PROMPT_FILE = "first_chunk_system_prompt.txt"
+FOLLOWUP_CHUNK_SYSTEM_PROMPT_FILE = "followup_chunk_system_prompt.txt"
 
 # --- Parse arguments ---
 parser = argparse.ArgumentParser(description="Summarize a transcript file using OpenAI.")
@@ -61,6 +68,11 @@ with open(SYSTEM_PROMPT_FILE, "r", encoding="utf-8") as f:
 with open(LINK_PROMPT_FILE, "r", encoding="utf-8") as f:
     link_prompt = f.read().strip()
 
+with open(FIRST_CHUNK_SYSTEM_PROMPT_FILE, "r", encoding="utf-8") as f:
+    first_chunk_system_prompt = f.read().strip()
+with open(FOLLOWUP_CHUNK_SYSTEM_PROMPT_FILE, "r", encoding="utf-8") as f:
+    followup_chunk_system_prompt = f.read().strip()
+
 client = OpenAI()
 
 # --- Summary Generation ---
@@ -76,6 +88,123 @@ def generate_summary():
         temperature=0.0
     )
     return response.choices[0].message.content.strip(), response.usage
+
+from textwrap import dedent
+
+def combine_summaries(chunks):
+    # Function to parse a summary into a dictionary of sections
+    def parse_summary_sections(summary_text):
+        sections = defaultdict(list)
+        current_section = None
+        for line in summary_text.strip().splitlines():
+            if line.startswith("### "):
+                current_section = line.replace("### ", "").strip()
+            elif line.startswith("- ") or line.startswith("• "):
+                if current_section:
+                    sections[current_section].append(line.strip())
+        return sections
+
+    # Merge all chunk dictionaries
+    combined = defaultdict(list)
+    for chunk in chunks:
+        parsed = parse_summary_sections(chunk)
+        for section, bullets in parsed.items():
+            combined[section].extend(bullets)
+
+    # Optional: Deduplicate within sections
+    for section in combined:
+        combined[section] = list(dict.fromkeys(combined[section]))
+
+    # Define canonical section order
+    section_order = [
+        "Top stories",
+        "Government & Politics",
+        "Cyprus Problem",
+        "Justice",
+        "Foreign Affairs",
+        "Public Health & Safety",
+        "Energy & Infrastructure",
+        "Education",
+        "Culture",
+        "Society",
+        "Sports"
+    ]
+
+    # Generate final markdown
+    final_md = ""
+    for section in section_order:
+        if combined[section]:
+            final_md += f"### {section}\n"
+            final_md += "\n".join(combined[section]) + "\n\n"
+    return final_md
+
+
+# New chunk-aware generate_summary function with different prompts for the first and remaining chunks
+def generate_chunked_summary(
+    transcript_text,
+    client,
+    prompt_template,
+    first_chunk_system_prompt,
+    followup_chunk_system_prompt,
+    model="gpt-4o",
+    chunk_separator="\n\n",
+    max_chunk_size=3000,
+    sleep_time=60
+):
+
+    def count_tokens(text):
+        encoding = tiktoken.encoding_for_model(model)
+        return len(encoding.encode(text))
+
+    # Split into paragraphs and then chunk based on token count
+    paragraphs = transcript_text.split(chunk_separator)
+    chunks = []
+    current_chunk = []
+
+    for para in paragraphs:
+        current_chunk.append(para)
+        if count_tokens(chunk_separator.join(current_chunk)) > max_chunk_size:
+            chunks.append(chunk_separator.join(current_chunk[:-1]))
+            current_chunk = [para]
+    if current_chunk:
+        chunks.append(chunk_separator.join(current_chunk))
+
+    all_summaries = []
+    total_usage = {"prompt_tokens": 0, "completion_tokens": 0}
+
+    for i, chunk in enumerate(chunks):
+        is_first = (i == 0)
+        system_prompt = first_chunk_system_prompt if is_first else followup_chunk_system_prompt
+
+        previous_summary = "".join(all_summaries)
+        user_prompt = prompt_template.replace("[PREVIOUS_SUMMARY]", previous_summary if not is_first else "")
+
+        print(f"\n⏳ Summarizing chunk {i + 1}/{len(chunks)}... ({count_tokens(chunk)} tokens)")
+
+        response = client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt},
+                {"role": "user", "content": chunk}
+            ],
+            temperature=0.0
+        )
+
+        summary = response.choices[0].message.content.strip()
+        all_summaries.append(summary)
+
+        if hasattr(response, "usage"):
+            total_usage["prompt_tokens"] += response.usage.prompt_tokens
+            total_usage["completion_tokens"] += response.usage.completion_tokens
+
+        if i < len(chunks) - 1:
+            print(f"🕒 Sleeping {sleep_time}s before next chunk...")
+            time.sleep(sleep_time)
+
+    combined_summary = combine_summaries(all_summaries)
+    return combined_summary, total_usage
+
 
 # --- Load and Filter Articles ---
 def load_articles(start_date, end_date):
@@ -159,7 +288,8 @@ if summary_exists:
         summary = f.read().replace(date_heading + "\n\n", "", 1)
     usage1 = None
 else:
-    summary, usage1 = generate_summary()
+    summary, usage1 =  generate_chunked_summary(transcript_text, client, prompt_text, first_chunk_system_prompt, followup_chunk_system_prompt)
+
     with open(summary_file, "w", encoding="utf-8") as f:
         f.write(date_heading + "\n\n" + summary)
     print(f"✅ Summary saved to {summary_file}")
