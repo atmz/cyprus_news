@@ -31,8 +31,6 @@ Create a Markdown-formatted summary in English, suitable for a Substack newslett
   - `### Energy & Infrastructure`
   - `### Education`
   - `### Culture`
-  - `### Society`
-  - `### Sports` (only if relevant)
 - Avoid creating new section headers unless absolutely necessary (e.g. major global crisis).
 - Under each section, use `-` bullets for each story.
 - Do not include any extra commentary, summaries, or closing remarks — just the sections and story bullets.

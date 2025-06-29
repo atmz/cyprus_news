@@ -105,7 +105,7 @@ def fetch_new_articles(base_url, known_urls=None, max_clicks=20):
         browser.close()
     return new_articles
 
-if __name__ == "__main__":
+def refresh_ic():
     base_url = "https://in-cyprus.philenews.com/category/local/"
     json_path = "data/in_cyprus_local_articles.json"
 
@@ -124,7 +124,7 @@ if __name__ == "__main__":
 
 
     base_url = "https://in-cyprus.philenews.com/category/insider/economy/"
-    json_path = "data/in_cyprus_local_economy.json"
+    json_path = "data/in_cyprus_local_economy_articles.json"
 
     os.makedirs(os.path.dirname(json_path), exist_ok=True)
     existing_articles = load_existing_articles(json_path)

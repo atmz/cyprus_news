@@ -7,6 +7,7 @@ import sys
 import argparse
 import json
 from datetime import datetime, timedelta
+from helpers import get_text_folder_for_day
 from openai import OpenAI
 from dateutil.parser import parse as parse_datetime, ParserError
 from textwrap import dedent
@@ -28,52 +29,8 @@ LINK_PROMPT_FILE = "link_prompt.txt"
 SYSTEM_PROMPT_FILE = "system_prompt.txt"
 FIRST_CHUNK_SYSTEM_PROMPT_FILE = "first_chunk_system_prompt.txt"
 FOLLOWUP_CHUNK_SYSTEM_PROMPT_FILE = "followup_chunk_system_prompt.txt"
+DEDUPLICATION_PROMPT_FILE = "deduplication_prompt.txt"
 
-# --- Parse arguments ---
-parser = argparse.ArgumentParser(description="Summarize a transcript file using OpenAI.")
-parser.add_argument("transcript_file", help="Path to the transcript file (e.g., news/8news250625_gr.txt)")
-parser.add_argument("--date", help="Optional date in DDMMYY format (e.g., 250625)")
-args = parser.parse_args()
-
-# --- Derive summary date ---
-if args.date:
-    try:
-        summary_date = datetime.strptime(args.date, "%d%m%y")
-    except ValueError:
-        sys.exit("Invalid date format. Use DDMMYY (e.g., 250625)")
-else:
-    try:
-        filename_date = os.path.basename(args.transcript_file).split("_")[0].replace("8news", "")
-        summary_date = datetime.strptime(filename_date, "%d%m%y")
-    except Exception:
-        sys.exit("Could not infer date from filename. Use --date to specify manually.")
-
-date_heading = f"## 📰 News Summary for {summary_date.strftime('%A, %d %B %Y')}\n\n"
-date_heading += "This is a summary of yesterday's 8pm RIK news broadcast. Where available, links to related English-language articles from the Cyprus Mail and In-Cyprus are provided for further reading. Please note that this summary was generated with the assistance of AI and may contain inaccuracies."
-
-summary_file = os.path.join(SUMMARY_DIR, f"8news{summary_date.strftime('%d%m%y')}_summary_without_links.md")
-output_file = os.path.join(SUMMARY_DIR, f"8news{summary_date.strftime('%d%m%y')}_summary.md")
-
-# --- Load required files ---
-for required_file in [args.transcript_file, PROMPT_FILE, SYSTEM_PROMPT_FILE]:
-    if not os.path.exists(required_file):
-        sys.exit(f"Required file not found: {required_file}")
-
-with open(args.transcript_file, "r", encoding="utf-8") as f:
-    transcript_text = f.read()
-with open(PROMPT_FILE, "r", encoding="utf-8") as f:
-    prompt_text = f.read().strip().replace("[DATE]", summary_date.strftime('%A, %d %B %Y'))
-with open(SYSTEM_PROMPT_FILE, "r", encoding="utf-8") as f:
-    system_prompt = f.read().strip()
-with open(LINK_PROMPT_FILE, "r", encoding="utf-8") as f:
-    link_prompt = f.read().strip()
-
-with open(FIRST_CHUNK_SYSTEM_PROMPT_FILE, "r", encoding="utf-8") as f:
-    first_chunk_system_prompt = f.read().strip()
-with open(FOLLOWUP_CHUNK_SYSTEM_PROMPT_FILE, "r", encoding="utf-8") as f:
-    followup_chunk_system_prompt = f.read().strip()
-
-client = OpenAI()
 
 # --- Summary Generation ---
 def generate_summary():
@@ -142,13 +99,13 @@ def combine_summaries(chunks):
 def generate_chunked_summary(
     transcript_text,
     client,
-    prompt_template,
+    user_prompt,
     first_chunk_system_prompt,
     followup_chunk_system_prompt,
     model="gpt-4o",
     chunk_separator="\n\n",
     max_chunk_size=3000,
-    sleep_time=60
+    sleep_time=20
 ):
 
     def count_tokens(text):
@@ -173,24 +130,34 @@ def generate_chunked_summary(
 
     for i, chunk in enumerate(chunks):
         is_first = (i == 0)
-        system_prompt = first_chunk_system_prompt if is_first else followup_chunk_system_prompt
 
         previous_summary = "".join(all_summaries)
-        user_prompt = prompt_template.replace("[PREVIOUS_SUMMARY]", previous_summary if not is_first else "")
+        system_prompt = followup_chunk_system_prompt.replace("[PREVIOUS_SUMMARY]", previous_summary) if not is_first else first_chunk_system_prompt
 
-        print(f"\n⏳ Summarizing chunk {i + 1}/{len(chunks)}... ({count_tokens(chunk)} tokens)")
+        def get_last_n_words(text, n=100):
+            words = text.strip().split()
+            return " ".join(words[-n:])
+
+        if not is_first:
+            overlap = get_last_n_words(chunks[i - 1], 100)
+            chunk_with_overlap = overlap + " " + chunk
+        else:
+            chunk_with_overlap = chunk
+
+        print(f"\n⏳ Summarizing chunk {i + 1}/{len(chunks)}... ({count_tokens(chunk_with_overlap)} tokens)")
 
         response = client.chat.completions.create(
             model=model,
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
-                {"role": "user", "content": chunk}
+                {"role": "user", "content": chunk_with_overlap}
             ],
             temperature=0.0
         )
 
         summary = response.choices[0].message.content.strip()
+        print(f"Summarized chunk{str(i)}\n system_prompt:{system_prompt}\nuser_prompt:{user_prompt}\n chunk:{chunk_with_overlap}\n summary{summary}\n")
         all_summaries.append(summary)
 
         if hasattr(response, "usage"):
@@ -226,7 +193,7 @@ def load_articles(start_date, end_date):
                 dt = parse_datetime(dt_raw).replace(tzinfo=None)
             except (ParserError, ValueError):
                 continue
-            if start_date <= dt <= end_date:
+            if start_date <= dt.date() <= end_date:
                 results.append({
                     "t": a.get("title"),
                     "a": a.get("abstract"),
@@ -234,6 +201,24 @@ def load_articles(start_date, end_date):
                     "tag": source["tag"]
                 })
     return results
+
+def cleanup_merged_summary(client, summary_text, deduplication_prompt):
+    final_prompt = f"""{deduplication_prompt}
+
+    SUMMARY:
+    {summary_text}
+
+    """
+    print("Sending to OpenAI for cleanup...")
+    response = client.chat.completions.create(
+        model=MODEL_NAME,
+        messages=[
+            {"role": "user", "content": final_prompt}
+        ],
+        temperature=0.2
+    )
+    print(f"prompt:{final_prompt}\noutput{response.choices[0].message.content.strip()}")
+    return response.choices[0].message.content.strip(), response.usage
 
 
 def split_summary(summary):
@@ -253,7 +238,7 @@ def split_summary(summary):
     return top_stories_text, main_summary_text
 
 # --- Linking Logic ---
-def link_articles_to_summary(summary_text, filtered_articles):
+def link_articles_to_summary(client, summary_text, filtered_articles, link_prompt):
     
     if not filtered_articles:
         print("No article metadata found, skipping link injection.")
@@ -279,44 +264,78 @@ def link_articles_to_summary(summary_text, filtered_articles):
     )
     return response.choices[0].message.content.strip(), response.usage
 
-# --- Main Logic ---
-summary_exists = os.path.exists(summary_file)
-if summary_exists:
-    print(f"📄 Found existing summary: {summary_file}, skipping summarization.")
-    with open(summary_file, "r", encoding="utf-8") as f:
-        summary = f.read().replace(date_heading + "\n\n", "", 1)
-    usage1 = None
-else:
-    summary, usage1 =  generate_chunked_summary(transcript_text, client, prompt_text, first_chunk_system_prompt, followup_chunk_system_prompt)
+def summarize_for_day(day):
 
-    with open(summary_file, "w", encoding="utf-8") as f:
-        f.write(date_heading + "\n\n" + summary)
-    print(f"✅ Summary saved to {summary_file}")
+    # --- Load required files ---
+    output_folder = get_text_folder_for_day(day)
 
-start_date = summary_date - timedelta(days=1)
-end_date = summary_date + timedelta(days=1)
-filtered_articles = load_articles(start_date, end_date)
+    date_heading = f"## 📰 News Summary for {day.strftime('%A, %d %B %Y')}\n\n"
+    date_heading += "This is a summary of yesterday's 8pm RIK news broadcast. Where available, links to related English-language articles from the Cyprus Mail and In-Cyprus are provided for further reading. Please note that this summary was generated with the assistance of AI and may contain inaccuracies."
 
-top_stories, main_summary = split_summary(summary)
+    summary_file = f"{output_folder}summary_without_links.txt"
+    output_file = f"{output_folder}summary.txt"
+    transcript_file = f"{output_folder}transcript_gr.txt"
 
-linked_main_summary, usage2 = link_articles_to_summary(main_summary, filtered_articles)
+    with open(transcript_file, "r", encoding="utf-8") as f:
+        transcript_text = f.read()
+    with open(PROMPT_FILE, "r", encoding="utf-8") as f:
+        prompt_text = f.read().strip().replace("[DATE]", day.strftime('%A, %d %B %Y'))
+    with open(SYSTEM_PROMPT_FILE, "r", encoding="utf-8") as f:
+        system_prompt = f.read().strip()
+    with open(LINK_PROMPT_FILE, "r", encoding="utf-8") as f:
+        link_prompt = f.read().strip()
+    with open(DEDUPLICATION_PROMPT_FILE, "r", encoding="utf-8") as f:
+        deduplication_prompt = f.read().strip()
 
-final_output = date_heading + "\n\n" + top_stories + "\n\n" + linked_main_summary
+    with open(FIRST_CHUNK_SYSTEM_PROMPT_FILE, "r", encoding="utf-8") as f:
+        first_chunk_system_prompt = f.read().strip()
+    with open(FOLLOWUP_CHUNK_SYSTEM_PROMPT_FILE, "r", encoding="utf-8") as f:
+        followup_chunk_system_prompt = f.read().strip()
 
-with open(output_file, "w", encoding="utf-8") as f:
-    f.write(final_output)
+    client = OpenAI()
+    # --- Main Logic ---
 
-# --- Token usage & cost ---
-total_tokens = 0
-if usage1:
-    total_tokens += usage1.prompt_tokens + usage1.completion_tokens
-if usage2:
-    total_tokens += usage2.prompt_tokens + usage2.completion_tokens
+    summary_exists = os.path.exists(summary_file)
+    if summary_exists:
+        print(f"📄 Found existing summary: {summary_file}, skipping summarization.")
+        with open(summary_file, "r", encoding="utf-8") as f:
+            summary = f.read().replace(date_heading + "\n\n", "", 1)
+        usage1 = None
+    else:
+        summary, usage1 =  generate_chunked_summary(transcript_text, client, prompt_text, first_chunk_system_prompt, followup_chunk_system_prompt)
 
-COST_PER_1K_PROMPT = 0.005
-COST_PER_1K_COMPLETION = 0.015
-estimated_cost = (total_tokens / 1000) * ((COST_PER_1K_PROMPT + COST_PER_1K_COMPLETION) / 2)
+        with open(summary_file, "w", encoding="utf-8") as f:
+            f.write(date_heading + "\n\n" + summary)
+        print(f"✅ Summary saved to {summary_file}")
 
-print(f"\n✅ Final summary with links saved to {output_file}")
-print(f"📊 Token usage: ~{total_tokens} total")
-print(f"💰 Estimated cost: ${estimated_cost:.4f} USD")
+    start_date = day - timedelta(days=1)
+    end_date = day + timedelta(days=1)
+    filtered_articles = load_articles(start_date, end_date)
+
+    top_stories, main_summary = split_summary(summary)
+
+    cleaned_main_summary, usage2 = cleanup_merged_summary(client, main_summary, deduplication_prompt)
+
+    linked_main_summary, usage3 = link_articles_to_summary(client, cleaned_main_summary, filtered_articles, link_prompt)
+
+    final_output = date_heading + "\n\n" + top_stories + "\n\n" + linked_main_summary
+
+    with open(output_file, "w", encoding="utf-8") as f:
+        f.write(final_output)
+
+    # --- Token usage & cost ---
+    total_tokens = 0
+    if usage1:
+        total_tokens += usage1["prompt_tokens"] + usage1["completion_tokens"]
+    if usage2:
+        total_tokens += usage2.prompt_tokens + usage2.completion_tokens
+    if usage3:
+        total_tokens += usage3.prompt_tokens + usage3.completion_tokens
+
+    COST_PER_1K_PROMPT = 0.005
+    COST_PER_1K_COMPLETION = 0.015
+    estimated_cost = (total_tokens / 1000) * ((COST_PER_1K_PROMPT + COST_PER_1K_COMPLETION) / 2)
+
+    print(f"\n✅ Final summary with links saved to {output_file}")
+    print(f"📊 Token usage: ~{total_tokens} total")
+    print(f"💰 Estimated cost: ${estimated_cost:.4f} USD")
