@@ -25,7 +25,6 @@ def fetch_new_articles(base_url, known_urls=None):
         except requests.RequestException as e:
             print(f"Failed to fetch {url}: {e}")
             break
-
         soup = BeautifulSoup(response.text, "html.parser")
         article_tags = soup.find_all("article")
         if not article_tags:
@@ -54,7 +53,7 @@ def fetch_new_articles(base_url, known_urls=None):
                 "url": full_url,
                 "image_url": urljoin(base_url, image_tag.get("src")) if image_tag else None,
             }
-
+            new_articles.append(article)
 
         page += 1
 
@@ -97,3 +96,5 @@ def refresh_cm():
         json.dump(all_articles, f, ensure_ascii=False, indent=2)
 
     print(f"Found {len(new_articles)} new articles. Total stored: {len(all_articles)}")
+if __name__ == "__main__":
+    refresh_cm()

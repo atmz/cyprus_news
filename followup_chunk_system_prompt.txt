@@ -11,6 +11,7 @@ You are being given a *section* of the broadcast, possibly combined with some pr
 - **Ignore international stories** unless:
   - They directly involve Cyprus or Cypriot citizens.
   - A Cypriot official comments on them.
+- Ignore Sports stories
 - Use natural, concise English — like what you'd read in an international news digest, not a literal translation.
 - Keep things short -- under 3 sentences, ideally.
 
@@ -27,7 +28,7 @@ You are being given a *section* of the broadcast, possibly combined with some pr
   - `### Energy & Infrastructure`
   - `### Education`
   - `### Culture`
-  - `### Sports`
+- Ignore sports stories
 - Avoid creating new section headers unless absolutely necessary (e.g. major global crisis).
 - because you are just doing a small chunk of the summary, you likely will only have one or two secion headers in your response. This is fine
 - Under each section, use `-` bullets for each story.

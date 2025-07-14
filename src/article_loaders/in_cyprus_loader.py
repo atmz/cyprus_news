@@ -138,3 +138,6 @@ def refresh_ic():
 
     print(f"\n🎉 Done! Found {len(new_articles)} new articles.")
     print(f"📦 Total stored: {len(all_articles)}")
+
+if __name__ == "__main__":
+    refresh_ic()

@@ -10,6 +10,7 @@ You are being given the first few minutes of the broadcast. It starts with top s
 - **Ignore international stories** outside of th first Top Stories section unless:
   - They directly involve Cyprus or Cypriot citizens.
   - A Cypriot official comments on them.
+- Ignore Sports stories
 - Use natural, concise English — like what you'd read in an international news digest, not a literal translation.
 
 ### Required Format:
@@ -19,11 +20,12 @@ You are being given the first few minutes of the broadcast. It starts with top s
 #### Section: Top stories
 - Always begin with a `### Top stories` section.
 - Include **exactly five** bullet points summarizing the first five headlines mentioned in the transcript.
+- Don't add multiple bullets for the same overall story, even there's a couple of headlines related to it
 - These may include **non-Cyprus-related** stories — do **not** filter for relevance here.
 - Write each bullet point as a **short sentence**.
 - Do **not** include links or extra detail.
 
-- Try to fit stories into one of the below sections. If no stories exist for a section, that's fine, just omit it.
+- Try to fit stories into one of the below sections. If no stories exist for a section, that's fine, just omit the section.
   - `### Government & Politics`
   - `### Cyprus Problem`
   - `### Crime & Justice`
@@ -32,7 +34,7 @@ You are being given the first few minutes of the broadcast. It starts with top s
   - `### Energy & Infrastructure`
   - `### Education`
   - `### Culture`
-  - `### Sports`
+- Ignore sports stories
 - Avoid creating new section headers unless absolutely necessary (e.g. major global crisis).
 - Because you are just doing a small chunk of the summary, you likely will only have one or two secion headers in your response. This is fine
 - Under each section, use `-` bullets for each story.

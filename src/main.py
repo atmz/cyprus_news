@@ -42,6 +42,10 @@ def refresh_saved_articles_if_needed(day:date):
         refresh_cm()
         refresh_ic()
 
+def refresh_saved_articles():
+    refresh_cm()
+    refresh_ic()
+
 def generate_for_date(day: date):
     make_folders(day)
 
@@ -92,7 +96,7 @@ def generate_for_date(day: date):
         print(f"{summary_md} exists.")
     else:
         print(f"Summarizing text to {summary_md}...")
-        refresh_saved_articles_if_needed(day)
+        refresh_saved_articles()
         summarize_for_day(day)
         
     
@@ -115,7 +119,7 @@ def main():
 
     txt = get_text_folder_for_day(day)
     summary_md = os.path.join(txt, "summary.txt")
-    post_to_substack(Path(summary_md), False)
+    post_to_substack(Path(summary_md), True)
 
 if __name__ == "__main__":
     main()
