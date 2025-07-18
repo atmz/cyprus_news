@@ -1,5 +1,404 @@
 [
   {
+    "title": "Clear skies with mountain showers expected",
+    "abstract": "The weather on Wednesday will be mainly fine after morning low clouds and light fog dissipate, though coastal areas...",
+    "datetime": "2025-07-16T04:19:00+03:00",
+    "url": "https://in-cyprus.philenews.com/local/cyprus-weather-clear-skies-mountain-showers-week-forecast/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/05/Weak-high-pressure-system-affects-weather-as-dust-particles-linger.jpg"
+  },
+  {
+    "title": "Four-year-old girl in serious condition after being struck by car in Paphos",
+    "abstract": null,
+    "datetime": "2025-07-15T20:12:48+03:00",
+    "url": "https://in-cyprus.philenews.com/local/four-year-old-girl-serious-condition-skull-fracture-road-accident/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2023/07/ambulance.jpg"
+  },
+  {
+    "title": "Authorities remove puppies from appalling conditions at Limassol home",
+    "abstract": null,
+    "datetime": "2025-07-15T20:05:20+03:00",
+    "url": "https://in-cyprus.philenews.com/local/authorities-rescue-puppies-appalling-conditions-limassol-home/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/07/Limassol-animal-welfare-case.png"
+  },
+  {
+    "title": "DISY party slumps in internal poll as Demetriou popularity falls",
+    "abstract": null,
+    "datetime": "2025-07-15T16:18:12+03:00",
+    "url": "https://in-cyprus.philenews.com/local/cyprus-opposition-disy-party-slumps-internal-poll-demetriou-popularity-falls/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/07/Annita-Demetriou-disy.png"
+  },
+  {
+    "title": "Night pharmacies open Tuesday 15 July 2025",
+    "abstract": null,
+    "datetime": "2025-07-15T16:12:44+03:00",
+    "url": "https://in-cyprus.philenews.com/local/night-pharmacies-open-tuesday-15-july-2025-cyprus/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/03/Overnight-pharmacies-on-Wednesday-March-5.jpg"
+  },
+  {
+    "title": "Man jailed for six years over arson attack on Chinese family in Paphos",
+    "abstract": "A Russian man has been sentenced to six years in prison for setting fire to a Chinese family's home...",
+    "datetime": "2025-07-15T15:43:32+03:00",
+    "url": "https://in-cyprus.philenews.com/local/russian-man-sentenced-six-years-arson-chinese-family-paphos-cyprus/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/07/paphos-chinese-family-home-fire.png"
+  },
+  {
+    "title": "Larnaca shuts illegal nursery after infant abuse report",
+    "abstract": "A father discovered facial scratches and bite marks on his baby after collecting the child from an unlicensed nursery...",
+    "datetime": "2025-07-15T14:21:45+03:00",
+    "url": "https://in-cyprus.philenews.com/local/larnaca-father-reports-baby-abuse-illegal-nursery/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2020/08/nursery.jpg"
+  },
+  {
+    "title": "Cycling police officer bitten in Limassol arrest attempt",
+    "abstract": "A cycling police officer was bitten and injured during an arrest attempt in central Limassol after a man resisted...",
+    "datetime": "2025-07-15T14:10:41+03:00",
+    "url": "https://in-cyprus.philenews.com/local/limassol-police-officer-bitten-arrest-incident/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/07/cycling-police.png"
+  },
+  {
+    "title": "Οfficials could face manslaughter charges over deadly Takata airbag failures",
+    "abstract": "Government officials could face criminal prosecution over defective Takata airbags that killed two people and seriously injured another, according...",
+    "datetime": "2025-07-15T14:04:38+03:00",
+    "url": "https://in-cyprus.philenews.com/local/cyprus-takata-airbag-criminal-charges-investigation/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/07/erevnitiki-takata-1024x623-1.png"
+  },
+  {
+    "title": "Cyprus ranks bottom of EU for disease prevention spending, report finds",
+    "abstract": "Cyprus continues to underperform on health system investment and access to long-term care, according to the European Commission’s latest...",
+    "datetime": "2025-07-15T13:26:35+03:00",
+    "url": "https://in-cyprus.philenews.com/local/cyprus-healthcare-prevention-spending-gap/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/02/Hospitals-accused-of-charging-patients-illegally-for-single-rooms.jpg"
+  },
+  {
+    "title": "Cyprus accused of denying asylum to Afghan workers targeted by Taliban",
+    "abstract": "Cyprus has allegedly rejected asylum applications for at least 15 Afghan nationals, according to a statement from the Industrial...",
+    "datetime": "2025-07-15T12:30:51+03:00",
+    "url": "https://in-cyprus.philenews.com/local/cyprus-rejects-afghan-asylum-taliban-deportation-concerns/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2021/08/GREECE-PROTESTS.jpg"
+  },
+  {
+    "title": "Authorities confirm submarine pipeline spill off Limassol",
+    "abstract": null,
+    "datetime": "2025-07-15T11:26:06+03:00",
+    "url": "https://in-cyprus.philenews.com/local/cyprus-oil-spill-moni-submarine-pipeline-response/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/07/limassol-pollution.png"
+  },
+  {
+    "title": "Cyprus marks 51st anniversary of 1974 coup that triggered Turkish invasion",
+    "abstract": null,
+    "datetime": "2025-07-15T11:20:20+03:00",
+    "url": "https://in-cyprus.philenews.com/local/cyprus-1974-coup-51st-anniversary-turkish-invasion/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2024/07/New-Cyprus-Association-condemns-1974-coup-calls-for-unity-1920x925.jpg"
+  },
+  {
+    "title": "Makarios’s bodyguard reveals assassination plot details from 1974 coup",
+    "abstract": null,
+    "datetime": "2025-07-15T11:10:04+03:00",
+    "url": "https://in-cyprus.philenews.com/local/cyprus-makarios-1974-coup-assassination-plot-bodyguard-reveals/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2023/03/makarios.jpg"
+  },
+  {
+    "title": "Teenage motorbike riders hospitalised after collision with car in Larnaca",
+    "abstract": null,
+    "datetime": "2025-07-15T10:40:17+03:00",
+    "url": "https://in-cyprus.philenews.com/local/teenage-motorbike-riders-hospitalised-collision-cyprus/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/03/ambulance-new3-1536x960-1.webp"
+  },
+  {
+    "title": "Oil pollution hits Limassol beaches as authorities investigate contamination source",
+    "abstract": "Oil contamination has affected coastal areas in Limassol, prompting citizen protests and raising public health concerns after bathers reported...",
+    "datetime": "2025-07-15T10:34:39+03:00",
+    "url": "https://in-cyprus.philenews.com/local/oil-pollution-limassol-beaches-cyprus-investigation/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/07/limassol-pollution.png"
+  },
+  {
+    "title": "Weather to cool down for a bit, before midweek showers",
+    "abstract": "The weather on Tuesday will be mainly fine following the dissipation of morning fog.\n\n\n\nThe island will see locally increased...",
+    "datetime": "2025-07-15T04:17:00+03:00",
+    "url": "https://in-cyprus.philenews.com/local/cyprus-weather-forecast-37c-clear-conditions/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/05/Cyprus-braces-for-thunderstorms-and-hail-before-weather-improves.jpg"
+  },
+  {
+    "title": "Gay man receives compensation after church ‘exorcism’ targeting his sexuality",
+    "abstract": null,
+    "datetime": "2025-07-15T12:12:42+03:00",
+    "url": "https://in-cyprus.philenews.com/international/gay-man-compensation-church-england-exorcism-sexuality/",
+    "image_url": null
+  },
+  {
+    "title": "Heatwaves could slash Cyprus GDP by 3%, study warns",
+    "abstract": null,
+    "datetime": "2025-07-15T12:09:43+03:00",
+    "url": "https://in-cyprus.philenews.com/insider/heatwaves-could-slash-cyprus-gdp-by-3-study-warns/",
+    "image_url": null
+  },
+  {
+    "title": "Pyla shooter waited until victim collected family from airport",
+    "abstract": "Police are investigating various leads relating to the background and professional activities of a 49-year-old following an assassination attempt...",
+    "datetime": "2025-07-14T14:01:35+03:00",
+    "url": "https://in-cyprus.philenews.com/local/cyprus-assassination-attempt-pyla-greek-cypriot-investigation/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/07/pyla.png"
+  },
+  {
+    "title": "Neglected dog removed as Nicosia man charged with seven offences",
+    "abstract": null,
+    "datetime": "2025-07-14T13:48:10+03:00",
+    "url": "https://in-cyprus.philenews.com/local/cyprus-animal-cruelty-arrest-nicosia-dog-abuse-charges/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/06/dogs-1.png"
+  },
+  {
+    "title": "Police confiscate 147 hunting weapons from Paphos murder suspect",
+    "abstract": null,
+    "datetime": "2025-07-14T13:44:33+03:00",
+    "url": "https://in-cyprus.philenews.com/local/police-confiscate-147-hunting-weapons-from-paphos-murder-suspect/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2020/03/paphos-court-6.jpg"
+  },
+  {
+    "title": "Paphos police examine dog collision theory in teen motorcyclist’s death",
+    "abstract": null,
+    "datetime": "2025-07-14T11:57:48+03:00",
+    "url": "https://in-cyprus.philenews.com/local/cyprus-motorcycle-fatality-paphos-dog-investigation/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/06/motorcycle.png"
+  },
+  {
+    "title": "President undermining rule of law in Larnaca crime intervention, Alma says",
+    "abstract": null,
+    "datetime": "2025-07-14T11:39:30+03:00",
+    "url": "https://in-cyprus.philenews.com/local/cyprus-president-christodoulides-judicial-intervention-criticism/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/07/president-larnaca-police.png"
+  },
+  {
+    "title": "Government empowers anti-corruption authority with independent recruitment rights",
+    "abstract": "President Christodoulides announced the Cabinet's decision to grant the Anti-Corruption Authority decisive consultative powers in recruiting permanent staff.\n\n\n\nSpeaking at...",
+    "datetime": "2025-07-14T11:03:25+03:00",
+    "url": "https://in-cyprus.philenews.com/local/cyprus-president-permanent-staff-anti-corruption-authority/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/04/president-christodoulides-independent-authority-against-corruption.png"
+  },
+  {
+    "title": "Court detention ends for suspect in Paphos neighbour shooting incident",
+    "abstract": "An eight-day detention order issued by Paphos District Court expires today for a 55-year-old man from Amargeti arrested last...",
+    "datetime": "2025-07-14T10:56:38+03:00",
+    "url": "https://in-cyprus.philenews.com/local/cyprus-court-detention-expires-attempted-murder-land-dispute/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/07/amargeti-paphos.png"
+  },
+  {
+    "title": "UNFICYP chief Colin Stewart makes final briefing on Cyprus peacekeeping mission",
+    "abstract": "UN Special Representative Colin Stewart presented his final briefing to the UN Security Council on Monday afternoon regarding peacekeeping...",
+    "datetime": "2025-07-14T10:33:06+03:00",
+    "url": "https://in-cyprus.philenews.com/local/colin-stewart-final-un-security-council-briefing-cyprus/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/07/colin-stewart.png"
+  },
+  {
+    "title": "Cyprus public universities to launch foreign-language programmes from 2026",
+    "abstract": "Parliament has approved legislation allowing public universities to offer undergraduate degree programmes in foreign languages, ending a seven-year legislative...",
+    "datetime": "2025-07-14T10:16:54+03:00",
+    "url": "https://in-cyprus.philenews.com/local/cyprus-parliament-foreign-language-university-programmes-approved/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2024/11/Public-universities-seek-approval-to-launch-English-language-degrees.jpg"
+  },
+  {
+    "title": "Pyla man was shot in front of his wife and 12-year-old daughter",
+    "abstract": "A 49-year-old Greek Cypriot man was shot in the leg during an attempted murder outside his Pyla residence shortly...",
+    "datetime": "2025-07-14T09:20:44+03:00",
+    "url": "https://in-cyprus.philenews.com/local/greek-cypriot-man-shot-attempted-murder-pyla-home/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/07/pyla-attempted-murder.png"
+  },
+  {
+    "title": "Former minister, officials face criminal charges over deadly Takata airbag failures",
+    "abstract": "The Attorney General has received a damning report recommending criminal investigations into senior transport officials over their handling of...",
+    "datetime": "2025-07-14T09:14:48+03:00",
+    "url": "https://in-cyprus.philenews.com/local/cyprus-transport-officials-criminal-probe-takata-airbag-failures/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/07/takata-1024x738-1.png"
+  },
+  {
+    "title": "78-year-old man confesses to murdering neighbour in Paphos village",
+    "abstract": "A 78-year-old man has confessed to murdering his 73-year-old neighbour Aristeidis Siamptanis in Timi village, leading police to the...",
+    "datetime": "2025-07-14T08:56:45+03:00",
+    "url": "https://in-cyprus.philenews.com/local/78-year-old-confesses-murdering-neighbour-paphos-village/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/07/timi-murder.png"
+  },
+  {
+    "title": "Man shot during attempted murder in Pyla",
+    "abstract": "A 49-year-old Greek Cypriot man was shot in the leg during an attempted murder in Pyla shortly after midnight...",
+    "datetime": "2025-07-14T08:50:11+03:00",
+    "url": "https://in-cyprus.philenews.com/local/greek-cypriot-man-shot-attempted-murder-pyla/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/07/pyla-murder-attempt.png"
+  },
+  {
+    "title": "Temperatures to reach 40°C inland as heatwave continues",
+    "abstract": "Cyprus will see temperatures reaching 40°C inland on Monday as predominantly fine conditions prevail across the island. \n\n\n\nThe Department...",
+    "datetime": "2025-07-14T05:44:00+03:00",
+    "url": "https://in-cyprus.philenews.com/local/temperatures-to-reach-40c-inland-as-heatwave-continues/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/06/UK-Foreign-Office-issues-travel-warnings-for-Cyprus-and-amid-Europe-heatwave.jpg"
+  },
+  {
+    "title": "Seasonal low pressure brings clouds, fog, and stable temperatures",
+    "abstract": "A seasonal low-pressure system is currently affecting the region.\n\n\n\nTonight, expect increased low clouds, primarily along the coasts. In the...",
+    "datetime": "2025-07-13T18:31:03+03:00",
+    "url": "https://in-cyprus.philenews.com/local/seasonal-low-pressure-brings-clouds-fog-and-stable-temperatures/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/07/vroxes-1024x684-1.webp"
+  },
+  {
+    "title": "Driver arrested for driving under the influence after Larnaca-Dhekelia road accident",
+    "abstract": "A 41-year-old driver was arrested yesterday evening after being found to be significantly over the legal alcohol limit following...",
+    "datetime": "2025-07-13T16:36:34+03:00",
+    "url": "https://in-cyprus.philenews.com/local/driver-arrested-for-driving-under-the-influence-after-larnaca-dhekelia-road-accident/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/07/alkotest-1024x640-1.webp"
+  },
+  {
+    "title": "New fire breaks out in Limassol near Ayios Sylas Industrial Area",
+    "abstract": "A new fire has erupted near the Ayios Sylas Industrial Area in Limassol, involving rubbish, dry grass, and wild...",
+    "datetime": "2025-07-13T16:34:39+03:00",
+    "url": "https://in-cyprus.philenews.com/local/new-fire-breaks-out-in-limassol-near-ayios-sylas-industrial-area/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/07/fotia-lemesos-2-1024x510-1.webp"
+  },
+  {
+    "title": "Craig David presents TS5 and Loreen live in Cyprus",
+    "abstract": null,
+    "datetime": "2025-07-14T13:58:24+03:00",
+    "url": "https://in-cyprus.philenews.com/whats-on/craig-david-presents-ts5-and-loreen-live-in-cyprus/",
+    "image_url": null
+  },
+  {
+    "title": "Trump gatecrashes Chelsea’s Club World Cup victory",
+    "abstract": null,
+    "datetime": "2025-07-14T13:55:05+03:00",
+    "url": "https://in-cyprus.philenews.com/sports/trump-presents-club-world-cup-trophy-chelsea-fifa-infantino/",
+    "image_url": null
+  },
+  {
+    "title": "Large fire breaks out in Steni, Chrysochou – Air and ground forces deployed",
+    "abstract": "A large, uncontrolled fire is currently burning in the community of Steni, in the Chrysochou region.\n\n\n\nStrong firefighting forces are...",
+    "datetime": "2025-07-13T16:26:54+03:00",
+    "url": "https://in-cyprus.philenews.com/local/large-fire-breaks-out-in-steni-chrysochou-air-and-ground-forces-deployed/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/07/204a47c8-5135-4517-bbb8-7ecffa3695b9-1024x768-1.webp"
+  },
+  {
+    "title": "Police intensify nationwide operations to prevent crime and delinquency",
+    "abstract": "Police presence and activity were notably intensified across Cyprus last night as part of efforts to prevent crime and...",
+    "datetime": "2025-07-13T13:24:31+03:00",
+    "url": "https://in-cyprus.philenews.com/local/police-intensify-nationwide-operations-to-prevent-crime-and-delinquency/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/07/larnaca-astynomia-1536x864-1.webp"
+  },
+  {
+    "title": "Police on high alert after murder of elderly man in Paphos",
+    "abstract": "Police in Paphos were placed on high alert at midday following the murder of an elderly man. According to...",
+    "datetime": "2025-07-13T13:18:43+03:00",
+    "url": "https://in-cyprus.philenews.com/local/police-on-alert-in-paphos-after-elderly-man-murdered/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/07/fonos-3-1536x1536-1.webp"
+  },
+  {
+    "title": "Following a tip, police caught men attempting to steal metal from abandoned building",
+    "abstract": "Information was received by the Police around 10:30 p.m. on Saturday regarding the presence of individuals in an abandoned...",
+    "datetime": "2025-07-13T12:19:08+03:00",
+    "url": "https://in-cyprus.philenews.com/local/following-a-tip-police-caught-men-attempting-to-steal-metal-from-abandoned-building/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/05/Man-allegedly-stabs-his-visitor-calls-the-police-himself.jpg"
+  },
+  {
+    "title": "YKAN operation results in five arrests, confiscation of more than 41,000 euros",
+    "abstract": "As part of the activities of the Drug Law Enforcement Unit (YKAN) aimed at locating illegal narcotic substances, a...",
+    "datetime": "2025-07-13T09:54:40+03:00",
+    "url": "https://in-cyprus.philenews.com/local/ykan-operation-results-in-five-arrests-confiscation-of-more-than-41000-euros/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/07/ykan_ID_730565.webp"
+  },
+  {
+    "title": "Death of teenage motorcyclist in Paphos: Police investigate",
+    "abstract": "A 16-year-old Turkish Cypriot, Ivan Gurbetoglu, from Stavrokonnou in the Paphos district, has died following a fatal road accident...",
+    "datetime": "2025-07-13T09:42:09+03:00",
+    "url": "https://in-cyprus.philenews.com/local/death-of-teenage-motorcyclist-in-paphos-police-investigate/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/03/ambulance-new3-1536x960-1.webp"
+  },
+  {
+    "title": "Nicosia prepared for informal five-party conference on Cyprus issue",
+    "abstract": "Nicosia is preparing to counter efforts to introduce \"out-of-the-box\" ideas at the informal Five-Party Conference on the Cyprus issue,...",
+    "datetime": "2025-07-13T08:30:37+03:00",
+    "url": "https://in-cyprus.philenews.com/local/nicosia-prepared-for-informal-five-party-conference-on-cyprus-issue/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/07/inomena-ethni.webp"
+  },
+  {
+    "title": "Pissouri murder attempt: Long-standing feud between suspect and victim known to everyone",
+    "abstract": "The long-standing feud between two fellow villagers — well known both to the police and the community of Pissouri...",
+    "datetime": "2025-07-13T07:59:40+03:00",
+    "url": "https://in-cyprus.philenews.com/local/suspect-arrested-in-pissouri-attempted-murder/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/07/eparxiako-dikastirio-lemesou.webp"
+  },
+  {
+    "title": "Cyprus Sports Organisation launches tender process for redevelopment of Stelios Kyriakides Stadium",
+    "abstract": "The Cyprus Sports Organisation (KOA) has officially initiated the first stage of the tender process for the long-term lease...",
+    "datetime": "2025-07-13T07:21:50+03:00",
+    "url": "https://in-cyprus.philenews.com/local/cyprus-sports-organisation-launches-tender-process-for-redevelopment-of-stelios-kyriakides-stadium/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/07/apokleistiko-stadio-stelios-kyriakidis-1024x680-1.webp"
+  },
+  {
+    "title": "Man seriously injured in stabbing outside Pissouri supermarket; suspect at large",
+    "abstract": "A 30-year-old man is in a serious condition following a stabbing incident outside a supermarket in Pissouri on Saturday...",
+    "datetime": "2025-07-13T07:15:45+03:00",
+    "url": "https://in-cyprus.philenews.com/local/man-seriously-injured-in-stabbing-outside-pissouri-supermarket-suspect-at-large/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/07/police.png"
+  },
+  {
+    "title": "Seasonal low pressure system affects region – Temperature inland 38C",
+    "abstract": "A seasonal low-pressure system is affecting the area.\n\n\n\nOn Sunday, weather will be mostly clear, though periods of increased low...",
+    "datetime": "2025-07-13T07:00:49+03:00",
+    "url": "https://in-cyprus.philenews.com/local/seasonal-low-pressure-system-affects-region-temperature-inland-38c/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/07/kairos-2-1024x576-1.webp"
+  },
+  {
+    "title": "Fire between Lania and Limnatis",
+    "abstract": "A fire broke out between the communities of Lania and Limnatis in the Limassol district.\n\n\n\nFour aerial vehicles are operating...",
+    "datetime": "2025-07-12T18:18:10+03:00",
+    "url": "https://in-cyprus.philenews.com/local/fire-between-lania-and-limnati/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/07/xartziwtis-ptitika-mesa.webp"
+  },
+  {
+    "title": "Teenage boy found dead in Choletria with motorcycle and car nearby (updated)",
+    "abstract": "A 16-year-old boy, Ivan Giourpetoglou from Stavrokonnou, was discovered deceased on a road in Choletria, near the community's cemetery....",
+    "datetime": "2025-07-12T17:42:03+03:00",
+    "url": "https://in-cyprus.philenews.com/local/teenager-dies-in-road-incident-in-rural-paphos/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/07/astinomia-1024x576-1.webp"
+  },
+  {
+    "title": "Police investigate Limassol stabbing",
+    "abstract": "Police are investigating the stabbing of a 37-year-old man in Limassol. The man himself informed police just before midnight...",
+    "datetime": "2025-07-12T16:28:01+03:00",
+    "url": "https://in-cyprus.philenews.com/local/police-investigate-limassol-stabbing/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/07/Police-arrest-man-over-attempted-arson-of-70-year-olds-home-with-molotov-cocktails.jpg"
+  },
+  {
+    "title": "Police arrest teenager over Larnaca beach robbery",
+    "abstract": "Police have arrested a 17-year-old in connection with the robbery of two 52-year-old men on Finikoudes beach in Larnaca...",
+    "datetime": "2025-07-12T16:25:09+03:00",
+    "url": "https://in-cyprus.philenews.com/local/police-arrest-teenager-over-larnaca-beach-robbery/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/07/foinikoudes-metra-1024x682-1.webp"
+  },
+  {
+    "title": "Cyprus electricity bills to rise by 3%",
+    "abstract": "Electricity bills issued by the Electricity Authority of Cyprus (EAC) will see an increase of approximately 3% from the...",
+    "datetime": "2025-07-12T14:31:19+03:00",
+    "url": "https://in-cyprus.philenews.com/local/cyprus-electricity-bills-to-rise-by-3/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/07/AHK-arxi-ilektrismou-kyprou.webp"
+  },
+  {
+    "title": "Increased police presence in Larnaca Finikoudes",
+    "abstract": "Police presence in Larnaca was increased last night as part of daily policing operations conducted across all districts. Patrols...",
+    "datetime": "2025-07-12T10:32:40+03:00",
+    "url": "https://in-cyprus.philenews.com/local/increased-police-presence-in-larnaca-finikoudes/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/07/astinomia-larnaka.webp"
+  },
+  {
+    "title": "Monks from Mount Athos eye Cyprus amidst ecclesiastical shake-up",
+    "abstract": "Monks from Mount Athos were preparing to expand into Cyprus, establishing a foothold in Paphos where they found fertile...",
+    "datetime": "2025-07-12T10:03:00+03:00",
+    "url": "https://in-cyprus.philenews.com/local/monks-from-mount-athos-eye-cyprus-amidst-ecclesiastical-shake-up/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/07/ImgSrc-1.webp"
+  },
+  {
+    "title": "Man arrested in connection with 2018 burglary and theft cases in Nicosia",
+    "abstract": "Police on Friday arrested a 37-year-old man in connection with two ongoing investigations into house burglaries, theft, and possession...",
+    "datetime": "2025-07-12T09:01:19+03:00",
+    "url": "https://in-cyprus.philenews.com/local/man-arrested-in-connection-with-2018-burglary-and-theft-cases-in-nicosia/",
+    "image_url": "https://in-cyprus.philenews.com/wp-content/uploads/2025/05/Man-wanted-by-Russia-arrested-at-Larnaca-airport.jpg"
+  },
+  {
     "title": "Protest to be held in Nicosia over death of Thanasis Nicolaou, 20 years after army enlistment",
     "abstract": "A protest is being held on Saturday at 6:00 p.m. outside the Legal Service office in Nicosia, marking 20...",
     "datetime": "2025-07-12T08:22:06+03:00",

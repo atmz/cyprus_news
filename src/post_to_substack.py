@@ -102,7 +102,7 @@ def post_to_substack(md_path, publish=False):
         page.click("button:has-text('Button')")
 
         # Click "Subscribe with caption"
-        page.click("text=Subscribe with caption")
+        page.click("text=Subscribe w/ caption")
         print("📬 Subscribe button inserted.")
         if publish:
             print("📤 Clicking Publish now...")
