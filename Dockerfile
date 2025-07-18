@@ -14,8 +14,7 @@ COPY requirements.txt .
 COPY cyprus-news-cron /etc/cron.d/cyprus-news-cron
 
 # Set permissions for cron job
-RUN chmod 0644 /etc/cron.d/cyprus-news-cron \
- && crontab /etc/cron.d/cyprus-news-cron
+RUN chmod 0644 /etc/cron.d/cyprus-news-cron
 
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
