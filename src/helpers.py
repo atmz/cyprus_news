@@ -2,13 +2,13 @@ import os
 from datetime import date
 
 def get_root_folder_for_day(day: date):
-    return f"/Users/alext/news2025/summaries/{day.strftime('%Y-%m-%d')}/"
+    return f"/app/summaries{day.strftime('%Y-%m-%d')}/"
 
 def get_media_folder_for_day(day: date):
-    return f"/Users/alext/news2025/summaries/{day.strftime('%Y-%m-%d')}/media/"
+    return f"/app/summaries/{day.strftime('%Y-%m-%d')}/media/"
 
 def get_text_folder_for_day(day: date):
-    return f"/Users/alext/news2025/summaries/{day.strftime('%Y-%m-%d')}/txt/"
+    return f"/app/summaries/{day.strftime('%Y-%m-%d')}/txt/"
 
 def make_folders(day: date):
     paths = [
