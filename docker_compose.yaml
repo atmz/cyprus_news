@@ -5,8 +5,6 @@ services:
     build: .
     container_name: cyprus_news
     volumes:
-      - ./src:/app/src
-      - ./data:/app/data
       - ./summaries:/app/summaries
       - /volume1/dockerdata/secrets/cyprus_news:/app/secrets
     environment:
