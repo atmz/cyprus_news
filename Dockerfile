@@ -1,7 +1,7 @@
 FROM python:3.11-slim
 
-# Install cron and any tools you need
-RUN apt-get update && apt-get install -y cron
+# Install cron and ffmpeg
+RUN apt-get update && apt-get install -y cron ffmpeg
 
 # Set workdir
 WORKDIR /app
