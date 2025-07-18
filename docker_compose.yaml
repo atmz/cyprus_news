@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  cyprus_news:
+    build: .
+    container_name: cyprus_news
+    volumes:
+      - ./src:/app/src
+      - ./data:/app/data
+      - ./summaries:/app/summaries
+    working_dir: /app
+    restart: unless-stopped
+    entrypoint: ["cron", "-f"]
