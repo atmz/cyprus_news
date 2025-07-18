@@ -8,7 +8,7 @@ WORKDIR /app
 
 # Copy source code and data folders
 COPY src/ src/
-COPY data/ data/
+# COPY data/ data/
 # COPY summaries/ summaries/
 COPY requirements.txt .
 COPY cyprus-news-cron /etc/cron.d/cyprus-news-cron

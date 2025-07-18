@@ -5,7 +5,8 @@ services:
     build: .
     container_name: cyprus_news
     volumes:
-      - ./summaries:/app/summaries
+      - /volume1/dockerdata/cyprus_news/data:/app/data
+      - /volume1/dockerdata/cyprus_news/summaries:/app/summaries
       - /volume1/dockerdata/secrets/cyprus_news:/app/secrets
     environment:
       OPENAI_API_KEY: foo
