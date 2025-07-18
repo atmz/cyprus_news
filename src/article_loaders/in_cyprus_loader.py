@@ -24,7 +24,7 @@ def fetch_new_articles(base_url, known_urls=None, max_clicks=20):
     click_count = 0
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=False)  # show browser for debugging
+        browser = p.chromium.launch(headless=True)  # show browser for debugging
         page = browser.new_page()
         print(f"🌐 Navigating to {base_url}")
         page.goto(base_url)

@@ -5,7 +5,7 @@ import time
 from playwright.sync_api import sync_playwright
 
 # --- CONFIG ---
-SESSION_FILE = "data/substack_session.json"
+SESSION_FILE = "/app/secrets/substack_session.json"
 SUBSTACK_NEW_POST_URL = "https://cyprusnews.substack.com/publish/post?type=newsletter&back=%2Fpublish%2Fhome"
 
 def extract_title_and_body(markdown_text):
@@ -35,7 +35,7 @@ def post_to_substack(md_path, publish=False):
     title, body = extract_title_and_body(markdown)
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=False)
+        browser = p.chromium.launch(headless=True)
         context = browser.new_context(storage_state=SESSION_FILE)
         page = context.new_page()
 

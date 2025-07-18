@@ -1,7 +1,7 @@
 from playwright.sync_api import sync_playwright
 
 with sync_playwright() as p:
-    browser = p.chromium.launch(headless=False)
+    browser = p.chromium.launch(headless=True)
     context = browser.new_context()
     page = context.new_page()
 
@@ -12,5 +12,5 @@ with sync_playwright() as p:
     input("Press Enter after logging in...")
 
     # Save session for reuse
-    context.storage_state(path="substack_session.json")
+    context.storage_state(path="/app/secrets/substack_session.json")
     browser.close()

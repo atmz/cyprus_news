@@ -8,6 +8,9 @@ services:
       - ./src:/app/src
       - ./data:/app/data
       - ./summaries:/app/summaries
+      - /volume1/dockerdata/secrets/cyprus_news:/app/secrets
+    env_file:
+      - /volume1/dockerdata/secrets/.env
     working_dir: /app
     restart: unless-stopped
     entrypoint: ["cron", "-f"]
