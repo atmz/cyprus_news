@@ -14,3 +14,4 @@ services:
     working_dir: /app
     restart: unless-stopped
     entrypoint: ["cron", "-f"]
+    shm_size: '1gb'
