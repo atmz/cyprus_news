@@ -35,6 +35,7 @@ def fetch_new_articles(base_url, known_urls=None, max_clicks=20):
         print(f"🌐 Navigating to {base_url}")
         page.goto(base_url)
         page.wait_for_timeout(2000)
+        page.screenshot(path="debug1.png", full_page=True)
 
         # Accept cookies if the popup exists
         try:
@@ -47,7 +48,7 @@ def fetch_new_articles(base_url, known_urls=None, max_clicks=20):
                 print("🍪 No cookie banner found.")
         except Exception as e:
             print(f"⚠️ Cookie click error: {e}")
-
+        page.screenshot(path="debug2.png", full_page=True)
         while click_count < max_clicks:
             print(f"\n🔁 Scroll round {click_count+1}")
             html = page.content()
