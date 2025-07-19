@@ -1,1 +1,1 @@
-0 * * * * root python /app/src/main.py >> /var/log/cyprus_news.log 2>&1
+0 * * * * root source /app/secrets/env.src && python /app/src/main.py >> /var/log/cyprus_news.log 2>&1

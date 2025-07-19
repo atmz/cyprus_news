@@ -9,10 +9,8 @@ services:
       - /volume1/dockerdata/cyprus_news/summaries:/app/summaries
       - /volume1/dockerdata/secrets/cyprus_news:/app/secrets
     environment:
-      OPENAI_API_KEY: foo
       PUBLICATION_URL: https://cyprusnews.substack.com
       EMAIL: alex.toumazis@gmail.com
-      PASSWORD: bar
     working_dir: /app
     restart: unless-stopped
     entrypoint: ["cron", "-f"]
