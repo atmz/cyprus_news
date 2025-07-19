@@ -24,12 +24,12 @@ ARTICLE_SOURCES = [
     {"name": "In-Cyprus", "tag": "IC", "file": "data/in_cyprus_local_economy_articles.json"}
 ]
 MODEL_NAME = "gpt-4o"
-PROMPT_FILE = "prompt.txt"
-LINK_PROMPT_FILE = "link_prompt.txt"
-SYSTEM_PROMPT_FILE = "system_prompt.txt"
-FIRST_CHUNK_SYSTEM_PROMPT_FILE = "first_chunk_system_prompt.txt"
-FOLLOWUP_CHUNK_SYSTEM_PROMPT_FILE = "followup_chunk_system_prompt.txt"
-DEDUPLICATION_PROMPT_FILE = "deduplication_prompt.txt"
+PROMPT_FILE = "src/prompts/prompt.txt"
+LINK_PROMPT_FILE = "src/prompts/link_prompt.txt"
+SYSTEM_PROMPT_FILE = "src/prompts/system_prompt.txt"
+FIRST_CHUNK_SYSTEM_PROMPT_FILE = "src/prompts/first_chunk_system_prompt.txt"
+FOLLOWUP_CHUNK_SYSTEM_PROMPT_FILE = "src/prompts/followup_chunk_system_prompt.txt"
+DEDUPLICATION_PROMPT_FILE = "src/prompts/deduplication_prompt.txt"
 
 
 # --- Summary Generation ---

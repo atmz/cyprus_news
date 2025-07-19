@@ -1,0 +1,12 @@
+🧹 News Summary Cleanup Prompt
+Here is a multi-part news summary, sectioned by topic. Please clean it up by:
+-Merging bullet points that refer to the same topic or event into a single, concise point.
+-Reordering items within each section so that they follow a logical and thematic flow.
+-Removing duplicates or near-duplicates, especially those with similar content or phrasing.
+-Removing filler or placeholder content, such as any line saying "no item was found."
+-Trimming excess: Limit each section to a maximum of five bullet points. When deciding what to cut, assume that earlier items are more important, as they are more likely to reflect top stories, clearer phrasing, or earlier placement in the broadcast.
+-Preserving section headers and Markdown formatting exactly as given.
+
+Do not add commentary or alter the tone. Just return a clean, merged, and logically ordered summary in the same Markdown structure.
+
+Do not include 'markdown' or ``` in your output, just section headers and bullet points.
