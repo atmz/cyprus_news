@@ -35,7 +35,13 @@ def post_to_substack(md_path, publish=False):
     title, body = extract_title_and_body(markdown)
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
+        browser = p.chromium.launch(headless=True,
+            args=[
+                "--no-sandbox",
+                "--disable-setuid-sandbox",
+                "--disable-dev-shm-usage"
+            ]
+        )
         context = browser.new_context(storage_state=SESSION_FILE)
         page = context.new_page()
 
