@@ -36,15 +36,15 @@ def extract_audio(local_filename_video, local_filename_audio, local_filename_aud
         f"{local_filename_audio_short_prefix}%03d.mp3"
     ], check=True)
 
-def refresh_saved_articles_if_needed(day:date):
-    articles =  load_articles(day, day)
-    if len(articles) == 0:
-        refresh_cm()
-        refresh_ic()
+# def refresh_saved_articles_if_needed(day:date):
+#     articles =  load_articles(day, day)
+#     if len(articles) == 0:
+#         refresh_cm()
+#         refresh_ic()
 
 def refresh_saved_articles():
     refresh_cm()
-    refresh_ic()
+    # refresh_ic()
 
 def generate_for_date(day: date):
     make_folders(day)
