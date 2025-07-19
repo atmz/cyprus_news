@@ -18,6 +18,7 @@ RUN chmod 0644 /etc/cron.d/cyprus-news-cron
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
+RUN playwright install
 
 # Run cron in foreground
 CMD ["cron", "-f"]
