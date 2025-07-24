@@ -75,15 +75,14 @@ def combine_summaries(chunks):
     # Define canonical section order
     section_order = [
         "Top stories",
-        "Government & Politics",
-        "Cyprus Problem",
-        "Justice",
-        "Foreign Affairs",
         "Public Health & Safety",
         "Energy & Infrastructure",
+        "Justice",
+        "Government & Politics",
+        "Cyprus Problem",
+        "Foreign Affairs",
         "Education",
-        "Culture",
-        "Sports"
+        "Culture"
     ]
 
     # Generate final markdown
