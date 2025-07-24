@@ -78,9 +78,9 @@ def post_to_substack(md_path, publish=False):
                         page.keyboard.type(before)
 
                     # Trigger link insertion popup
-                    page.keyboard.down("Ctrl")
+                    page.keyboard.down("Control")
                     page.keyboard.press("KeyK")
-                    page.keyboard.up("Ctrl")
+                    page.keyboard.up("Control")
                     time.sleep(0.2)
                     page.keyboard.type(label)
                     page.keyboard.press("Tab")
