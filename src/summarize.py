@@ -269,7 +269,7 @@ def summarize_for_day(day):
     output_folder = get_text_folder_for_day(day)
 
     date_heading = f"## 📰 News Summary for {day.strftime('%A, %d %B %Y')}\n\n"
-    date_heading += "This is a summary of yesterday's 8pm RIK news broadcast. Where available, links to related English-language articles from the Cyprus Mail and In-Cyprus are provided for further reading. Please note that this summary was generated with the assistance of AI and may contain inaccuracies."
+    date_heading += "This is a summary of yesterday's [8pm RIK news broadcast](https://tv.rik.cy/show/eideseis-ton-8/). Where available, links to related English-language articles from the Cyprus Mail and In-Cyprus are provided for further reading. Please note that this summary was generated with the assistance of AI and may contain inaccuracies."
 
     summary_file = f"{output_folder}summary_without_links.txt"
     output_file = f"{output_folder}summary.txt"
