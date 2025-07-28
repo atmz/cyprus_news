@@ -11,10 +11,12 @@ COPY src/ src/
 # COPY data/ data/
 # COPY summaries/ summaries/
 COPY requirements.txt .
-COPY cyprus-news-cron /etc/cron.d/cyprus-news-cron
+COPY cyprus-news-cron .
 
-# Set permissions for cron job
-RUN chmod 0644 /etc/cron.d/cyprus-news-cron
+RUN crontab cyprus-news-cron
+
+# Create log file
+RUN touch /var/log/cyprus_news.log
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
