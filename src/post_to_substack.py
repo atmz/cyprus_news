@@ -127,3 +127,11 @@ def post_to_substack(md_path, publish=False):
             print("✅ Draft saved (not published).")
 
         browser.close()
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Post a markdown file to Substack.")
+    parser.add_argument("md_path", type=Path, help="Path to the markdown file")
+    parser.add_argument("--publish", action="store_true", help="Actually publish instead of saving as draft")
+    
+    args = parser.parse_args()
+    post_to_substack(args.md_path, publish=args.publish)
