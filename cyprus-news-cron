@@ -1,1 +1,1 @@
-* * * * * . /app/secrets/env.sh && xvfb-run python /app/src/main.py >> /var/log/cyprus_news.log 2>&1
+0 * * * * root source /app/secrets/env.src && xvfb-run  python /app/src/main.py >> /var/log/cyprus_news.log 2>&1
