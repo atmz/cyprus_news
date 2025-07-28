@@ -104,6 +104,8 @@ def generate_for_date(day: date):
 def main():
     parser = argparse.ArgumentParser(description="Generate and post Cyprus news summary.")
     parser.add_argument("date", nargs="?", help="Date in YYYY-MM-DD format (defaults to yesterday)")
+    parser.add_argument("--draft", action="store_true", help="Save draft instead of publishing")
+
     args = parser.parse_args()
 
     if args.date:
@@ -119,7 +121,8 @@ def main():
 
     txt = get_text_folder_for_day(day)
     summary_md = os.path.join(txt, "summary.txt")
-    post_to_substack(Path(summary_md), True)
+    post = False if args.draft else True
+    post_to_substack(Path(summary_md), post)
 
 if __name__ == "__main__":
     main()
