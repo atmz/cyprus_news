@@ -94,10 +94,12 @@ def generate_for_date(day: date):
                 print(f"⚠️ Failed to delete media folder {media}: {e}")
     if os.path.exists(summary_md):
         print(f"{summary_md} exists.")
+        return False
     else:
         print(f"Summarizing text to {summary_md}...")
         refresh_saved_articles()
         summarize_for_day(day)
+        return True
         
     
 
@@ -117,12 +119,12 @@ def main():
     else:
         day = (datetime.now() - timedelta(days=1)).date()
 
-    generate_for_date(day)
-
-    txt = get_text_folder_for_day(day)
-    summary_md = os.path.join(txt, "summary.txt")
-    post = False if args.draft else True
-    post_to_substack(Path(summary_md), post)
+    new_summary = generate_for_date(day)
+    if new_summary:
+        txt = get_text_folder_for_day(day)
+        summary_md = os.path.join(txt, "summary.txt")
+        post = False if args.draft else True
+        post_to_substack(Path(summary_md), post)
 
 if __name__ == "__main__":
     main()
