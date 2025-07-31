@@ -20,7 +20,9 @@ RUN touch /var/log/cyprus_news.log
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
-RUN playwright install
+
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+RUN playwright install --with-deps
 
 # Run cron in foreground
 CMD ["cron", "-f"]
