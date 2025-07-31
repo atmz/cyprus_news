@@ -51,6 +51,7 @@ def generate_for_date(day: date):
 
     date_str = day.strftime('%d%m%y')  # e.g. 280625
     url_video = f"http://v6.cloudskep.com/rikvod/idisisstisokto/8news{date_str}.mp4?attachment=true"
+    url_video_alternate = f"http://v6.cloudskep.com/rikvod/idisisstisokto/8news{date_str}02.mp4?attachment=true"
 
     # Target paths
     media = get_media_folder_for_day(day)
@@ -72,7 +73,11 @@ def generate_for_date(day: date):
             print(f"{local_filename_video} exists.")
         else:
             print(f"Downloading video to {local_filename_video}...")
-            download_video(url_video, local_filename_video)
+            try:
+                download_video(url_video, local_filename_video)
+            except Exception:
+                download_video(url_video_alternate, local_filename_video)
+                
 
         # Extract audio if needed
         if os.path.exists(local_filename_audio):
