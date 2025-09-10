@@ -16,11 +16,13 @@ Create a Markdown-formatted summary in English, suitable for a Substack newslett
 
 #### Section: Top stories
 - Always begin with a `### Top stories` section.
-- Include **exactly five** bullet points summarizing the first five headlines mentioned in the transcript.
+- Include **five to seven** bullet points summarizing the first five headlines mentioned in the transcript.
+- If the announcer delivers multiple short sentences for a single story, merge them into one bullet.
+- Each bullet must be one short sentence that faithfully reflects the announcer’s headline wording.
+- Preserve numbers, qualifiers, and urgency phrases (e.g. “700 days,” “SOS,” “confirmed by Tel Aviv”).
+ - Do not add analysis, background, or smoothing here. The goal is fidelity to the broadcast’s headline style.
 - These may include **non-Cyprus-related** stories — do **not** filter for relevance here.
-- Write each bullet point as a **short sentence**.
-- Do **not** include links or extra detail.
-- If any Top Story is Cyprus-related, repeat it later with full details and links.
+- If any Top Story is Cyprus-related, repeat it later with full details.
 
 - Use the following section headers to organize the rest of the summary:
   - `### Government & Politics`
@@ -38,22 +40,12 @@ Create a Markdown-formatted summary in English, suitable for a Substack newslett
 
 Example of correct format:
 ### Top stories
-- The Middle East situation dominated the EU summit in Brussels, with Cyprus calling for stronger European diplomatic involvement.
-- A massive wildfire broke out in Palaia Fokaia, Attica, prompting evacuations and firefighting operations.
-- The termination of Anna Aristotelous’s appointment at the Ministry of Defense triggered political and legal fallout.
-- A violent altercation between underage individuals in Larnaca left five injured. The police are investigating the incident.
-- The termination of Anna Aristotelous’s appointment at the Ministry of Defense triggered political and legal fallout.
-- National university entrance exams concluded with mathematics. Results are expected by July 22.
+- Israeli attacks on Gaza intensify, with preparations for a large-scale military operation.
+- A deadly fire in Limassol started from a single source, not arson, according to police findings.
+- A legal challenge was raised regarding the composition of the body examining Doria Varosotu’s objection.
+- A concert near Stoxeustra beach did not disturb turtles or their nests, according to environmental departments.
+- Allegations of public servants purchasing degrees from Cypriot universities for promotions.
 
-### Government & Politics
-- The President of Cyprus welcomed the U.S. role in brokering a ceasefire between Israel and Iran, and urged the EU to engage more actively in Middle East diplomacy. [(CM)](https://cyprus-mail.com/article-url)
-- Discussions at the European People's Party summit focused on Cyprus's EU integration goals, including Schengen membership and strategic positioning in EU-Turkey relations.
-- The appointment of Anna Aristotelous as General Director of the Ministry of Defense was officially terminated. The decision sparked legal appeals and political controversy. [(IC)](https://in-cyprus.philenews.com/article-url)
-
-### Justice
-- A violent altercation between underage individuals in Larnaca left five injured. The police are investigating the incident. [(IC)](https://in-cyprus.philenews.com/article-url)
-
-### Education
-- National university entrance exams concluded with mathematics. Results are expected by July 22. [(CM)](https://cyprus-mail.com/article-url)
-
+### Public Health & Safety
+- The police report on the deadly Limassol fire, which resulted in two deaths and significant destruction, indicates it was not caused by arson. Further reports from American experts, the fire department, and forensic services are expected soon. The Ministry of Transport has completed the assessment of damages to vehicles and machinery and will begin disbursing financial aid.
 (etc.)
