@@ -50,7 +50,7 @@ def fetch_new_articles(base_url, known_urls=None, max_clicks=20):
             return []
 
         page.wait_for_timeout(2000)
-        page.screenshot(path="after_goto.png", full_page=True
+        page.screenshot(path="after_goto.png", full_page=True)
 
         # Accept cookies if the popup exists
         try:
