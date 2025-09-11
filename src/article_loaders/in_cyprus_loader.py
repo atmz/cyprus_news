@@ -31,11 +31,26 @@ def fetch_new_articles(base_url, known_urls=None, max_clicks=20):
                 "--disable-dev-shm-usage"
             ]
         )
-        page = browser.new_page()
+        
+        page = browser.new_page(
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36",
+            viewport={"width": 1280, "height": 800}
+        )
+
         print(f"🌐 Navigating to {base_url}")
-        page.goto(base_url)
+        page.on("console", lambda msg: print(f"[Console] {msg.type}: {msg.text}"))
+        page.on("response", lambda res: print(f"[Response] {res.status} - {res.url}"))
+        page.on("requestfailed", lambda req: print(f"[Request Failed] {req.url}"))
+
+        try:
+            page.goto(base_url, wait_until="domcontentloaded", timeout=60000)
+        except Exception as e:
+            print(f"❌ Failed to load page: {e}")
+            page.screenshot(path="goto_failed.png", full_page=True)
+            return []
+
         page.wait_for_timeout(2000)
-        page.screenshot(path="debug1.png", full_page=True)
+        page.screenshot(path="after_goto.png", full_page=True
 
         # Accept cookies if the popup exists
         try:
