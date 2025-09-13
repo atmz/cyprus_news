@@ -44,7 +44,7 @@ def extract_audio(local_filename_video, local_filename_audio, local_filename_aud
 
 def refresh_saved_articles():
     refresh_cm()
-    # refresh_ic()
+    refresh_ic()
 
 def generate_for_date(day: date):
     make_folders(day)
