@@ -22,6 +22,7 @@ RUN touch /var/log/cyprus_news.log
 RUN pip install --no-cache-dir -r requirements.txt
 
 ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+ENV SUMMARIES_ROOT=/app/summaries
 RUN playwright install --with-deps
 
 # Run cron in foreground

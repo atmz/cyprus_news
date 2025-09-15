@@ -29,22 +29,10 @@ LINK_PROMPT_FILE = "src/prompts/link_prompt.txt"
 SYSTEM_PROMPT_FILE = "src/prompts/system_prompt.txt"
 FIRST_CHUNK_SYSTEM_PROMPT_FILE = "src/prompts/first_chunk_system_prompt.txt"
 FOLLOWUP_CHUNK_SYSTEM_PROMPT_FILE = "src/prompts/followup_chunk_system_prompt.txt"
+HEADLINE_SYSTEM_PROMPT_FILE = "src/prompts/headline_system_prompt.txt"
 DEDUPLICATION_PROMPT_FILE = "src/prompts/deduplication_prompt.txt"
 
 
-# --- Summary Generation ---
-def generate_summary():
-    print("Sending to OpenAI for summarization...")
-    response = client.chat.completions.create(
-        model=MODEL_NAME,
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": prompt_text},
-            {"role": "user", "content": transcript_text}
-        ],
-        temperature=0.0
-    )
-    return response.choices[0].message.content.strip(), response.usage
 
 from textwrap import dedent
 
@@ -77,7 +65,7 @@ def combine_summaries(chunks):
         "Top stories",
         "Public Health & Safety",
         "Energy & Infrastructure",
-        "Justice",
+        "Crime & Justice",
         "Government & Politics",
         "Cyprus Problem",
         "Foreign Affairs",
@@ -91,6 +79,9 @@ def combine_summaries(chunks):
         if combined[section]:
             final_md += f"### {section}\n"
             final_md += "\n".join(combined[section]) + "\n\n"
+    for section in combined.keys():
+        if section not in section_order:
+            print(f"Unexpected section: {section}")
     return final_md
 
 
@@ -101,6 +92,7 @@ def generate_chunked_summary(
     user_prompt,
     first_chunk_system_prompt,
     followup_chunk_system_prompt,
+    headline_system_prompt,
     model="gpt-4o",
     chunk_separator="\n\n",
     max_chunk_size=3000,
@@ -129,6 +121,20 @@ def generate_chunked_summary(
 
     for i, chunk in enumerate(chunks):
         is_first = (i == 0)
+        if is_first:
+            print(f"\n⏳ Summarizing headlines... ({count_tokens(chunk)} tokens)")
+            response = client.chat.completions.create(
+                model=model,
+                messages=[
+                    {"role": "system", "content": headline_system_prompt},
+                    {"role": "user", "content": user_prompt},
+                    {"role": "user", "content": chunk}
+                ],
+                temperature=0.0
+            )
+            headlines = response.choices[0].message.content.strip()
+            print(f"Summarized chunk{str(i)}\n system_prompt:{headline_system_prompt}\nuser_prompt:{user_prompt}\n chunk:{chunk}\n summary{headlines}\n")
+       
 
         previous_summary = "".join(all_summaries)
         system_prompt = followup_chunk_system_prompt.replace("[PREVIOUS_SUMMARY]", previous_summary) if not is_first else first_chunk_system_prompt
@@ -166,7 +172,7 @@ def generate_chunked_summary(
         if i < len(chunks) - 1:
             print(f"🕒 Sleeping {sleep_time}s before next chunk...")
             time.sleep(sleep_time)
-
+    all_summaries.insert(0,headlines)
     combined_summary = combine_summaries(all_summaries)
     return combined_summary, total_usage
 
@@ -271,16 +277,14 @@ def summarize_for_day(day):
     date_heading = f"## 📰 News Summary for {day.strftime('%A, %d %B %Y')}\n\n"
     date_heading += "This is a summary of yesterday's [8pm RIK news broadcast](https://tv.rik.cy/show/eideseis-ton-8/). Where available, links to related English-language articles from the Cyprus Mail and In-Cyprus are provided for further reading. Please note that this summary was generated with the assistance of AI and may contain inaccuracies."
 
-    summary_file = f"{output_folder}summary_without_links.txt"
-    output_file = f"{output_folder}summary.txt"
-    transcript_file = f"{output_folder}transcript_gr.txt"
+    summary_file = output_folder / "summary_without_links.txt"
+    output_file = output_folder / "summary.txt"
+    transcript_file = output_folder / "transcript_gr.txt"
 
     with open(transcript_file, "r", encoding="utf-8") as f:
         transcript_text = f.read()
     with open(PROMPT_FILE, "r", encoding="utf-8") as f:
         prompt_text = f.read().strip().replace("[DATE]", day.strftime('%A, %d %B %Y'))
-    with open(SYSTEM_PROMPT_FILE, "r", encoding="utf-8") as f:
-        system_prompt = f.read().strip()
     with open(LINK_PROMPT_FILE, "r", encoding="utf-8") as f:
         link_prompt = f.read().strip()
     with open(DEDUPLICATION_PROMPT_FILE, "r", encoding="utf-8") as f:
@@ -290,6 +294,9 @@ def summarize_for_day(day):
         first_chunk_system_prompt = f.read().strip()
     with open(FOLLOWUP_CHUNK_SYSTEM_PROMPT_FILE, "r", encoding="utf-8") as f:
         followup_chunk_system_prompt = f.read().strip()
+    with open(HEADLINE_SYSTEM_PROMPT_FILE, "r", encoding="utf-8") as f:
+        headline_system_prompt = f.read().strip()
+        
 
     client = OpenAI()
     # --- Main Logic ---
@@ -301,7 +308,7 @@ def summarize_for_day(day):
             summary = f.read().replace(date_heading + "\n\n", "", 1)
         usage1 = None
     else:
-        summary, usage1 =  generate_chunked_summary(transcript_text, client, prompt_text, first_chunk_system_prompt, followup_chunk_system_prompt)
+        summary, usage1 =  generate_chunked_summary(transcript_text, client, prompt_text, first_chunk_system_prompt, followup_chunk_system_prompt, headline_system_prompt)
 
         with open(summary_file, "w", encoding="utf-8") as f:
             f.write(date_heading + "\n\n" + summary)

@@ -43,8 +43,14 @@ def extract_audio(local_filename_video, local_filename_audio, local_filename_aud
 #         refresh_ic()
 
 def refresh_saved_articles():
-    refresh_cm()
-    refresh_ic()
+    try:
+        refresh_cm()
+    except Exception as e:
+        print(f"⚠️ Failed to refresh cyprus mail: {e}")
+    try:
+        refresh_ic()
+    except Exception as e:
+        print(f"⚠️ Failed to refresh in cyprus: {e}")
 
 def generate_for_date(day: date):
     make_folders(day)
@@ -57,11 +63,11 @@ def generate_for_date(day: date):
     media = get_media_folder_for_day(day)
     txt = get_text_folder_for_day(day)
 
-    local_filename_video = os.path.join(media, f"video.mp4")
-    local_filename_audio = os.path.join(media, f"audio.mp3")
-    local_filename_audio_short_prefix = os.path.join(media, f"split_audio")
-    text_gr = os.path.join(txt, f"transcript_gr.txt")
-    summary_md = os.path.join(txt, f"summary.txt")
+    local_filename_video = media /  f"video.mp4"
+    local_filename_audio = media /  f"audio.mp3"
+    local_filename_audio_short_prefix = media /  f"split_audio"
+    text_gr = txt / f"transcript_gr.txt"
+    summary_md = txt /  f"summary.txt"
 
     # Skip if text already exists
     if os.path.exists(text_gr):
@@ -91,12 +97,12 @@ def generate_for_date(day: date):
         else:
             print(f"Transcribing text to {text_gr}...")
             transcribe_for_day(day)
-        if os.path.exists(text_gr):
-            try:
-                shutil.rmtree(media)
-                print(f"🗑️ Deleted media folder: {media}")
-            except Exception as e:
-                print(f"⚠️ Failed to delete media folder {media}: {e}")
+        # if os.path.exists(text_gr):
+        #     try:
+        #         shutil.rmtree(media)
+        #         print(f"🗑️ Deleted media folder: {media}")
+        #     except Exception as e:
+        #         print(f"⚠️ Failed to delete media folder {media}: {e}")
     if os.path.exists(summary_md):
         print(f"{summary_md} exists.")
         return False
@@ -127,7 +133,7 @@ def main():
     new_summary = generate_for_date(day)
     if new_summary:
         txt = get_text_folder_for_day(day)
-        summary_md = os.path.join(txt, "summary.txt")
+        summary_md = txt / "summary.txt"
         post = False if args.draft else True
         post_to_substack(Path(summary_md), post)
 

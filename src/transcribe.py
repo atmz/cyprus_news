@@ -43,11 +43,11 @@ def transcribe_for_day(day : date):
 
     mp3_folder = get_media_folder_for_day(day)
     output_folder = get_text_folder_for_day(day)
-    txt_output = f"{output_folder}transcript_gr.txt"
-    json_output = f"{output_folder}transcript_gr.json"
+    txt_output = output_folder / "transcript_gr.txt"
+    json_output = output_folder / "transcript_gr.json"
     i = 0
     while True:
-        filename = f"{mp3_folder}split_audio{i:03d}.mp3"
+        filename = mp3_folder / f"split_audio{i:03d}.mp3"
         if not os.path.exists(filename):
             break
         print_helper(f"Transcribing {filename}...")
