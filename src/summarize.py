@@ -84,6 +84,21 @@ def combine_summaries(chunks):
             print(f"Unexpected section: {section}")
     return final_md
 
+def limit_headlines(text: str, max_count: int = 10) -> str:
+    lines = text.strip().splitlines()
+    header_lines = []
+    bullet_lines = []
+
+    for line in lines:
+        if line.strip().startswith("- "):
+            bullet_lines.append(line)
+        else:
+            header_lines.append(line)
+
+    # Keep only the first max_count bullet points
+    bullet_lines = bullet_lines[:max_count]
+
+    return "\n".join(header_lines + bullet_lines)
 
 # New chunk-aware generate_summary function with different prompts for the first and remaining chunks
 def generate_chunked_summary(
@@ -132,7 +147,7 @@ def generate_chunked_summary(
                 ],
                 temperature=0.0
             )
-            headlines = response.choices[0].message.content.strip()
+            headlines = limit_headlines(response.choices[0].message.content.strip())
             print(f"Summarized chunk{str(i)}\n system_prompt:{headline_system_prompt}\nuser_prompt:{user_prompt}\n chunk:{chunk}\n summary{headlines}\n")
        
 
