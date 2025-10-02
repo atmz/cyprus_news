@@ -120,6 +120,7 @@ def generate_for_date(day: date):
     # NEW: load from file and generate cover.png in same folder
     if os.path.exists(cover_file):
         print(f"{cover_file} exists.")
+        return False
     else:
         try:
             md_text = Path(summary_md).read_text(encoding="utf-8")
