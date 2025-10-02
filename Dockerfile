@@ -23,6 +23,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 ENV SUMMARIES_ROOT=/app/summaries
+ENV SECRETS_ROOT=/app/secrets
 RUN playwright install --with-deps
 
 # Run cron in foreground

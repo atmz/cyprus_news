@@ -11,6 +11,7 @@ from helpers import get_media_folder_for_day, get_root_folder_for_day, get_text_
 from article_loaders.in_cyprus_loader import refresh_ic
 from post_to_substack import post_to_substack
 from summarize import load_articles, summarize_for_day
+from image import generate_cover_from_md
 from transcribe import transcribe_for_day
 def download_video(url, local_path):
     response = requests.get(url, stream=True)
@@ -58,6 +59,7 @@ def generate_for_date(day: date):
     date_str = day.strftime('%d%m%y')  # e.g. 280625
     url_video = f"http://v6.cloudskep.com/rikvod/idisisstisokto/8news{date_str}.mp4?attachment=true"
     url_video_alternate = f"http://v6.cloudskep.com/rikvod/idisisstisokto/8news{date_str}02.mp4?attachment=true"
+    url_video_alternate_2 = f"http://v6.cloudskep.com/rikvod/idisisstisokto/8news_{date_str}.mp4?attachment=true"
 
     # Target paths
     media = get_media_folder_for_day(day)
@@ -68,6 +70,7 @@ def generate_for_date(day: date):
     local_filename_audio_short_prefix = media /  f"split_audio"
     text_gr = txt / f"transcript_gr.txt"
     summary_md = txt /  f"summary.txt"
+    cover_file = txt /  f"cover.png"
 
     # Skip if text already exists
     if os.path.exists(text_gr):
@@ -82,7 +85,11 @@ def generate_for_date(day: date):
             try:
                 download_video(url_video, local_filename_video)
             except Exception:
-                download_video(url_video_alternate, local_filename_video)
+                try:
+                    download_video(url_video_alternate, local_filename_video)
+                except Exception:
+                    download_video(url_video_alternate_2, local_filename_video)
+                
                 
 
         # Extract audio if needed
@@ -105,14 +112,33 @@ def generate_for_date(day: date):
         #         print(f"⚠️ Failed to delete media folder {media}: {e}")
     if os.path.exists(summary_md):
         print(f"{summary_md} exists.")
-        return False
     else:
         print(f"Summarizing text to {summary_md}...")
-        refresh_saved_articles()
+        # refresh_saved_articles()
         summarize_for_day(day)
-        return True
         
-    
+    # NEW: load from file and generate cover.png in same folder
+    if os.path.exists(cover_file):
+        print(f"{cover_file} exists.")
+    else:
+        try:
+            md_text = Path(summary_md).read_text(encoding="utf-8")
+            from openai import OpenAI
+            # Reuse your OpenAI client
+            client = OpenAI()
+            out_dir = Path(summary_md).parent
+            generate_cover_from_md(
+                client=client,
+                day=day,
+                markdown=md_text,
+                out_dir=str(out_dir),
+                allow_faces=True,     # flip to False if needed on sensitive days
+                lead_subject=None,    # or pass an explicit subject
+                model="gpt-image-1"
+            )
+        except Exception as e:
+            print(f"⚠️ Failed to read {summary_md} for cover generation: {e}")
+    return True
 
 def main():
     parser = argparse.ArgumentParser(description="Generate and post Cyprus news summary.")
@@ -134,8 +160,9 @@ def main():
     if new_summary:
         txt = get_text_folder_for_day(day)
         summary_md = txt / "summary.txt"
+        cover_path = txt / "cover.png"
         post = False if args.draft else True
-        post_to_substack(Path(summary_md), post)
+        post_to_substack(Path(summary_md), post, cover_path=cover_path)
 
 if __name__ == "__main__":
     main()

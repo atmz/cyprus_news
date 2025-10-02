@@ -82,6 +82,8 @@ def combine_summaries(chunks):
     for section in combined.keys():
         if section not in section_order:
             print(f"Unexpected section: {section}")
+            final_md += f"### {section}\n"
+            final_md += "\n".join(combined[section]) + "\n\n"
     return final_md
 
 def limit_headlines(text: str, max_count: int = 10) -> str:
