@@ -4,6 +4,7 @@ import re
 import time
 import os
 from playwright.sync_api import sync_playwright
+import platform
 
 # --- CONFIG ---
 
@@ -12,6 +13,7 @@ SESSION_FILE = f"{SECRETS_ROOT}/substack_session.json"
 SUBSTACK_NEW_POST_URL = "https://cyprusnews.substack.com/publish/post?type=newsletter&back=%2Fpublish%2Fhome"
 TOP_STORIES_H3_RE = re.compile(r'(?im)^\s*#{3}\s*Top\s*stories\b.*$')  # exactly "### Top stories" (any case)
 markdown_link_pattern = re.compile(r"\[([^\]]+)\]\((https?://[^\)]+)\)")
+LINK_MOD = "Meta" if platform.system() == "Darwin" else "Control"
 
 def extract_title_and_body(markdown_text):
     lines = markdown_text.strip().splitlines()
@@ -152,14 +154,15 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png"):
                     # 1) Create an empty paragraph *here* and move caret onto it
                     page.keyboard.press("Enter")      # make a blank line at current spot
                     page.keyboard.press("ArrowUp")    # put caret on that blank (anchor)
+                    time.sleep(1)
 
                     # 2) Insert the image at the anchored caret
                     insert_image_via_toolbar(page, cover_path)
+                    time.sleep(3)
 
                     # 3) Ensure caret is *below* the image (one gentle nudge)
                     page.keyboard.press("ArrowDown")
                     page.keyboard.press("Enter")
-
                     image_inserted = True
                     # (now typing continues and the very next line you type will be the H3 header)
 
@@ -180,9 +183,10 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png"):
                         page.keyboard.type(before)
 
                     # Your old, working popup flow
-                    page.keyboard.down("Control")
+                    
+                    page.keyboard.down(LINK_MOD)
                     page.keyboard.press("KeyK")
-                    page.keyboard.up("Control")
+                    page.keyboard.up(LINK_MOD)
                     time.sleep(0.2)
                     page.keyboard.type(label)
                     page.keyboard.press("Tab")
