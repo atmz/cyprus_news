@@ -71,6 +71,7 @@ def generate_for_date(day: date):
     text_gr = txt / f"transcript_gr.txt"
     summary_md = txt /  f"summary.txt"
     cover_file = txt /  f"cover.png"
+    flag_file = txt /  f"flag.txt"
 
     # Skip if text already exists
     if os.path.exists(text_gr):
@@ -114,7 +115,7 @@ def generate_for_date(day: date):
         print(f"{summary_md} exists.")
     else:
         print(f"Summarizing text to {summary_md}...")
-        # refresh_saved_articles()
+        refresh_saved_articles()
         summarize_for_day(day)
         
     # NEW: load from file and generate cover.png in same folder
@@ -164,6 +165,7 @@ def main():
         cover_path = txt / "cover.png"
         post = False if args.draft else True
         post_to_substack(Path(summary_md), post, cover_path=cover_path)
+
 
 if __name__ == "__main__":
     main()
