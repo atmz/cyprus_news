@@ -213,13 +213,14 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png"):
 
         # Add a short delay before UI interaction
         page.wait_for_timeout(1000)
-
-        # Open the Button dropdown
-        page.click("button:has-text('Button')")
-
-        # Click "Subscribe with caption"
-        page.click("text=Subscribe w/ caption")
-        print("📬 Subscribe button inserted.")
+        try:
+            # Open the Button dropdown
+            page.click("button:has-text('Button')")
+            # Click "Subscribe with caption"
+            page.click("text=Subscribe w/ caption")
+            print("📬 Subscribe button inserted.")
+        except:
+            print("📬 Subscribe button insertion failed.")
 
         if False:#publish:
             print("📤 Clicking Publish now...")
