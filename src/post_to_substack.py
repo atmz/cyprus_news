@@ -137,7 +137,12 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png"):
 
         print("📝 Opening Substack editor...")
         page.goto(SUBSTACK_NEW_POST_URL)
-        page.wait_for_selector("textarea[placeholder='Title']", timeout=15000)
+        try:
+            page.wait_for_selector("textarea[placeholder='Title']", timeout=15000)
+        except Exception as e:
+            print(f"⚠️ Failed to find title field: {e}")
+            page.screenshot(path="line140.png", full_page=True)
+            raise e
         print(f"✍️ Writing title: {title}")
         page.fill("textarea[placeholder='Title']", title)
 

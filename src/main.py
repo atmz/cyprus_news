@@ -164,7 +164,9 @@ def main():
         summary_md = txt / "summary.txt"
         cover_path = txt / "cover.png"
         post = False if args.draft else True
+    if not Path.exists(flag_file):    
         post_to_substack(Path(summary_md), post, cover_path=cover_path)
+        Path(flag_file).touch()
 
 
 if __name__ == "__main__":
