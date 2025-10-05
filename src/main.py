@@ -160,12 +160,11 @@ def main():
     new_summary = generate_for_date(day)
     txt = get_text_folder_for_day(day)
     flag_file = txt /  f"flag.txt"
+    summary_md = txt / "summary.txt"
+    cover_path = txt / "cover.png"
+    post = False if args.draft else True
 
-    if new_summary:
-        summary_md = txt / "summary.txt"
-        cover_path = txt / "cover.png"
-        post = False if args.draft else True
-    if not Path.exists(flag_file):    
+    if new_summary or not Path.exists(flag_file):    
         post_to_substack(Path(summary_md), post, cover_path=cover_path)
         Path(flag_file).touch()
 
