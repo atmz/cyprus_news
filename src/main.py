@@ -71,7 +71,6 @@ def generate_for_date(day: date):
     text_gr = txt / f"transcript_gr.txt"
     summary_md = txt /  f"summary.txt"
     cover_file = txt /  f"cover.png"
-    flag_file = txt /  f"flag.txt"
 
     # Skip if text already exists
     if os.path.exists(text_gr):
@@ -159,8 +158,10 @@ def main():
         day = (datetime.now() - timedelta(days=1)).date()
 
     new_summary = generate_for_date(day)
+    txt = get_text_folder_for_day(day)
+    flag_file = txt /  f"flag.txt"
+
     if new_summary:
-        txt = get_text_folder_for_day(day)
         summary_md = txt / "summary.txt"
         cover_path = txt / "cover.png"
         post = False if args.draft else True
