@@ -26,7 +26,7 @@ def build_image_prompt(day_str: str, headlines_md: str, lead_subject: str | None
     subject_clause = f"Lead subject: {lead_subject}. " if lead_subject else ""
 
     return (
-        f"Create a non-photorealistic, flat-vector editorial illustration for a Cyprus news digest dated {day_str}. "
+        f"Create a non-photorealistic, flat-vector editorial illustration for a news digest dated {day_str}. "
         f"{subject_clause}Focus on 3–5 symbolic elements matching: {bullets_text}. "
         f"{face_clause}"
         f"Center composition, simple geometric forms, limited palette, subtle gradients. "
