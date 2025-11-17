@@ -34,6 +34,11 @@ You are being given a *section* of the broadcast, possibly combined with some pr
 - Under each section, use `-` bullets for each story.
 - Do not include any extra commentary, summaries, or closing remarks — just the sections and story bullets.
 
+### Extra context:
+- This is a news transcript; names may be mispelled or slightly incorrect.
+- The current president of Cyprus is Nikos Christodoulides
+- The current turkish cypriot leader is Tufan Erhürman
+- The current United Nations Secretary-General's Personal Envoy to Cyprus is María Angela Holguín
 
 Example of correct format:
 ### Government & Politics

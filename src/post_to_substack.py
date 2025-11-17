@@ -9,7 +9,7 @@ import platform
 # --- CONFIG ---
 
 SECRETS_ROOT = Path(os.getenv("SECRETS_ROOT", "./data"))
-SESSION_FILE = f"{SECRETS_ROOT}/substack_session.json"
+SESSION_FILE = SECRETS_ROOT / "substack_session.json"
 SUBSTACK_NEW_POST_URL = "https://cyprusnews.substack.com/publish/post?type=newsletter&back=%2Fpublish%2Fhome"
 TOP_STORIES_H3_RE = re.compile(r'(?im)^\s*#{3}\s*Top\s*stories\b.*$')  # exactly "### Top stories" (any case)
 markdown_link_pattern = re.compile(r"\[([^\]]+)\]\((https?://[^\)]+)\)")
@@ -227,7 +227,7 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png"):
         except:
             print("📬 Subscribe button insertion failed.")
 
-        if False:#publish:
+        if publish:
             print("📤 Clicking Publish now...")
             try:
                 page.wait_for_timeout(500) 
