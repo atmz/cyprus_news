@@ -1,1 +1,1 @@
-* * * * * /bin/bash -lc 'cd /app && export SECRETS_ROOT=/app/secrets && source /app/secrets/env.sh && xvfb-run -a python /app/src/main.py >> /var/log/cyprus_news.log 2>&1'
+0 * * * *  cd /app && export SECRETS_ROOT=/app/secrets && . /app/secrets/env.sh && xvfb-run -a python /app/src/main.py >> /var/log/cyprus_news.log 2>&1
