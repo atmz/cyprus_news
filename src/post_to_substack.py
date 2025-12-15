@@ -132,6 +132,8 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png"):
                 "--disable-dev-shm-usage"
             ]
         )
+        if not SESSION_FILE.exists():
+            raise RuntimeError(f"Substack session file not found: {SESSION_FILE}")
         context = browser.new_context(storage_state=SESSION_FILE)
         page = context.new_page()
 

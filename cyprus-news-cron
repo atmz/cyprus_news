@@ -1,1 +1,1 @@
-0 * * * * cd /app && . /app/secrets/env.sh && xvfb-run python /app/src/main.py >> /var/log/cyprus_news.log 2>&1
+* * * * * SECRETS_ROOT=/app/secrets cd /app && . /app/secrets/env.sh && xvfb-run -a python /app/src/main.py >> /var/log/cyprus_news.log 2>&1

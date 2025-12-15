@@ -5,6 +5,8 @@ import shutil
 import subprocess
 from datetime import date, datetime, timedelta
 import requests
+from zoneinfo import ZoneInfo
+
 
 from article_loaders.cm_loader import refresh_cm
 from helpers import get_media_folder_for_day, get_root_folder_for_day, get_text_folder_for_day, make_folders
@@ -13,6 +15,12 @@ from post_to_substack import post_to_substack
 from summarize import load_articles, summarize_for_day
 from image import generate_cover_from_md
 from transcribe import transcribe_for_day
+
+
+CY_TZ = ZoneInfo("Europe/Nicosia")
+CUTOFF_HOUR = 22  # 10pm
+
+
 def download_video(url, local_path):
     response = requests.get(url, stream=True)
     if response.status_code == 200:
@@ -155,7 +163,11 @@ def main():
             print("❌ Invalid date format. Use YYYY-MM-DD (e.g. 2025-06-01).")
             return
     else:
-        day = (datetime.now() - timedelta(days=1)).date()
+        now_cy = datetime.now(CY_TZ)
+        if now_cy.hour < CUTOFF_HOUR:
+            day = (now_cy.date() - timedelta(days=1))
+        else:
+            day = now_cy.date()
 
     new_summary = generate_for_date(day)
     txt = get_text_folder_for_day(day)
