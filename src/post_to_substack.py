@@ -227,7 +227,7 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png"):
         except:
             print("📬 Subscribe button insertion failed.")
 
-        if publish:
+        if 0: #publish:
             print("📤 Clicking Publish now...")
             try:
                 page.wait_for_timeout(500) 
