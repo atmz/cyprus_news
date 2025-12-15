@@ -1,1 +1,5 @@
-* * * * * SECRETS_ROOT=/app/secrets cd /app && . /app/secrets/env.sh && xvfb-run -a python /app/src/main.py >> /var/log/cyprus_news.log 2>&1
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+SECRETS_ROOT=/app/secrets
+
+* * * * * cd /app && . /app/secrets/env.sh && xvfb-run -a python /app/src/main.py >> /var/log/cyprus_news.log 2>&1
