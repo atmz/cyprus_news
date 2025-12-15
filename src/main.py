@@ -20,7 +20,7 @@ def download_video(url, local_path):
             for chunk in response.iter_content(chunk_size=8192):
                 f.write(chunk)
     else:
-        raise Exception(f"Failed to download video. Status code: {response.status_code}")
+        raise Exception(f"Failed to download vide from {url}. Status code: {response.status_code}")
 
 def extract_audio(local_filename_video, local_filename_audio, local_filename_audio_short_prefix):
     subprocess.run([

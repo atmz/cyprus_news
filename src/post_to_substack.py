@@ -84,7 +84,7 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png"):
             menu_item = page.get_by_role("menuitem", name=re.compile(r"Add image", re.I))
             menu_item.wait_for(state="visible", timeout=5000)
         except Exception:
-            menu_item = page.locator("button:has-text('Add image')").first
+            menu_item = page.locator("button:has-text('Image')").first
 
         with page.expect_file_chooser() as fc_info:
             menu_item.click()
