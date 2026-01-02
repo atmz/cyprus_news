@@ -177,8 +177,8 @@ def main():
     post = False if args.draft else True
 
     if new_summary or not Path.exists(flag_file):    
-        post_to_substack(Path(summary_md), post, cover_path=cover_path)
-        Path(flag_file).touch()
+        if post_to_substack(Path(summary_md), post, cover_path=cover_path):
+            Path(flag_file).touch()
 
 
 if __name__ == "__main__":

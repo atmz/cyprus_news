@@ -238,6 +238,8 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png"):
                 page.click("text=Send to everyone now", timeout=5000)
                 page.wait_for_timeout(3000) 
                 print("✅ Post published.")
+                browser.close()
+                return True
             except:
                 print("⚠️ Could not find Publish button — post might already be published.")
         else:
@@ -246,6 +248,7 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png"):
             print("✅ Draft saved (not published).")
 
         browser.close()
+        return False
 
 
 if __name__ == "__main__":
