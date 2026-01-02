@@ -7,6 +7,7 @@ import sys
 import argparse
 import json
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 from helpers import get_text_folder_for_day
 from openai import OpenAI
 from dateutil.parser import parse as parse_datetime, ParserError
@@ -292,7 +293,9 @@ def summarize_for_day(day):
     output_folder = get_text_folder_for_day(day)
 
     date_heading = f"## 📰 News Summary for {day.strftime('%A, %d %B %Y')}\n\n"
-    date_heading += "This is a summary of yesterday's [8pm RIK news broadcast](https://tv.rik.cy/show/eideseis-ton-8/). Where available, links to related English-language articles from the Cyprus Mail and In-Cyprus are provided for further reading. Please note that this summary was generated with the assistance of AI and may contain inaccuracies."
+    cyprus_now = datetime.now(ZoneInfo("Asia/Nicosia"))
+    summary_reference = "this evening's" if cyprus_now.hour < 2 else "yesterday's"
+    date_heading += f"This is a summary of {summary_reference} [8pm RIK news broadcast](https://tv.rik.cy/show/eideseis-ton-8/). Where available, links to related English-language articles from the Cyprus Mail and In-Cyprus are provided for further reading. Please note that this summary was generated with the assistance of AI and may contain inaccuracies."
 
     summary_file = output_folder / "summary_without_links.txt"
     output_file = output_folder / "summary.txt"
