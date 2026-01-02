@@ -92,13 +92,33 @@ def build_image_prompt(day_str: str, headlines_md: str, lead_subject: str | None
     bullets = lines[:4]
     bullets_text = "; ".join(bullets) if bullets else "Cyprus daily news topics"
 
+    def mentions_current_leaders(text: str) -> bool:
+        lowered = text.lower()
+        if any(name in lowered for name in ["christodoulides", "erhürman", "erhurman"]):
+            return True
+        cyprus_context = any(term in lowered for term in ["cyprus", "cypriot", "nicosia"])
+        trnc_context = any(term in lowered for term in [
+            "trnc",
+            "turkish cypriot",
+            "north cyprus",
+            "northern cyprus",
+            "pseudostate",
+            "so-called trnc",
+            "so-called state",
+            "so-called regime",
+            "so-called government",
+        ])
+        has_president = "president" in lowered
+        has_leader = "leader" in lowered
+        return (has_president and cyprus_context) or (has_leader and trnc_context) or (has_president and trnc_context)
+
     face_clause = (
        "If depicting people, use stylized caricature (exaggerated but respectful), avoid likeness-level realism."
         if allow_faces else
         "Avoid faces; use silhouettes, hands, emblems, buildings, or symbolic objects instead. "
     )
 
-    if "president" in bullets_text or "President" in bullets_text:
+    if mentions_current_leaders(bullets_text):
         face_clause = (
         "If depicting people, use stylized caricature (exaggerated but respectful), avoid likeness-level realism. Note that the current president of Cyprus is Nikos Christodoulides; make sure to use his likeness and not that of previous leaders. The current leader of the TRNC is Tufan Erhürman."
             if allow_faces else
