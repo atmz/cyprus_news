@@ -294,7 +294,11 @@ def summarize_for_day(day):
 
     date_heading = f"## 📰 News Summary for {day.strftime('%A, %d %B %Y')}\n\n"
     cyprus_now = datetime.now(ZoneInfo("Asia/Nicosia"))
-    summary_reference = "this evening's" if cyprus_now.hour < 2 else "yesterday's"
+    summary_reference = "yesterday's"
+    if cyprus_now.date() == day.date():
+        summary_reference = "this evening's"
+    elif cyprus_now.date() == (day + timedelta(days=1)).date() and cyprus_now.hour < 2:
+        summary_reference = "this evening's"
     date_heading += f"This is a summary of {summary_reference} [8pm RIK news broadcast](https://tv.rik.cy/show/eideseis-ton-8/). Where available, links to related English-language articles from the Cyprus Mail and In-Cyprus are provided for further reading. Please note that this summary was generated with the assistance of AI and may contain inaccuracies."
 
     summary_file = output_folder / "summary_without_links.txt"
