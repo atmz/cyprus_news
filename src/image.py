@@ -110,8 +110,7 @@ def build_image_prompt(day_str: str, headlines_md: str, lead_subject: str | None
         ])
         has_president = "president" in lowered
         has_leader = "leader" in lowered
-        return (has_president and cyprus_context) or (has_leader and trnc_context) or (has_president and trnc_context)
-
+        return has_president or (has_leader and trnc_context)
     face_clause = (
        "If depicting people, use stylized caricature (exaggerated but respectful), avoid likeness-level realism."
         if allow_faces else
