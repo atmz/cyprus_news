@@ -245,6 +245,14 @@ def cleanup_merged_summary(client, summary_text, deduplication_prompt):
     return response.choices[0].message.content.strip(), response.usage
 
 
+def strip_summary_marker(text):
+    if not text:
+        return text
+    cleaned = re.sub(r'(?m)^\s*SUMMARY:\s*$', '', text)
+    cleaned = re.sub(r'\bSUMMARY:\s*', '', cleaned)
+    return cleaned.strip()
+
+
 def split_summary(summary):
     split_match = re.split(r'(?m)^### [^\n]+', summary)
     headers = re.findall(r'(?m)^### [^\n]+', summary)
@@ -366,6 +374,7 @@ def summarize_for_day(day):
         linked_main_summary, usage3 = link_articles_to_summary(client, cleaned_main_summary, filtered_articles, link_prompt)
 
     final_output = date_heading + "\n\n" + top_stories + "\n\n" + linked_main_summary
+    final_output = strip_summary_marker(final_output)
 
     with timing_step("summarize_write_output", **log_context, summary_path=output_file):
         with open(output_file, "w", encoding="utf-8") as f:
