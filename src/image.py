@@ -1,4 +1,6 @@
-import os, base64, textwrap
+import os, base64, textwrap, logging
+
+IMAGE_LOG_FILENAME = "image_generation.log"
 
 SOCIAL_W = 1200  # OG-friendly
 SOCIAL_H = 628
@@ -41,15 +43,23 @@ def generate_ai_image_from_headlines(client, day, top_stories_md, out_path,
     Returns image path on success, None on failure. No local fallback.
     """
     prompt = build_image_prompt(day.strftime("%A, %d %B %Y"), top_stories_md, lead_subject, allow_faces)
+    log_path = os.path.join(os.path.dirname(out_path), IMAGE_LOG_FILENAME)
+    logger = get_image_logger(log_path)
+    logger.info("Preparing image generation. model=%s size=1536x1024 output=%s", model, out_path)
+    logger.info("Prompt: %s", prompt)
+    print(f"🖼️ Image prompt: {prompt}")
 
     try:
+        logger.info("Submitting image generation request.")
         img = client.images.generate(model=model, prompt=prompt, size="1536x1024", n=1)
         b64 = img.data[0].b64_json
         os.makedirs(os.path.dirname(out_path), exist_ok=True)
         with open(out_path, "wb") as f:
             f.write(base64.b64decode(b64))
+        logger.info("Image generated successfully: %s", out_path)
         return out_path
     except Exception as e:
+        logger.exception("Image generation failed.")
         print(f"⚠️ Image generation failed: {e}")
         return None
 
@@ -151,8 +161,13 @@ def generate_cover_from_md(client, day, markdown: str, out_dir: str | os.PathLik
         lead_subject = first_line
 
     prompt = build_image_prompt(day.strftime("%A, %d %B %Y"), top_stories, lead_subject, allow_faces)
+    log_path = os.path.join(out_dir, IMAGE_LOG_FILENAME)
+    logger = get_image_logger(log_path)
+    logger.info("Preparing cover generation. model=%s size=1536x1024 output_dir=%s", model, out_dir)
+    logger.info("Prompt: %s", prompt)
 
     try:
+        logger.info("Submitting cover generation request.")
         print(f"🖼️ Generating cover with prompt: {prompt}")
         img = client.images.generate(model=model, prompt=prompt, size="1536x1024", n=1)
         b64 = img.data[0].b64_json
@@ -161,7 +176,25 @@ def generate_cover_from_md(client, day, markdown: str, out_dir: str | os.PathLik
         with open(out_path, "wb") as f:
             f.write(base64.b64decode(b64))
         print(f"🖼️ Cover generated: {out_path}")
+        logger.info("Cover generated successfully: %s", out_path)
         return out_path
     except Exception as e:
+        logger.exception("Cover generation failed.")
         print(f"⚠️ Image generation failed: {e}")
         return None
+
+def get_image_logger(log_path: str) -> logging.Logger:
+    logger = logging.getLogger("image_generation")
+    logger.setLevel(logging.INFO)
+    abs_log_path = os.path.abspath(log_path)
+    if not any(
+        isinstance(handler, logging.FileHandler)
+        and os.path.abspath(getattr(handler, "baseFilename", "")) == abs_log_path
+        for handler in logger.handlers
+    ):
+        os.makedirs(os.path.dirname(abs_log_path), exist_ok=True)
+        handler = logging.FileHandler(abs_log_path)
+        formatter = logging.Formatter("%(asctime)s %(levelname)s %(message)s")
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+    return logger
