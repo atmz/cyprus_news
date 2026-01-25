@@ -35,6 +35,9 @@ def extract_title_and_body(markdown_text):
     return title, "\n".join(body_lines).strip()
 
 def post_to_substack(md_path, publish=False, cover_path="cover.png"):
+    def log_info(message: str):
+        print(f"SUBSTACK: {message}")
+
     def fast_type(page, text: str):
         if not text:
             return
@@ -128,8 +131,11 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png"):
 
     print_header_once = True  # optional: just here if you want to debug the match
     image_inserted = False
+    log_info(f"Preparing to post. publish={publish}, md_path={md_path}, cover_path={cover_path}")
+    log_info(f"Parsed title length={len(title)}, body length={len(body)}")
 
     with sync_playwright() as p:
+        log_info("Launching browser for Substack editor...")
         browser = p.chromium.launch(headless=False,
             args=[
                 "--no-sandbox",
@@ -139,21 +145,23 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png"):
         )
         if not SESSION_FILE.exists():
             raise RuntimeError(f"Substack session file not found: {SESSION_FILE}")
+        log_info(f"Using session file: {SESSION_FILE}")
         context = browser.new_context(storage_state=SESSION_FILE)
         page = context.new_page()
 
-        print("📝 Opening Substack editor...")
+        log_info(f"Opening editor URL: {SUBSTACK_NEW_POST_URL}")
         page.goto(SUBSTACK_NEW_POST_URL)
         try:
             page.wait_for_selector("textarea[placeholder='Title']", timeout=15000)
         except Exception as e:
-            print(f"⚠️ Failed to find title field: {e}")
-            page.screenshot(path="line140.png", full_page=True)
+            log_info(f"Failed to find title field: {e}")
+            page.screenshot(path="substack_title_missing.png", full_page=True)
             raise e
-        print(f"✍️ Writing title: {title}")
+        log_info(f"Editor loaded. Current URL: {page.url}")
+        log_info(f"Writing title: {title}")
         page.fill("textarea[placeholder='Title']", title)
 
-        print("Writing body...")
+        log_info("Writing body...")
         page.click("div.ProseMirror")
         for paragraph in body.split("\n\n"):
             for raw_line in paragraph.splitlines():
@@ -217,6 +225,7 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png"):
 
                 page.keyboard.press("Enter")
         page.keyboard.press("Enter")
+        log_info("Body entry complete.")
         # If we never saw the header, you can optionally insert at top/end:
         # if not image_inserted:
         #     print("ℹ️ '### Top stories' not found — inserting image at top.")
@@ -230,26 +239,32 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png"):
             page.click("button:has-text('Button')")
             # Click "Subscribe with caption"
             page.click("text=Subscribe w/ caption")
-            print("📬 Subscribe button inserted.")
-        except:
-            print("📬 Subscribe button insertion failed.")
+            log_info("Subscribe button inserted.")
+        except Exception as e:
+            log_info(f"Subscribe button insertion failed: {e}")
 
         if publish:
-            print("📤 Clicking Publish now...")
+            log_info("Publish requested; attempting to publish.")
             try:
-                page.wait_for_timeout(500) 
+                log_info("Clicking Continue...")
+                page.wait_for_timeout(500)
                 page.click("text=Continue", timeout=5000)
-                page.wait_for_timeout(1000) 
+                log_info("Clicking Send to everyone now...")
+                page.wait_for_timeout(1000)
                 page.click("text=Send to everyone now", timeout=5000)
-                page.wait_for_timeout(3000) 
+                page.wait_for_timeout(3000)
+                log_info(f"Publish flow complete. Current URL: {page.url}")
                 print("✅ Post published.")
                 browser.close()
                 return True
-            except:
+            except Exception as e:
+                log_info(f"Publish flow failed: {e}")
+                page.screenshot(path="substack_publish_failed.png", full_page=True)
                 print("⚠️ Could not find Publish button — post might already be published.")
         else:
-            print("💾 Waiting for auto-save (as draft)...")
+            log_info("Draft mode: waiting for auto-save.")
             page.wait_for_timeout(4000)
+            log_info(f"Draft saved (not published). Current URL: {page.url}")
             print("✅ Draft saved (not published).")
 
         browser.close()

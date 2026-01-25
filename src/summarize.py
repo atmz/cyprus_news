@@ -14,6 +14,7 @@ from dateutil.parser import parse as parse_datetime, ParserError
 from textwrap import dedent
 import time
 import tiktoken
+from timing import timing_step
 
 
 # --- Configuration ---
@@ -291,6 +292,10 @@ def summarize_for_day(day):
 
     # --- Load required files ---
     output_folder = get_text_folder_for_day(day)
+    log_context = {
+        "date": day.isoformat(),
+        "output_folder": output_folder,
+    }
 
     date_heading = f"## 📰 News Summary for {day.strftime('%A, %d %B %Y')}\n\n"
     cyprus_now = datetime.now(ZoneInfo("Asia/Nicosia"))
@@ -305,21 +310,23 @@ def summarize_for_day(day):
     output_file = output_folder / "summary.txt"
     transcript_file = output_folder / "transcript_gr.txt"
 
-    with open(transcript_file, "r", encoding="utf-8") as f:
-        transcript_text = f.read()
-    with open(PROMPT_FILE, "r", encoding="utf-8") as f:
-        prompt_text = f.read().strip().replace("[DATE]", day.strftime('%A, %d %B %Y'))
-    with open(LINK_PROMPT_FILE, "r", encoding="utf-8") as f:
-        link_prompt = f.read().strip()
-    with open(DEDUPLICATION_PROMPT_FILE, "r", encoding="utf-8") as f:
-        deduplication_prompt = f.read().strip()
+    with timing_step("summarize_read_transcript", **log_context, transcript_path=transcript_file):
+        with open(transcript_file, "r", encoding="utf-8") as f:
+            transcript_text = f.read()
+    with timing_step("summarize_load_prompts", **log_context):
+        with open(PROMPT_FILE, "r", encoding="utf-8") as f:
+            prompt_text = f.read().strip().replace("[DATE]", day.strftime('%A, %d %B %Y'))
+        with open(LINK_PROMPT_FILE, "r", encoding="utf-8") as f:
+            link_prompt = f.read().strip()
+        with open(DEDUPLICATION_PROMPT_FILE, "r", encoding="utf-8") as f:
+            deduplication_prompt = f.read().strip()
 
-    with open(FIRST_CHUNK_SYSTEM_PROMPT_FILE, "r", encoding="utf-8") as f:
-        first_chunk_system_prompt = f.read().strip()
-    with open(FOLLOWUP_CHUNK_SYSTEM_PROMPT_FILE, "r", encoding="utf-8") as f:
-        followup_chunk_system_prompt = f.read().strip()
-    with open(HEADLINE_SYSTEM_PROMPT_FILE, "r", encoding="utf-8") as f:
-        headline_system_prompt = f.read().strip()
+        with open(FIRST_CHUNK_SYSTEM_PROMPT_FILE, "r", encoding="utf-8") as f:
+            first_chunk_system_prompt = f.read().strip()
+        with open(FOLLOWUP_CHUNK_SYSTEM_PROMPT_FILE, "r", encoding="utf-8") as f:
+            followup_chunk_system_prompt = f.read().strip()
+        with open(HEADLINE_SYSTEM_PROMPT_FILE, "r", encoding="utf-8") as f:
+            headline_system_prompt = f.read().strip()
         
 
     client = OpenAI()
@@ -332,11 +339,19 @@ def summarize_for_day(day):
             summary = f.read().replace(date_heading + "\n\n", "", 1)
         usage1 = None
     else:
-        summary, usage1 =  generate_chunked_summary(transcript_text, client, prompt_text, first_chunk_system_prompt, followup_chunk_system_prompt, headline_system_prompt)
+        with timing_step("summarize_generate_chunked", **log_context, summary_path=summary_file):
+            summary, usage1 =  generate_chunked_summary(
+                transcript_text,
+                client,
+                prompt_text,
+                first_chunk_system_prompt,
+                followup_chunk_system_prompt,
+                headline_system_prompt,
+            )
 
-        with open(summary_file, "w", encoding="utf-8") as f:
-            f.write(date_heading + "\n\n" + summary)
-        print(f"✅ Summary saved to {summary_file}")
+            with open(summary_file, "w", encoding="utf-8") as f:
+                f.write(date_heading + "\n\n" + summary)
+            print(f"✅ Summary saved to {summary_file}")
 
     start_date = day - timedelta(days=1)
     end_date = day + timedelta(days=1)
@@ -344,14 +359,17 @@ def summarize_for_day(day):
 
     top_stories, main_summary = split_summary(summary)
 
-    cleaned_main_summary, usage2 = cleanup_merged_summary(client, main_summary, deduplication_prompt)
+    with timing_step("summarize_cleanup", **log_context):
+        cleaned_main_summary, usage2 = cleanup_merged_summary(client, main_summary, deduplication_prompt)
 
-    linked_main_summary, usage3 = link_articles_to_summary(client, cleaned_main_summary, filtered_articles, link_prompt)
+    with timing_step("summarize_link_articles", **log_context):
+        linked_main_summary, usage3 = link_articles_to_summary(client, cleaned_main_summary, filtered_articles, link_prompt)
 
     final_output = date_heading + "\n\n" + top_stories + "\n\n" + linked_main_summary
 
-    with open(output_file, "w", encoding="utf-8") as f:
-        f.write(final_output)
+    with timing_step("summarize_write_output", **log_context, summary_path=output_file):
+        with open(output_file, "w", encoding="utf-8") as f:
+            f.write(final_output)
 
     # --- Token usage & cost ---
     total_tokens = 0
