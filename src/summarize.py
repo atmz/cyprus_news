@@ -244,6 +244,14 @@ def cleanup_merged_summary(client, summary_text, deduplication_prompt):
     return response.choices[0].message.content.strip(), response.usage
 
 
+def strip_summary_marker(text):
+    if not text:
+        return text
+    cleaned = re.sub(r'(?m)^\s*SUMMARY:\s*$', '', text)
+    cleaned = re.sub(r'\bSUMMARY:\s*', '', cleaned)
+    return cleaned.strip()
+
+
 def split_summary(summary):
     split_match = re.split(r'(?m)^### [^\n]+', summary)
     headers = re.findall(r'(?m)^### [^\n]+', summary)
@@ -330,9 +338,11 @@ def summarize_for_day(day):
         print(f"📄 Found existing summary: {summary_file}, skipping summarization.")
         with open(summary_file, "r", encoding="utf-8") as f:
             summary = f.read().replace(date_heading + "\n\n", "", 1)
+        summary = strip_summary_marker(summary)
         usage1 = None
     else:
         summary, usage1 =  generate_chunked_summary(transcript_text, client, prompt_text, first_chunk_system_prompt, followup_chunk_system_prompt, headline_system_prompt)
+        summary = strip_summary_marker(summary)
 
         with open(summary_file, "w", encoding="utf-8") as f:
             f.write(date_heading + "\n\n" + summary)
@@ -345,10 +355,13 @@ def summarize_for_day(day):
     top_stories, main_summary = split_summary(summary)
 
     cleaned_main_summary, usage2 = cleanup_merged_summary(client, main_summary, deduplication_prompt)
+    cleaned_main_summary = strip_summary_marker(cleaned_main_summary)
 
     linked_main_summary, usage3 = link_articles_to_summary(client, cleaned_main_summary, filtered_articles, link_prompt)
+    linked_main_summary = strip_summary_marker(linked_main_summary)
 
     final_output = date_heading + "\n\n" + top_stories + "\n\n" + linked_main_summary
+    final_output = strip_summary_marker(final_output)
 
     with open(output_file, "w", encoding="utf-8") as f:
         f.write(final_output)
