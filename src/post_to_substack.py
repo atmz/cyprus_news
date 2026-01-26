@@ -43,6 +43,11 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png"):
             return
         page.keyboard.insert_text(text)
 
+    def rule_type(page, text: str):
+        if not text:
+            return
+        page.keyboard.type(text)
+
     def insert_link(page, label: str, url: str):
         import time
         # Type the label
@@ -221,7 +226,11 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png"):
 
 
                 if pos < len(line):
-                    fast_type(page, line[pos:])
+                    remaining = line[pos:]
+                    if remaining.startswith("#"):
+                        rule_type(page, remaining)
+                    else:
+                        fast_type(page, remaining)
 
                 page.keyboard.press("Enter")
         page.keyboard.press("Enter")
