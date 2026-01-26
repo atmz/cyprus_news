@@ -35,10 +35,20 @@ def extract_title_and_body(markdown_text):
     return title, "\n".join(body_lines).strip()
 
 def post_to_substack(md_path, publish=False, cover_path="cover.png"):
+    def fast_type(page, text: str):
+        if not text:
+            return
+        page.keyboard.insert_text(text)
+
+    def rule_type(page, text: str):
+        if not text:
+            return
+        page.keyboard.type(text)
+
     def insert_link(page, label: str, url: str):
         import time
         # Type the label
-        page.keyboard.type(label)
+        fast_type(page, label)
         # Select the label we just typed (character-wise for reliability)
         for _ in range(len(label)):
             page.keyboard.down("Shift")
@@ -47,7 +57,7 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png"):
         # Open link dialog, type URL, confirm
         page.keyboard.down("Control"); page.keyboard.press("KeyK"); page.keyboard.up("Control")
         time.sleep(0.15)
-        page.keyboard.type(url)
+        fast_type(page, url)
         time.sleep(0.05)
         page.keyboard.press("Enter")
         time.sleep(0.05)
@@ -175,7 +185,7 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png"):
 
                 # Bullets -> dot
                 if line.startswith("- "):
-                    page.keyboard.type("• ")
+                    fast_type(page, "• ")
                     line = line[2:].strip()
 
                 # Type text with labeled links
@@ -187,7 +197,7 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png"):
                     url   = m.group(2)
                     print(f"Typing link: label={label}, url={url}")
                     if before:
-                        page.keyboard.type(before)
+                        fast_type(page, before)
 
                     # Your old, working popup flow
                     
@@ -195,10 +205,10 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png"):
                     page.keyboard.press("KeyK")
                     page.keyboard.up(LINK_MOD)
                     time.sleep(0.2)
-                    page.keyboard.type(label)
+                    fast_type(page, label)
                     page.keyboard.press("Tab")
                     time.sleep(0.2)
-                    page.keyboard.type(url)
+                    fast_type(page, url)
                     time.sleep(0.2)
                     page.keyboard.press("Enter")
                     time.sleep(0.2)
@@ -208,7 +218,11 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png"):
 
 
                 if pos < len(line):
-                    page.keyboard.type(line[pos:])
+                    remaining = line[pos:]
+                    if remaining.startswith("#"):
+                        rule_type(page, remaining)
+                    else:
+                        fast_type(page, remaining)
 
                 page.keyboard.press("Enter")
         page.keyboard.press("Enter")
