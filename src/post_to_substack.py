@@ -127,6 +127,55 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png"):
 
         raise RuntimeError("Timed out waiting for image block to appear after upload.")
 
+    def normalize_expected_text(text: str) -> str:
+        normalized = markdown_link_pattern.sub(r"\1", text)
+        normalized = re.sub(r"(?m)^\\s*#{1,6}\\s*", "", normalized)
+        normalized = normalized.replace("- ", "• ")
+        normalized = re.sub(r"[ \\t]+", " ", normalized)
+        return normalized.strip()
+
+    def collect_required_snippets(text: str, max_snippets: int = 6) -> list[str]:
+        snippets = []
+        for line in normalize_expected_text(text).splitlines():
+            cleaned = line.strip()
+            if len(cleaned) < 8:
+                continue
+            snippets.append(cleaned)
+            if len(snippets) >= max_snippets:
+                break
+        return snippets
+
+    def validate_editor_content(page, expected_title: str, expected_body: str):
+        title_value = page.locator("textarea[placeholder='Title']").input_value()
+        if expected_title and expected_title not in title_value:
+            raise RuntimeError("Title field does not contain the expected title text.")
+
+        editor_text = page.locator("div.ProseMirror").inner_text()
+        required_snippets = collect_required_snippets(expected_body)
+        missing = [snippet for snippet in required_snippets if snippet not in editor_text]
+        if missing:
+            raise RuntimeError(
+                "Editor content missing expected snippets: "
+                + "; ".join(missing[:3])
+            )
+
+    def wait_for_publish_success(page, timeout_s: int = 30) -> bool:
+        deadline = time.time() + timeout_s
+        success_texts = [
+            "Published",
+            "Your post is published",
+            "View post",
+            "Sent to everyone",
+        ]
+        while time.time() < deadline:
+            for text in success_texts:
+                if page.locator(f"text={text}").first.is_visible():
+                    return True
+            if "/publish/" not in page.url:
+                return True
+            page.wait_for_timeout(500)
+        return False
+
 
     if not md_path.exists():
         raise FileNotFoundError(f"Markdown file not found: {md_path}")
@@ -235,6 +284,14 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png"):
                 page.keyboard.press("Enter")
         page.keyboard.press("Enter")
         log_info("Body entry complete.")
+        log_info("Validating editor content...")
+        try:
+            validate_editor_content(page, title, body)
+            log_info("Editor content validated.")
+        except Exception as e:
+            log_info(f"Editor content validation failed: {e}")
+            page.screenshot(path="substack_content_validation_failed.png", full_page=True)
+            raise
         # If we never saw the header, you can optionally insert at top/end:
         # if not image_inserted:
         #     print("ℹ️ '### Top stories' not found — inserting image at top.")
@@ -261,7 +318,8 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png"):
                 log_info("Clicking Send to everyone now...")
                 page.wait_for_timeout(1000)
                 page.click("text=Send to everyone now", timeout=5000)
-                page.wait_for_timeout(3000)
+                if not wait_for_publish_success(page, timeout_s=30):
+                    raise RuntimeError("Publish flow did not confirm success before timeout.")
                 log_info(f"Publish flow complete. Current URL: {page.url}")
                 print("✅ Post published.")
                 browser.close()
