@@ -15,6 +15,7 @@ from post_to_substack import post_to_substack
 from summarize import load_articles, summarize_for_day
 from image import generate_cover_from_md
 from transcribe import transcribe_for_day
+from timing import timing_step
 
 
 CY_TZ = ZoneInfo("Europe/Nicosia")
@@ -79,6 +80,14 @@ def generate_for_date(day: date):
     text_gr = txt / f"transcript_gr.txt"
     summary_md = txt /  f"summary.txt"
     cover_file = txt /  f"cover.png"
+    log_context = {
+        "date": day.isoformat(),
+        "video_path": local_filename_video,
+        "audio_path": local_filename_audio,
+        "transcript_path": text_gr,
+        "summary_path": summary_md,
+        "cover_path": cover_file,
+    }
 
     # Skip if text already exists
     if os.path.exists(text_gr):
@@ -90,13 +99,18 @@ def generate_for_date(day: date):
             print(f"{local_filename_video} exists.")
         else:
             print(f"Downloading video to {local_filename_video}...")
-            try:
-                download_video(url_video, local_filename_video)
-            except Exception:
+            with timing_step(
+                "video_download",
+                **log_context,
+                urls=[url_video, url_video_alternate, url_video_alternate_2],
+            ):
                 try:
-                    download_video(url_video_alternate, local_filename_video)
+                    download_video(url_video, local_filename_video)
                 except Exception:
-                    download_video(url_video_alternate_2, local_filename_video)
+                    try:
+                        download_video(url_video_alternate, local_filename_video)
+                    except Exception:
+                        download_video(url_video_alternate_2, local_filename_video)
                 
                 
 
@@ -105,13 +119,15 @@ def generate_for_date(day: date):
             print(f"{local_filename_audio} exists.")
         else:
             print(f"Extracting audio to {local_filename_audio}...")
-            extract_audio(local_filename_video, local_filename_audio, local_filename_audio_short_prefix)
+            with timing_step("audio_extract_segment", **log_context):
+                extract_audio(local_filename_video, local_filename_audio, local_filename_audio_short_prefix)
         
         if os.path.exists(text_gr):
             print(f"{text_gr} exists.")
         else:
             print(f"Transcribing text to {text_gr}...")
-            transcribe_for_day(day)
+            with timing_step("transcription", **log_context):
+                transcribe_for_day(day)
         # if os.path.exists(text_gr):
         #     try:
         #         shutil.rmtree(media)
@@ -122,8 +138,9 @@ def generate_for_date(day: date):
         print(f"{summary_md} exists.")
     else:
         print(f"Summarizing text to {summary_md}...")
-        refresh_saved_articles()
-        summarize_for_day(day)
+        with timing_step("summarization", **log_context):
+            refresh_saved_articles()
+            summarize_for_day(day)
         
     # NEW: load from file and generate cover.png in same folder
     if os.path.exists(cover_file):
@@ -131,20 +148,21 @@ def generate_for_date(day: date):
         return False
     else:
         try:
-            md_text = Path(summary_md).read_text(encoding="utf-8")
-            from openai import OpenAI
-            # Reuse your OpenAI client
-            client = OpenAI()
-            out_dir = Path(summary_md).parent
-            generate_cover_from_md(
-                client=client,
-                day=day,
-                markdown=md_text,
-                out_dir=str(out_dir),
-                allow_faces=True,     # flip to False if needed on sensitive days
-                lead_subject=None,    # or pass an explicit subject
-                model="gpt-image-1"
-            )
+            with timing_step("cover_generation", **log_context):
+                md_text = Path(summary_md).read_text(encoding="utf-8")
+                from openai import OpenAI
+                # Reuse your OpenAI client
+                client = OpenAI()
+                out_dir = Path(summary_md).parent
+                generate_cover_from_md(
+                    client=client,
+                    day=day,
+                    markdown=md_text,
+                    out_dir=str(out_dir),
+                    allow_faces=True,     # flip to False if needed on sensitive days
+                    lead_subject=None,    # or pass an explicit subject
+                    model="gpt-image-1"
+                )
         except Exception as e:
             print(f"⚠️ Failed to read {summary_md} for cover generation: {e}")
     return True
@@ -175,10 +193,17 @@ def main():
     summary_md = txt / "summary.txt"
     cover_path = txt / "cover.png"
     post = False if args.draft else True
+    log_context = {
+        "date": day.isoformat(),
+        "summary_path": summary_md,
+        "cover_path": cover_path,
+        "publish": post,
+    }
 
     if new_summary or not Path.exists(flag_file):    
-        if post_to_substack(Path(summary_md), post, cover_path=cover_path):
-            Path(flag_file).touch()
+        with timing_step("post_to_substack", **log_context):
+            if post_to_substack(Path(summary_md), post, cover_path=cover_path):
+                Path(flag_file).touch()
 
 
 if __name__ == "__main__":
