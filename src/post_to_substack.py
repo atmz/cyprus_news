@@ -123,6 +123,7 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png"):
                 except Exception:
                     pass
 
+                page.wait_for_timeout(1000)
                 # Place caret just under the image (no extra Enter/ArrowDown here)
                 try:
                     box = new_node.bounding_box()
@@ -130,11 +131,43 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png"):
                         page.mouse.click(box["x"] + box["width"] / 2, box["y"] + box["height"] + 6)
                 except Exception:
                     pass
+                page.wait_for_timeout(1000)
                 return
 
             page.wait_for_timeout(200)
 
         raise RuntimeError("Timed out waiting for image block to appear after upload.")
+
+    def place_caret_after_last_image(page):
+        result = page.evaluate(
+            """() => {
+                const editor = document.querySelector("[data-testid='editor']") || document.querySelector("div.ProseMirror");
+                if (!editor) return "editor-missing";
+                editor.focus();
+                const selection = window.getSelection();
+                if (!selection) return "selection-missing";
+                const nodes = editor.querySelectorAll(
+                    "div.captioned-image-container, figure, img, [data-testid='imageBlock'], [class*='imageBlock']"
+                );
+                if (!nodes.length) return "image-missing";
+                const target = nodes[nodes.length - 1];
+                const container = target.closest("div.captioned-image-container, figure") || target;
+                let next = container.nextElementSibling;
+                if (!next || next.tagName !== "P") {
+                    const paragraph = document.createElement("p");
+                    paragraph.appendChild(document.createElement("br"));
+                    container.insertAdjacentElement("afterend", paragraph);
+                    next = paragraph;
+                }
+                const range = document.createRange();
+                range.setStart(next, 0);
+                range.collapse(true);
+                selection.removeAllRanges();
+                selection.addRange(range);
+                return "ok";
+            }"""
+        )
+        log_info(f"Placed caret after image block: {result}")
 
     def normalize_expected_text(text: str) -> str:
         normalized = markdown_link_pattern.sub(r"\1", text)
@@ -256,8 +289,10 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png"):
                     time.sleep(3)
 
                     # 3) Ensure caret is *below* the image (one gentle nudge)
+                    place_caret_after_last_image(page)
                     page.keyboard.press("ArrowDown")
                     page.keyboard.press("Enter")
+                    get_editor_locator(page).click()
                     image_inserted = True
                     # (now typing continues and the very next line you type will be the H3 header)
 
