@@ -38,6 +38,15 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png"):
     def log_info(message: str):
         print(f"SUBSTACK: {message}")
 
+    def get_editor_locator(page):
+        editor = page.locator("[data-testid='editor']")
+        log_info(f"Editor locator test id count={editor.count()}")
+        if editor.count() > 0:
+            log_info("Using editor locator: [data-testid='editor']")
+            return editor.first
+        log_info("Falling back to editor locator: div.ProseMirror")
+        return page.locator("div.ProseMirror").first
+
     def fast_type(page, text: str):
         if not text:
             return
@@ -74,7 +83,7 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png"):
         print(f"🖼️ Inserting cover image via toolbar: {abs_path}")
 
         # Ensure editor focus / toolbar visible
-        editor = page.locator("div.ProseMirror").first
+        editor = get_editor_locator(page)
         editor.wait_for(state="visible", timeout=10000)
         editor.click()
 
@@ -150,10 +159,11 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png"):
         if expected_title and expected_title not in title_value:
             raise RuntimeError("Title field does not contain the expected title text.")
 
-        editor_text = page.locator("div.ProseMirror").inner_text()
+        editor_text = get_editor_locator(page).inner_text()
         required_snippets = collect_required_snippets(expected_body)
         missing = [snippet for snippet in required_snippets if snippet not in editor_text]
         if missing:
+            log_info(f"Editor content missing snippets: {missing[:3]}")
             raise RuntimeError(
                 "Editor content missing expected snippets: "
                 + "; ".join(missing[:3])
@@ -161,6 +171,7 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png"):
 
     def wait_for_publish_success(page, timeout_s: int = 30) -> bool:
         deadline = time.time() + timeout_s
+        log_info(f"Waiting for publish confirmation (timeout={timeout_s}s)...")
         success_texts = [
             "Published",
             "Your post is published",
@@ -170,10 +181,20 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png"):
         while time.time() < deadline:
             for text in success_texts:
                 if page.locator(f"text={text}").first.is_visible():
+                    log_info(f"Publish confirmation detected: {text}")
                     return True
             if "/publish/" not in page.url:
+                log_info(f"Publish confirmation inferred from URL: {page.url}")
                 return True
             page.wait_for_timeout(500)
+        log_info("Publish confirmation timed out.")
+        try:
+            timestamp = int(time.time())
+            html_path = f"substack_publish_timeout_{timestamp}.html"
+            Path(html_path).write_text(page.content(), encoding="utf-8")
+            log_info(f"Saved HTML snapshot for manual review: {html_path}")
+        except Exception as e:
+            log_info(f"Failed to save HTML snapshot: {e}")
         return False
 
 
@@ -216,7 +237,7 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png"):
         page.fill("textarea[placeholder='Title']", title)
 
         log_info("Writing body...")
-        page.click("div.ProseMirror")
+        get_editor_locator(page).click()
         for paragraph in body.split("\n\n"):
             for raw_line in paragraph.splitlines():
                 line = raw_line.strip()
