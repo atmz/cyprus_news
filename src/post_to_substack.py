@@ -168,12 +168,13 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png"):
             }"""
         )
         log_info(f"Placed caret after image block: {result}")
+        return result
 
     def normalize_expected_text(text: str) -> str:
         normalized = markdown_link_pattern.sub(r"\1", text)
-        normalized = re.sub(r"(?m)^\\s*#{1,6}\\s*", "", normalized)
+        normalized = re.sub(r"(?m)^\s*#{1,6}\s*", "", normalized)
         normalized = normalized.replace("- ", "• ")
-        normalized = re.sub(r"[ \\t]+", " ", normalized)
+        normalized = re.sub(r"[ \t]+", " ", normalized)
         return normalized.strip()
 
     def collect_required_snippets(text: str, max_snippets: int = 6) -> list[str]:
@@ -279,20 +280,29 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png"):
                 if (not image_inserted) and TOP_STORIES_H3_RE.match(line):
                     print("🪄 Found '### Top stories' — inserting cover image just before it...")
 
-                    # 1) Create an empty paragraph *here* and move caret onto it
-                    page.keyboard.press("Enter")      # make a blank line at current spot
-                    page.keyboard.press("ArrowUp")    # put caret on that blank (anchor)
+                    # 1) Insert the image at current caret position
+                    insert_image_via_toolbar(page, cover_path)
+
+                    # 2) Wait for image to fully upload (not just appear in DOM)
+                    log_info("Waiting for image upload to complete...")
+                    time.sleep(10)
+
+                    # 3) Place caret after the image using JS
+                    result = place_caret_after_last_image(page)
                     time.sleep(1)
 
-                    # 2) Insert the image at the anchored caret
-                    insert_image_via_toolbar(page, cover_path)
-                    time.sleep(3)
+                    # 4) If JS placement worked, just press Enter to create new line for content
+                    if result == "ok":
+                        page.keyboard.press("End")  # ensure we're at end of line
+                        page.keyboard.press("Enter")
+                    else:
+                        # Fallback: click below image and navigate
+                        log_info(f"Caret placement returned {result}, using fallback")
+                        get_editor_locator(page).click()
+                        page.keyboard.press("End")
+                        page.keyboard.press("Enter")
 
-                    # 3) Ensure caret is *below* the image (one gentle nudge)
-                    place_caret_after_last_image(page)
-                    page.keyboard.press("ArrowDown")
-                    page.keyboard.press("Enter")
-                    get_editor_locator(page).click()
+                    time.sleep(1)
                     image_inserted = True
                     # (now typing continues and the very next line you type will be the H3 header)
 
@@ -385,8 +395,8 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png"):
                 page.screenshot(path="substack_publish_failed.png", full_page=True)
                 print("⚠️ Could not find Publish button — post might already be published.")
         else:
-            log_info("Draft mode: waiting for auto-save.")
-            page.wait_for_timeout(4000)
+            log_info("Draft mode: waiting for auto-save (including image upload)...")
+            page.wait_for_timeout(10000)
             log_info(f"Draft saved (not published). Current URL: {page.url}")
             print("✅ Draft saved (not published).")
 
