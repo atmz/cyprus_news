@@ -2,7 +2,8 @@ Translate the following English news summary into Greek.
 
 Rules:
 - Preserve the Markdown formatting exactly: section headers (###), bullet points (-), and links.
-- Keep proper nouns (names of people, organizations, places) as they appear — do not transliterate English proper nouns into Greek unless they have a well-known Greek form.
+- Transliterate all Greek/Cypriot proper nouns into Greek (e.g. "Christodoulides" -> "Χριστοδουλίδης", "Anastasiades" -> "Αναστασιάδης", "Nicosia" -> "Λευκωσία", "Limassol" -> "Λεμεσός"). This is a Greek-language Cypriot newsletter — readers expect Greek forms.
+- Keep non-Greek proper nouns (e.g. "Trump", "Macron", "EU") in their commonly used form in Greek media.
 - Translate section headers into Greek:
   - "Top stories" -> "Κύριες Ειδήσεις"
   - "Government & Politics" -> "Κυβέρνηση & Πολιτική"
