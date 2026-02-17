@@ -176,6 +176,7 @@ def main():
     parser = argparse.ArgumentParser(description="Generate and post Cyprus news summary.")
     parser.add_argument("date", nargs="?", help="Date in YYYY-MM-DD format (defaults to yesterday)")
     parser.add_argument("--draft", action="store_true", help="Save draft instead of publishing")
+    parser.add_argument("--lang", type=str, help="Run only a specific language pipeline (e.g. 'el'). English files must already exist for translation languages.")
 
     args = parser.parse_args()
 
@@ -192,27 +193,38 @@ def main():
         else:
             day = now_cy.date()
 
-    new_summary = generate_for_date(day)
     txt = get_text_folder_for_day(day)
-    flag_file = txt /  f"flag.txt"
-    summary_md = txt / "summary.txt"
     cover_path = txt / "cover.png"
     post = False if args.draft else True
-    log_context = {
-        "date": day.isoformat(),
-        "summary_path": summary_md,
-        "cover_path": cover_path,
-        "publish": post,
-    }
+    run_lang = args.lang  # None means run all
 
-    if new_summary or not Path.exists(flag_file):
-        with timing_step("post_to_substack", **log_context):
-            if post_to_substack(Path(summary_md), post, cover_path=cover_path):
-                Path(flag_file).touch()
+    # --- English pipeline (skip if --lang targets a non-English language) ---
+    if run_lang is None or run_lang == "en":
+        new_summary = generate_for_date(day)
+        flag_file = txt / "flag.txt"
+        summary_md = txt / "summary.txt"
+        log_context = {
+            "date": day.isoformat(),
+            "summary_path": summary_md,
+            "cover_path": cover_path,
+            "publish": post,
+        }
+
+        if new_summary or not Path.exists(flag_file):
+            with timing_step("post_to_substack", **log_context):
+                if post_to_substack(Path(summary_md), post, cover_path=cover_path):
+                    Path(flag_file).touch()
 
     # --- Multi-language translation and posting ---
     config = load_language_config()
     translation_langs = get_translation_languages(config)
+
+    # If --lang specified a translation language, only run that one
+    if run_lang and run_lang != "en":
+        if run_lang not in translation_langs:
+            print(f"❌ Language '{run_lang}' is not a configured translation language.")
+            return
+        translation_langs = {run_lang: translation_langs[run_lang]}
 
     for lang, lang_config in translation_langs.items():
         source_lang = get_source_language(lang_config)
