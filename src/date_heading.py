@@ -24,10 +24,10 @@ def _summary_reference_el(day):
     cyprus_now = datetime.now(ZoneInfo("Asia/Nicosia"))
     day_date = day.date() if isinstance(day, datetime) else day
     if cyprus_now.date() == day_date:
-        return "το απογευματινό"
+        return "του απογευματινού"
     elif cyprus_now.date() == (day_date + timedelta(days=1)) and cyprus_now.hour < 2:
-        return "το απογευματινό"
-    return "το χθεσινό"
+        return "του απογευματινού"
+    return "του χθεσινού"
 
 def generate_date_heading(day, lang="en"):
     if lang == "el":
@@ -38,7 +38,7 @@ def generate_date_heading(day, lang="en"):
         ref = _summary_reference_el(day)
         heading += (
             f"Αυτή είναι μια περίληψη {ref} "
-            f"[δελτίο ειδήσεων στις 8μμ του ΡΙΚ](https://tv.rik.cy/show/eideseis-ton-8/). "
+            f"[δελτίου ειδήσεων στις 8μμ του ΡΙΚ](https://tv.rik.cy/show/eideseis-ton-8/). "
             f"Όπου είναι διαθέσιμοι, παρέχονται σύνδεσμοι σε σχετικά άρθρα. "
             f"Σημειώστε ότι αυτή η περίληψη δημιουργήθηκε με τη βοήθεια AI και μπορεί να περιέχει ανακρίβειες."
         )
