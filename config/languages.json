@@ -21,7 +21,8 @@
     "article_sources": [
       {"name": "Philenews", "tag": "ΦΝ", "file": "data/philenews_kipros_articles.json"},
       {"name": "Philenews", "tag": "ΦΝ", "file": "data/philenews_oikonomia_articles.json"},
-      {"name": "Sigmalive", "tag": "ΣΛ", "file": "data/sigmalive_local_articles.json"}
+      {"name": "Sigmalive", "tag": "ΣΛ", "file": "data/sigmalive_local_articles.json"},
+      {"name": "Politis", "tag": "ΠΟ", "file": "data/politis_cyprus_articles.json"}
     ],
     "summary_filename": "summary_el.txt",
     "summary_without_links_filename": "summary_without_links_el.txt",

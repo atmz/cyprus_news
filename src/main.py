@@ -15,6 +15,7 @@ from helpers import get_media_folder_for_day, get_root_folder_for_day, get_text_
 from article_loaders.in_cyprus_loader import refresh_ic
 from article_loaders.philenews_loader import refresh_philenews
 from article_loaders.sigmalive_loader import refresh_sigmalive
+from article_loaders.politis_loader import refresh_politis
 from post_to_substack import post_to_substack
 from summarize import load_articles, summarize_for_day, link_articles_to_summary, strip_summary_marker, split_summary, get_article_sources
 from image import generate_cover_from_md
@@ -271,6 +272,10 @@ def main():
                     refresh_sigmalive()
                 except Exception as e:
                     print(f"⚠️ Failed to refresh Sigmalive: {e}")
+                try:
+                    refresh_politis()
+                except Exception as e:
+                    print(f"⚠️ Failed to refresh Politis: {e}")
 
             # Link injection (if article sources configured for this language)
             if article_sources:
