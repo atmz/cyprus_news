@@ -265,7 +265,8 @@ def split_summary(summary):
     top_stories_text = ""
     main_summary_text = ""
 
-    if sections and sections[0].strip().startswith("### Top stories"):
+    TOP_STORIES_MARKERS = ["### Top stories", "### Κύριες Ειδήσεις"]
+    if sections and any(sections[0].strip().startswith(m) for m in TOP_STORIES_MARKERS):
         top_stories_text = sections[0].strip()
         main_summary_text = "\n".join(sections[1:]).strip()
     else:
