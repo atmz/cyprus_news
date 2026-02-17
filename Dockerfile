@@ -8,6 +8,7 @@ WORKDIR /app
 
 # Copy source code and configuration
 COPY src/ src/
+COPY config/ config/
 # COPY data/ data/
 # COPY summaries/ summaries/
 COPY requirements.txt .

@@ -8,6 +8,10 @@ This file applies to the entire repository unless a more specific AGENTS.md exis
 - `src/summarize.py` handles chunked summarization and section ordering using prompt templates in `src/prompts/`.
 - `src/transcribe.py` handles speech-to-text for the downloaded audio.
 - `src/post_to_substack.py` uses Playwright and a saved session to publish to Substack.
+- `config/languages.json` defines per-language settings (sources, prompts, Substack config).
+- `src/translate.py` handles translating summaries to other languages.
+- `src/lang_config.py` loads and queries the language configuration.
+- `src/date_heading.py` generates localized date headings for summaries.
 - `summaries/` is the default output root for generated artifacts (override with `SUMMARIES_ROOT`).
 - `cyprus-news-cron` shows the production cron invocation and required environment setup.
 
@@ -16,6 +20,7 @@ This file applies to the entire repository unless a more specific AGENTS.md exis
 - Prompts are plain text files in `src/prompts/`; when editing prompts, keep formatting consistent and avoid trailing whitespace.
 - Summaries expect canonical section headings (e.g., "Top stories", "Culture") in `summarize.combine_summaries`; update tests if you change the section list.
 - Avoid adding new network calls inside tests; tests are expected to run offline.
+- To add a new language: add an entry to `config/languages.json` with `summary_source: "translate_from:en"` and the relevant Substack config.
 
 ## Environment & secrets
 - `SECRETS_ROOT` points to a folder containing `env.sh` and `substack_session.json` (see `cyprus-news-cron`).
