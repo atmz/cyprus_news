@@ -1,6 +1,7 @@
 import json
 import os
 import re
+from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 from playwright.sync_api import sync_playwright
 
@@ -17,14 +18,44 @@ DATE_RE = re.compile(
 )
 
 
+RELATIVE_RE = re.compile(r"Πριν\s*(\d+)\s*(λεπτ|ώρ|ωρ)")
+# "Updated: 17 Φεβρουαρίου - 8:52" (no year)
+UPDATED_RE = re.compile(
+    r"(\d{1,2})\s+("
+    + "|".join(GREEK_MONTHS)
+    + r")\s*-\s*(\d{1,2}):(\d{2})"
+)
+
+
 def parse_greek_datetime(text):
-    """Parse '17 Φεβρουαρίου 2026, 9:33' into ISO format."""
+    """Parse '17 Φεβρουαρίου 2026, 9:33' or 'Πριν 48 λεπτά' into ISO format."""
     m = DATE_RE.search(text)
-    if not m:
-        return None
-    day, month_name, year, hour, minute = m.groups()
-    month = GREEK_MONTHS[month_name]
-    return f"{year}-{month:02d}-{int(day):02d}T{int(hour):02d}:{int(minute):02d}:00"
+    if m:
+        day, month_name, year, hour, minute = m.groups()
+        month = GREEK_MONTHS[month_name]
+        return f"{year}-{month:02d}-{int(day):02d}T{int(hour):02d}:{int(minute):02d}:00"
+
+    # Handle "Updated: 17 Φεβρουαρίου - 8:52" (no year, assume current)
+    um = UPDATED_RE.search(text)
+    if um:
+        day, month_name, hour, minute = um.groups()
+        month = GREEK_MONTHS[month_name]
+        year = datetime.now().year
+        return f"{year}-{month:02d}-{int(day):02d}T{int(hour):02d}:{int(minute):02d}:00"
+
+    # Handle relative times: "Πριν 48 λεπτά", "Πριν 2 ώρες"
+    rm = RELATIVE_RE.search(text)
+    if rm:
+        amount = int(rm.group(1))
+        unit = rm.group(2)
+        now = datetime.now()
+        if unit.startswith("λεπτ"):
+            dt = now - timedelta(minutes=amount)
+        else:
+            dt = now - timedelta(hours=amount)
+        return dt.strftime("%Y-%m-%dT%H:%M:00")
+
+    return None
 
 
 def load_existing_articles(filepath):
