@@ -13,6 +13,7 @@ from openai import OpenAI
 from article_loaders.cm_loader import refresh_cm
 from helpers import get_media_folder_for_day, get_root_folder_for_day, get_text_folder_for_day, make_folders
 from article_loaders.in_cyprus_loader import refresh_ic
+from article_loaders.philenews_loader import refresh_philenews
 from post_to_substack import post_to_substack
 from summarize import load_articles, summarize_for_day, link_articles_to_summary, strip_summary_marker, split_summary, get_article_sources
 from image import generate_cover_from_md
@@ -258,8 +259,15 @@ def main():
             )
             print(f"✅ Translated summary saved to {target_summary_file}")
 
-            # Link injection (if article sources configured for this language)
+            # Refresh article sources for this language
             article_sources = lang_config.get("article_sources", [])
+            if article_sources and lang == "el":
+                try:
+                    refresh_philenews()
+                except Exception as e:
+                    print(f"⚠️ Failed to refresh Philenews: {e}")
+
+            # Link injection (if article sources configured for this language)
             if article_sources:
                 start_date = day - timedelta(days=1)
                 end_date = day + timedelta(days=1)
@@ -267,7 +275,7 @@ def main():
                 top_stories, main_summary = split_summary(translated)
                 with open("src/prompts/link_prompt.txt", "r", encoding="utf-8") as f:
                     link_prompt = f.read().strip()
-                linked, _ = link_articles_to_summary(client, main_summary, filtered_articles, link_prompt)
+                linked, _ = link_articles_to_summary(client, main_summary, filtered_articles, link_prompt, article_sources)
                 final = date_heading + "\n\n" + top_stories + "\n\n" + linked
             else:
                 final = date_heading + "\n\n" + translated

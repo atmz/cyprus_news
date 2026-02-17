@@ -1,12 +1,10 @@
-Match the following newspaper articles to the relevant story summaries. For each bullet point, if one of the articles clearly corresponds to the story, append a markdown link in this format:
+Match the following newspaper articles to the relevant story summaries. For each bullet point, if one of the articles clearly corresponds to the story, append a markdown link using the article's tag in this format: [(TAG)](actual-url)
 
-- [(CM)](https://cyprus-mail.com/...) for Cyprus Mail
-- [(IC)](https://in-cyprus.philenews.com/...) for In-Cyprus
+[TAG_EXAMPLES]
 
-You should add links to both sources if you find articles in both that match, seperated by a comma
+You should add links to multiple sources if you find articles in both that match, separated by a comma.
 
 Use the article's actual link. If no article fits, leave the line unchanged.
 If a proper name appears in the article and is spelled differently in the summary, update the summary text to match the article.
 Do not modify or rewrite the text otherwise.
 Please be sure that an article matches; don't add a link because of a vague connection in subject.
-

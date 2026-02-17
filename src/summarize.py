@@ -275,13 +275,38 @@ def split_summary(summary):
     return top_stories_text, main_summary_text
 
 # --- Linking Logic ---
-def link_articles_to_summary(client, summary_text, filtered_articles, link_prompt):
-    
+def build_tag_examples(article_sources):
+    """Build tag format examples from article sources config."""
+    seen = set()
+    examples = []
+    for source in article_sources:
+        tag = source["tag"]
+        if tag in seen:
+            continue
+        seen.add(tag)
+        examples.append(f"- [({tag})](url) for {source['name']}")
+    return "\n".join(examples)
+
+
+def link_articles_to_summary(client, summary_text, filtered_articles, link_prompt, article_sources=None):
+
     if not filtered_articles:
         print("No article metadata found, skipping link injection.")
         return summary_text, None
 
-    linking_prompt = f"""{link_prompt}
+    # Build tag examples and fill in the prompt template
+    if article_sources:
+        tag_examples = build_tag_examples(article_sources)
+    else:
+        tag_examples = "- [(CM)](url) for Cyprus Mail\n- [(IC)](url) for In-Cyprus"
+    prompt_with_tags = link_prompt.replace("[TAG_EXAMPLES]", tag_examples)
+
+    # Build dynamic system prompt with actual tag names
+    tags = [s["tag"] for s in article_sources] if article_sources else ["CM", "IC"]
+    tag_list = " or ".join(f"({t})" for t in dict.fromkeys(tags))
+    system_msg = f"You are a careful editor helping link summaries to matching newspaper articles. Do not alter text except to add a {tag_list} link."
+
+    linking_prompt = f"""{prompt_with_tags}
 
     SUMMARY:
     {summary_text}
@@ -294,7 +319,7 @@ def link_articles_to_summary(client, summary_text, filtered_articles, link_promp
     response = client.chat.completions.create(
         model=MODEL_NAME,
         messages=[
-            {"role": "system", "content": "You are a careful editor helping link summaries to matching newspaper articles. Do not alter text except to add a (CM) or (IC) link."},
+            {"role": "system", "content": system_msg},
             {"role": "user", "content": linking_prompt}
         ],
         temperature=0.3
@@ -369,7 +394,8 @@ def summarize_for_day(day):
         cleaned_main_summary, usage2 = cleanup_merged_summary(client, main_summary, deduplication_prompt)
 
     with timing_step("summarize_link_articles", **log_context):
-        linked_main_summary, usage3 = link_articles_to_summary(client, cleaned_main_summary, filtered_articles, link_prompt)
+        en_sources = get_article_sources("en")
+        linked_main_summary, usage3 = link_articles_to_summary(client, cleaned_main_summary, filtered_articles, link_prompt, en_sources)
 
     final_output = date_heading + "\n\n" + top_stories + "\n\n" + linked_main_summary
     final_output = strip_summary_marker(final_output)

@@ -33,6 +33,26 @@ class SummarizeTestCase(unittest.TestCase):
         self.assertIn("- Two", limited)
         self.assertNotIn("- Three", limited)
 
+    def test_build_tag_examples(self):
+        sources = [
+            {"name": "Philenews", "tag": "ΦΝ", "file": "data/philenews_kipros_articles.json"},
+            {"name": "Philenews", "tag": "ΦΝ", "file": "data/philenews_oikonomia_articles.json"},
+        ]
+        examples = summarize.build_tag_examples(sources)
+        self.assertIn("(ΦΝ)", examples)
+        self.assertIn("Philenews", examples)
+        # Duplicate tag should only appear once
+        self.assertEqual(examples.count("(ΦΝ)"), 1)
+
+    def test_build_tag_examples_english(self):
+        sources = [
+            {"name": "Cyprus Mail", "tag": "CM", "file": "data/cyprus_articles.json"},
+            {"name": "In-Cyprus", "tag": "IC", "file": "data/in_cyprus_local_articles.json"},
+        ]
+        examples = summarize.build_tag_examples(sources)
+        self.assertIn("(CM)", examples)
+        self.assertIn("(IC)", examples)
+
 
 if __name__ == "__main__":
     unittest.main()
