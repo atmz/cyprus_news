@@ -24,9 +24,9 @@ def _summary_reference_el(day):
     cyprus_now = datetime.now(ZoneInfo("Asia/Nicosia"))
     day_date = day.date() if isinstance(day, datetime) else day
     if cyprus_now.date() == day_date:
-        return "του απογευματινού"
+        return "του σημερινού"
     elif cyprus_now.date() == (day_date + timedelta(days=1)) and cyprus_now.hour < 2:
-        return "του απογευματινού"
+        return "του σημερινού"
     return "του χθεσινού"
 
 def generate_date_heading(day, lang="en"):
@@ -34,13 +34,12 @@ def generate_date_heading(day, lang="en"):
         day_name = GREEK_DAYS[day.weekday()]
         month_name = GREEK_MONTHS[day.month]
         date_str = f"{day_name}, {day.day} {month_name} {day.year}"
-        heading = f"## 📰 Περίληψη Ειδήσεων για {date_str}\n\n"
+        heading = f"## 📰 Περίληψη Ειδήσεων — {date_str}\n\n"
         ref = _summary_reference_el(day)
         heading += (
-            f"Αυτή είναι μια περίληψη {ref} "
-            f"[δελτίου ειδήσεων στις 8μμ του ΡΙΚ](https://tv.rik.cy/show/eideseis-ton-8/). "
-            f"Όπου είναι διαθέσιμοι, παρέχονται σύνδεσμοι σε σχετικά άρθρα. "
-            f"Σημειώστε ότι αυτή η περίληψη δημιουργήθηκε με τη βοήθεια AI και μπορεί να περιέχει ανακρίβειες."
+            f"Περίληψη {ref} [βραδινού δελτίου ειδήσεων (8μμ) του ΡΙΚ](https://tv.rik.cy/show/eideseis-ton-8/). "
+            f"Όπου υπάρχουν, περιλαμβάνονται σύνδεσμοι σε σχετικά άρθρα. "
+            f"Η περίληψη δημιουργήθηκε με τη βοήθεια AI και ενδέχεται να περιέχει ανακρίβειες."
         )
         return heading
 
