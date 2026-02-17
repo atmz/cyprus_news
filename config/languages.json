@@ -1,0 +1,28 @@
+{
+  "en": {
+    "enabled": true,
+    "summary_source": "transcript",
+    "prompts_dir": "src/prompts",
+    "article_sources": [
+      {"name": "Cyprus Mail", "tag": "CM", "file": "data/cyprus_articles.json"},
+      {"name": "Cyprus Mail", "tag": "CM", "file": "data/cm_crime_articles.json"},
+      {"name": "In-Cyprus", "tag": "IC", "file": "data/in_cyprus_local_articles.json"},
+      {"name": "In-Cyprus", "tag": "IC", "file": "data/in_cyprus_local_economy_articles.json"}
+    ],
+    "summary_filename": "summary.txt",
+    "summary_without_links_filename": "summary_without_links.txt",
+    "substack_url": "https://cyprusnews.substack.com/publish/post?type=newsletter&back=%2Fpublish%2Fhome",
+    "substack_session_file": "substack_session.json",
+    "flag_filename": "flag.txt"
+  },
+  "el": {
+    "enabled": true,
+    "summary_source": "translate_from:en",
+    "article_sources": [],
+    "summary_filename": "summary_el.txt",
+    "summary_without_links_filename": "summary_without_links_el.txt",
+    "substack_url": "https://kyproseidiseis.substack.com/publish/post?type=newsletter&back=%2Fpublish%2Fhome",
+    "substack_session_file": "substack_session.json",
+    "flag_filename": "flag_el.txt"
+  }
+}
