@@ -44,7 +44,7 @@ def generate_date_heading(day, lang="en"):
         return heading
 
     # English (default / current behavior)
-    date_str = day.strftime('%A, %d %B %Y')
+    date_str = day.strftime('%A, %-d %B %Y')
     heading = f"## 📰 News Summary for {date_str}\n\n"
     ref = _summary_reference(day)
     heading += (
