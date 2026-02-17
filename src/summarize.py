@@ -16,16 +16,18 @@ import time
 import tiktoken
 from timing import timing_step
 from date_heading import generate_date_heading
+from lang_config import load_language_config
 
 
 # --- Configuration ---
 SUMMARY_DIR = "summaries"
-ARTICLE_SOURCES = [
-    {"name": "Cyprus Mail", "tag": "CM", "file": "data/cyprus_articles.json"},
-    {"name": "Cyprus Mail", "tag": "CM", "file": "data/cm_crime_articles.json"},
-    {"name": "In-Cyprus", "tag": "IC", "file": "data/in_cyprus_local_articles.json"},
-    {"name": "In-Cyprus", "tag": "IC", "file": "data/in_cyprus_local_economy_articles.json"}
-]
+
+
+def get_article_sources(lang="en"):
+    config = load_language_config()
+    if lang in config:
+        return config[lang].get("article_sources", [])
+    return []
 MODEL_NAME = "gpt-4o"
 PROMPT_FILE = "src/prompts/prompt.txt"
 LINK_PROMPT_FILE = "src/prompts/link_prompt.txt"
@@ -198,9 +200,11 @@ def generate_chunked_summary(
 
 
 # --- Load and Filter Articles ---
-def load_articles(start_date, end_date):
+def load_articles(start_date, end_date, article_sources=None):
+    if article_sources is None:
+        article_sources = get_article_sources("en")
     results = []
-    for source in ARTICLE_SOURCES:
+    for source in article_sources:
         if not os.path.exists(source["file"]):
             continue
         with open(source["file"], "r", encoding="utf-8") as f:
@@ -357,7 +361,7 @@ def summarize_for_day(day):
 
     start_date = day - timedelta(days=1)
     end_date = day + timedelta(days=1)
-    filtered_articles = load_articles(start_date, end_date)
+    filtered_articles = load_articles(start_date, end_date, get_article_sources("en"))
 
     top_stories, main_summary = split_summary(summary)
 
