@@ -34,7 +34,11 @@ def extract_title_and_body(markdown_text):
 
     return title, "\n".join(body_lines).strip()
 
-def post_to_substack(md_path, publish=False, cover_path="cover.png"):
+def post_to_substack(md_path, publish=False, cover_path="cover.png",
+                     substack_url=None, session_file=None):
+    actual_url = substack_url or SUBSTACK_NEW_POST_URL
+    actual_session = Path(session_file) if session_file else SESSION_FILE
+
     def log_info(message: str):
         print(f"SUBSTACK: {message}")
 
@@ -252,14 +256,14 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png"):
                 "--disable-dev-shm-usage"
             ]
         )
-        if not SESSION_FILE.exists():
-            raise RuntimeError(f"Substack session file not found: {SESSION_FILE}")
-        log_info(f"Using session file: {SESSION_FILE}")
-        context = browser.new_context(storage_state=SESSION_FILE)
+        if not actual_session.exists():
+            raise RuntimeError(f"Substack session file not found: {actual_session}")
+        log_info(f"Using session file: {actual_session}")
+        context = browser.new_context(storage_state=actual_session)
         page = context.new_page()
 
-        log_info(f"Opening editor URL: {SUBSTACK_NEW_POST_URL}")
-        page.goto(SUBSTACK_NEW_POST_URL)
+        log_info(f"Opening editor URL: {actual_url}")
+        page.goto(actual_url)
         try:
             page.wait_for_selector("textarea[placeholder='Title']", timeout=15000)
         except Exception as e:
