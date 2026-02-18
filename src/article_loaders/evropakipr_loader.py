@@ -82,9 +82,9 @@ def fetch_articles(base_url, known_urls=None):
             continue
 
         href = link["href"]
-        # Normalize to relative path
-        if href.startswith("https://evropakipr.com"):
-            href = href.replace("https://evropakipr.com", "")
+        # Ensure absolute URL
+        if href.startswith("/"):
+            href = "https://evropakipr.com" + href
 
         if href in known_urls or href in seen_urls:
             continue

@@ -140,9 +140,11 @@ def fetch_articles(base_url, known_urls=None):
         if not href or href in known_urls or href in seen_urls:
             continue
 
-        # Normalize: ensure leading slash
-        if not href.startswith("/") and not href.startswith("http"):
-            href = "/" + href
+        # Ensure absolute URL
+        if not href.startswith("http"):
+            if not href.startswith("/"):
+                href = "/" + href
+            href = "https://cyprusbutterfly.com.cy" + href
 
         seen_urls.add(href)
 
