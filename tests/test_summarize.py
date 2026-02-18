@@ -44,6 +44,34 @@ class SummarizeTestCase(unittest.TestCase):
         # Duplicate tag should only appear once
         self.assertEqual(examples.count("(ΦΝ)"), 1)
 
+
+    def test_load_articles_applies_base_url_to_relative_links(self):
+        from tempfile import TemporaryDirectory
+        import json
+        from datetime import date
+
+        with TemporaryDirectory() as tmp:
+            data_file = Path(tmp) / "articles.json"
+            data_file.write_text(json.dumps([
+                {
+                    "title": "Sample",
+                    "abstract": "Desc",
+                    "datetime": "2026-02-17T00:00:00",
+                    "url": "/novosti/example"
+                }
+            ]), encoding="utf-8")
+
+            sources = [{
+                "name": "EvropaKipr",
+                "tag": "ЕК",
+                "file": str(data_file),
+                "base_url": "https://evropakipr.com"
+            }]
+            articles = summarize.load_articles(date(2026, 2, 17), date(2026, 2, 17), sources)
+
+            self.assertEqual(len(articles), 1)
+            self.assertEqual(articles[0]["u"], "https://evropakipr.com/novosti/example")
+
     def test_build_tag_examples_english(self):
         sources = [
             {"name": "Cyprus Mail", "tag": "CM", "file": "data/cyprus_articles.json"},

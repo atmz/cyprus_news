@@ -6,6 +6,7 @@ import re
 import sys
 import argparse
 import json
+from urllib.parse import urljoin
 from datetime import date, datetime, timedelta
 from zoneinfo import ZoneInfo
 from helpers import get_text_folder_for_day
@@ -205,6 +206,7 @@ def load_articles(start_date, end_date, article_sources=None):
         article_sources = get_article_sources("en")
     results = []
     for source in article_sources:
+        base_url = source.get("base_url")
         if not os.path.exists(source["file"]):
             continue
         with open(source["file"], "r", encoding="utf-8") as f:
@@ -223,10 +225,13 @@ def load_articles(start_date, end_date, article_sources=None):
             except (ParserError, ValueError):
                 continue
             if start_date <= dt.date() <= end_date:
+                article_url = a.get("url")
+                if base_url and article_url:
+                    article_url = urljoin(base_url, article_url)
                 results.append({
                     "t": a.get("title"),
                     "a": a.get("abstract"),
-                    "u": a.get("url"),
+                    "u": article_url,
                     "tag": source["tag"]
                 })
     return results

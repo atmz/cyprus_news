@@ -34,8 +34,8 @@
     "enabled": true,
     "summary_source": "translate_from:en",
     "article_sources": [
-      {"name": "EvropaKipr", "tag": "ЕК", "file": "data/evropakipr_novosti_articles.json"},
-      {"name": "Cyprus Butterfly", "tag": "CB", "file": "data/cyprusbutterfly_articles.json"}
+      {"name": "EvropaKipr", "tag": "ЕК", "file": "data/evropakipr_novosti_articles.json", "base_url": "https://evropakipr.com"},
+      {"name": "Cyprus Butterfly", "tag": "CB", "file": "data/cyprusbutterfly_articles.json", "base_url": "https://cyprusbutterfly.com.cy"}
     ],
     "summary_filename": "summary_ru.txt",
     "summary_without_links_filename": "summary_without_links_ru.txt",
