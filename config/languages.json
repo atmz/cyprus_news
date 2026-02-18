@@ -31,7 +31,7 @@
     "flag_filename": "flag_el.txt"
   },
   "ru": {
-    "enabled": false,
+    "enabled": true,
     "summary_source": "translate_from:en",
     "article_sources": [
       {"name": "EvropaKipr", "tag": "ЕК", "file": "data/evropakipr_novosti_articles.json"},
@@ -44,7 +44,7 @@
     "flag_filename": "flag_ru.txt"
   },
   "uk": {
-    "enabled": false,
+    "enabled": true,
     "summary_source": "translate_from:en",
     "article_sources": [
       {"name": "Cyprus Mail", "tag": "CM", "file": "data/cyprus_articles.json"},
