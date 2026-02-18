@@ -68,7 +68,7 @@
     ],
     "summary_filename": "summary_tr.txt",
     "summary_without_links_filename": "summary_without_links_tr.txt",
-    "substack_url": "",
+    "substack_url": "https://rikhaberleri.substack.com/publish/post?type=newsletter&back=%2Fpublish%2Fhome",
     "substack_session_file": "substack_session.json",
     "flag_filename": "flag_tr.txt"
   },

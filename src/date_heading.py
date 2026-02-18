@@ -110,10 +110,10 @@ def generate_date_heading(day, lang="en"):
         heading = f"## 📰 Haber Özeti — {date_str}\n\n"
         ref = _summary_reference_tr(day)
         heading += (
-            f"{ref.capitalize()} [RİK akşam haber bülteninin (20:00) özeti](https://tv.rik.cy/show/eideseis-ton-8/). "
+            f"Kıbrıs Cumhuriyeti kamu yayıncısı [RİK'in {ref} akşam haber bülteninin (20:00)](https://tv.rik.cy/show/eideseis-ton-8/), "
+            f"yapay zekâ kullanılarak hazırlanmış özeti. "
             f"Mümkün olduğunda ilgili haberlere bağlantılar eklenmiştir. "
-            f"Bu özet yapay zeka yardımıyla hazırlanmıştır ve yanlışlıklar içerebilir. "
-            f"Editör Türkçe bilmemektedir — bir hata fark ederseniz lütfen bize bildirin."
+            f"Bu özet yanlışlıklar içerebilir ve bir insan tarafından incelenmemiştir."
         )
         return heading
 
@@ -126,8 +126,7 @@ def generate_date_heading(day, lang="en"):
         heading += (
             f"סיכום {ref} [שידור חדשות הערב (20:00) של ערוץ RIK](https://tv.rik.cy/show/eideseis-ton-8/). "
             f"במידת האפשר, צורפו קישורים לכתבות רלוונטיות. "
-            f"הסיכום הוכן בסיוע AI ועשוי להכיל אי-דיוקים. "
-            f"העורך אינו דובר עברית — אם הבחנתם בטעות, אנא דווחו לנו."
+            f"הסיכום הוכן בסיוע AI, עשוי להכיל אי-דיוקים ולא נבדק על ידי אדם."
         )
         return heading
 
@@ -140,8 +139,7 @@ def generate_date_heading(day, lang="en"):
         heading += (
             f"Огляд {ref} [вечірнього випуску новин (20:00) телеканалу РІК](https://tv.rik.cy/show/eideseis-ton-8/). "
             f"Де можливо, додано посилання на відповідні статті. "
-            f"Огляд підготовлено за допомогою AI і може містити неточності. "
-            f"Автор не володіє українською мовою — якщо ви помітили помилку, будь ласка, повідомте нас."
+            f"Огляд підготовлено за допомогою AI, може містити неточності та не перевірявся людиною."
         )
         return heading
 
@@ -154,8 +152,7 @@ def generate_date_heading(day, lang="en"):
         heading += (
             f"Обзор {ref} [вечернего выпуска новостей (20:00) телеканала РИК](https://tv.rik.cy/show/eideseis-ton-8/). "
             f"Где возможно, приводятся ссылки на соответствующие статьи. "
-            f"Обзор подготовлен с помощью AI и может содержать неточности. "
-            f"Автор не владеет русским языком — если вы заметили ошибку, пожалуйста, сообщите нам."
+            f"Обзор подготовлен с помощью AI, может содержать неточности и не проверялся человеком."
         )
         return heading
 
@@ -168,7 +165,7 @@ def generate_date_heading(day, lang="en"):
         heading += (
             f"Περίληψη {ref} [βραδινού δελτίου ειδήσεων (8μμ) του ΡΙΚ](https://tv.rik.cy/show/eideseis-ton-8/). "
             f"Όπου υπάρχουν, περιλαμβάνονται σύνδεσμοι σε σχετικά άρθρα. "
-            f"Η περίληψη δημιουργήθηκε με τη βοήθεια AI και ενδέχεται να περιέχει ανακρίβειες."
+            f"Η περίληψη δημιουργήθηκε με τη βοήθεια AI, ενδέχεται να περιέχει ανακρίβειες και δεν ελέγχθηκε από άνθρωπο."
         )
         return heading
 
@@ -181,6 +178,6 @@ def generate_date_heading(day, lang="en"):
         f"[8pm RIK news broadcast](https://tv.rik.cy/show/eideseis-ton-8/). "
         f"Where available, links to related English-language articles from the Cyprus Mail "
         f"and In-Cyprus are provided for further reading. Please note that this summary was "
-        f"generated with the assistance of AI and may contain inaccuracies."
+        f"generated with the assistance of AI and may contain inaccuracies. It was not reviewed by a human."
     )
     return heading
