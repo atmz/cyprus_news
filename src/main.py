@@ -18,6 +18,7 @@ from article_loaders.sigmalive_loader import refresh_sigmalive
 from article_loaders.politis_loader import refresh_politis
 from article_loaders.evropakipr_loader import refresh_evropakipr
 from article_loaders.cyprusbutterfly_loader import refresh_cyprusbutterfly
+from article_loaders.kibrispostasi_loader import refresh_kibrispostasi
 
 # Map language codes to their article refresh functions
 LANG_REFRESHERS = {
@@ -29,6 +30,9 @@ LANG_REFRESHERS = {
     "ru": [
         ("EvropaKipr", refresh_evropakipr),
         ("Cyprus Butterfly", refresh_cyprusbutterfly),
+    ],
+    "tr": [
+        ("Kıbrıs Postası", refresh_kibrispostasi),
     ],
 }
 from post_to_substack import post_to_substack

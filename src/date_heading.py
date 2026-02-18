@@ -38,6 +38,16 @@ HEBREW_MONTHS = {
     9: "ספטמבר", 10: "אוקטובר", 11: "נובמבר", 12: "דצמבר"
 }
 
+TURKISH_DAYS = {
+    0: "Pazartesi", 1: "Salı", 2: "Çarşamba", 3: "Perşembe",
+    4: "Cuma", 5: "Cumartesi", 6: "Pazar"
+}
+TURKISH_MONTHS = {
+    1: "Ocak", 2: "Şubat", 3: "Mart", 4: "Nisan",
+    5: "Mayıs", 6: "Haziran", 7: "Temmuz", 8: "Ağustos",
+    9: "Eylül", 10: "Ekim", 11: "Kasım", 12: "Aralık"
+}
+
 def _summary_reference(day):
     cyprus_now = datetime.now(ZoneInfo("Asia/Nicosia"))
     day_date = day.date() if isinstance(day, datetime) else day
@@ -83,7 +93,30 @@ def _summary_reference_he(day):
         return "של היום"
     return "של אתמול"
 
+def _summary_reference_tr(day):
+    cyprus_now = datetime.now(ZoneInfo("Asia/Nicosia"))
+    day_date = day.date() if isinstance(day, datetime) else day
+    if cyprus_now.date() == day_date:
+        return "bugünkü"
+    elif cyprus_now.date() == (day_date + timedelta(days=1)) and cyprus_now.hour < 2:
+        return "bugünkü"
+    return "dünkü"
+
 def generate_date_heading(day, lang="en"):
+    if lang == "tr":
+        day_name = TURKISH_DAYS[day.weekday()]
+        month_name = TURKISH_MONTHS[day.month]
+        date_str = f"{day_name}, {day.day} {month_name} {day.year}"
+        heading = f"## 📰 Haber Özeti — {date_str}\n\n"
+        ref = _summary_reference_tr(day)
+        heading += (
+            f"{ref.capitalize()} [RİK akşam haber bülteninin (20:00) özeti](https://tv.rik.cy/show/eideseis-ton-8/). "
+            f"Mümkün olduğunda ilgili haberlere bağlantılar eklenmiştir. "
+            f"Bu özet yapay zeka yardımıyla hazırlanmıştır ve yanlışlıklar içerebilir. "
+            f"Editör Türkçe bilmemektedir — bir hata fark ederseniz lütfen bize bildirin."
+        )
+        return heading
+
     if lang == "he":
         day_name = HEBREW_DAYS[day.weekday()]
         month_name = HEBREW_MONTHS[day.month]
