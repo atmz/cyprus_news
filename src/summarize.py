@@ -28,7 +28,7 @@ def get_article_sources(lang="en"):
     if lang in config:
         return config[lang].get("article_sources", [])
     return []
-MODEL_NAME = "gpt-4o"
+MODEL_NAME = "gpt-4.1"
 PROMPT_FILE = "src/prompts/prompt.txt"
 LINK_PROMPT_FILE = "src/prompts/link_prompt.txt"
 SYSTEM_PROMPT_FILE = "src/prompts/system_prompt.txt"
@@ -115,7 +115,7 @@ def generate_chunked_summary(
     first_chunk_system_prompt,
     followup_chunk_system_prompt,
     headline_system_prompt,
-    model="gpt-4o",
+    model="gpt-4.1",
     chunk_separator="\n\n",
     max_chunk_size=3000,
     sleep_time=20

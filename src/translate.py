@@ -14,7 +14,7 @@ def load_translate_prompt(target_lang="el"):
         return f.read().strip()
 
 
-def translate_summary(client, english_summary, target_lang="el", model="gpt-4o"):
+def translate_summary(client, english_summary, target_lang="el", model="gpt-4.1"):
     """Translate an English summary to the target language."""
     prompt = load_translate_prompt(target_lang)
 
