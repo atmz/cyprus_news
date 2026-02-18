@@ -174,11 +174,15 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png",
         log_info(f"Placed caret after image block: {result}")
         return result
 
+    def strip_bidi(text: str) -> str:
+        return re.sub(r"[\u200E\u200F\u200B\u202A-\u202E\u2066-\u2069\uFEFF]", "", text)
+
     def normalize_expected_text(text: str) -> str:
         normalized = markdown_link_pattern.sub(r"\1", text)
         normalized = re.sub(r"(?m)^\s*#{1,6}\s*", "", normalized)
         normalized = normalized.replace("- ", "• ")
         normalized = re.sub(r"[ \t]+", " ", normalized)
+        normalized = strip_bidi(normalized)
         return normalized.strip()
 
     def collect_required_snippets(text: str, max_snippets: int = 6) -> list[str]:
@@ -197,7 +201,7 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png",
         if expected_title and expected_title not in title_value:
             raise RuntimeError("Title field does not contain the expected title text.")
 
-        editor_text = get_editor_locator(page).inner_text()
+        editor_text = strip_bidi(get_editor_locator(page).inner_text())
         required_snippets = collect_required_snippets(expected_body)
         missing = [snippet for snippet in required_snippets if snippet not in editor_text]
         if missing:
