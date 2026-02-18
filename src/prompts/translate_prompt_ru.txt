@@ -1,0 +1,17 @@
+Translate the following English news summary into Russian.
+
+Rules:
+- Preserve the Markdown formatting exactly: section headers (###), bullet points (-), and links.
+- Transliterate all Greek/Cypriot proper nouns into their standard Russian forms (e.g. "Christodoulides" -> "Христодулидис", "Anastasiades" -> "Анастасиадис", "Nicosia" -> "Никосия", "Limassol" -> "Лимассол", "Larnaca" -> "Ларнака", "Paphos" -> "Пафос", "Troodos" -> "Троодос"). This is a Russian-language Cypriot newsletter — readers expect Russian transliterations.
+- Keep non-Cypriot proper nouns in their commonly used Russian media forms (e.g. "Trump" -> "Трамп", "EU" -> "ЕС", "Macron" -> "Макрон").
+- Translate section headers into Russian:
+  - "Top stories" -> "Главные новости"
+  - "Government & Politics" -> "Власть и политика"
+  - "Cyprus Problem" -> "Кипрский вопрос"
+  - "Crime & Justice" -> "Криминал и правосудие"
+  - "Foreign Affairs" -> "Международные отношения"
+  - "Public Health & Safety" -> "Здравоохранение и безопасность"
+  - "Energy & Infrastructure" -> "Энергетика и инфраструктура"
+  - "Education" -> "Образование"
+  - "Culture" -> "Культура"
+- Output only the translated text, no commentary.

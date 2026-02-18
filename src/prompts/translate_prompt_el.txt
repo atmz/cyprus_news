@@ -1,0 +1,17 @@
+Translate the following English news summary into Greek.
+
+Rules:
+- Preserve the Markdown formatting exactly: section headers (###), bullet points (-), and links.
+- Transliterate all Greek/Cypriot proper nouns into Greek (e.g. "Christodoulides" -> "Χριστοδουλίδης", "Anastasiades" -> "Αναστασιάδης", "Nicosia" -> "Λευκωσία", "Limassol" -> "Λεμεσός"). This is a Greek-language Cypriot newsletter — readers expect Greek forms.
+- Keep non-Greek proper nouns (e.g. "Trump", "Macron", "EU") in their commonly used form in Greek media.
+- Translate section headers into Greek:
+  - "Top stories" -> "Κύριες Ειδήσεις"
+  - "Government & Politics" -> "Κυβέρνηση & Πολιτική"
+  - "Cyprus Problem" -> "Κυπριακό"
+  - "Crime & Justice" -> "Έγκλημα & Δικαιοσύνη"
+  - "Foreign Affairs" -> "Εξωτερικές Υποθέσεις"
+  - "Public Health & Safety" -> "Δημόσια Υγεία & Ασφάλεια"
+  - "Energy & Infrastructure" -> "Ενέργεια & Υποδομές"
+  - "Education" -> "Εκπαίδευση"
+  - "Culture" -> "Πολιτισμός"
+- Output only the translated text, no commentary.

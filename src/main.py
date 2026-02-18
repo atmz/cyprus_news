@@ -16,6 +16,21 @@ from article_loaders.in_cyprus_loader import refresh_ic
 from article_loaders.philenews_loader import refresh_philenews
 from article_loaders.sigmalive_loader import refresh_sigmalive
 from article_loaders.politis_loader import refresh_politis
+from article_loaders.evropakipr_loader import refresh_evropakipr
+from article_loaders.cyprusbutterfly_loader import refresh_cyprusbutterfly
+
+# Map language codes to their article refresh functions
+LANG_REFRESHERS = {
+    "el": [
+        ("Philenews", refresh_philenews),
+        ("Sigmalive", refresh_sigmalive),
+        ("Politis", refresh_politis),
+    ],
+    "ru": [
+        ("EvropaKipr", refresh_evropakipr),
+        ("Cyprus Butterfly", refresh_cyprusbutterfly),
+    ],
+}
 from post_to_substack import post_to_substack
 from summarize import load_articles, summarize_for_day, link_articles_to_summary, strip_summary_marker, split_summary, get_article_sources
 from image import generate_cover_from_md
@@ -263,19 +278,11 @@ def main():
 
             # Refresh article sources for this language
             article_sources = lang_config.get("article_sources", [])
-            if article_sources and lang == "el":
+            for name, refresher in LANG_REFRESHERS.get(lang, []):
                 try:
-                    refresh_philenews()
+                    refresher()
                 except Exception as e:
-                    print(f"⚠️ Failed to refresh Philenews: {e}")
-                try:
-                    refresh_sigmalive()
-                except Exception as e:
-                    print(f"⚠️ Failed to refresh Sigmalive: {e}")
-                try:
-                    refresh_politis()
-                except Exception as e:
-                    print(f"⚠️ Failed to refresh Politis: {e}")
+                    print(f"⚠️ Failed to refresh {name}: {e}")
 
             # Link injection (if article sources configured for this language)
             if article_sources:
