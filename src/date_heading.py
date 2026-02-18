@@ -28,6 +28,15 @@ UKRAINIAN_MONTHS = {
     5: "травня", 6: "червня", 7: "липня", 8: "серпня",
     9: "вересня", 10: "жовтня", 11: "листопада", 12: "грудня"
 }
+HEBREW_DAYS = {
+    0: "שני", 1: "שלישי", 2: "רביעי", 3: "חמישי",
+    4: "שישי", 5: "שבת", 6: "ראשון"
+}
+HEBREW_MONTHS = {
+    1: "ינואר", 2: "פברואר", 3: "מרץ", 4: "אפריל",
+    5: "מאי", 6: "יוני", 7: "יולי", 8: "אוגוסט",
+    9: "ספטמבר", 10: "אוקטובר", 11: "נובמבר", 12: "דצמבר"
+}
 
 def _summary_reference(day):
     cyprus_now = datetime.now(ZoneInfo("Asia/Nicosia"))
@@ -65,7 +74,30 @@ def _summary_reference_uk(day):
         return "сьогоднішнього"
     return "вчорашнього"
 
+def _summary_reference_he(day):
+    cyprus_now = datetime.now(ZoneInfo("Asia/Nicosia"))
+    day_date = day.date() if isinstance(day, datetime) else day
+    if cyprus_now.date() == day_date:
+        return "של היום"
+    elif cyprus_now.date() == (day_date + timedelta(days=1)) and cyprus_now.hour < 2:
+        return "של היום"
+    return "של אתמול"
+
 def generate_date_heading(day, lang="en"):
+    if lang == "he":
+        day_name = HEBREW_DAYS[day.weekday()]
+        month_name = HEBREW_MONTHS[day.month]
+        date_str = f"יום {day_name}, {day.day} ב{month_name} {day.year}"
+        heading = f"## 📰 סיכום חדשות — {date_str}\n\n"
+        ref = _summary_reference_he(day)
+        heading += (
+            f"סיכום {ref} [שידור חדשות הערב (20:00) של ערוץ RIK](https://tv.rik.cy/show/eideseis-ton-8/). "
+            f"במידת האפשר, צורפו קישורים לכתבות רלוונטיות. "
+            f"הסיכום הוכן בסיוע AI ועשוי להכיל אי-דיוקים. "
+            f"העורך אינו דובר עברית — אם הבחנתם בטעות, אנא דווחו לנו."
+        )
+        return heading
+
     if lang == "uk":
         day_name = UKRAINIAN_DAYS[day.weekday()]
         month_name = UKRAINIAN_MONTHS[day.month]

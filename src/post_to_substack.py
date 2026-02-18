@@ -11,7 +11,7 @@ import platform
 SECRETS_ROOT = Path(os.getenv("SECRETS_ROOT", "./data"))
 SESSION_FILE = SECRETS_ROOT / "substack_session.json"
 SUBSTACK_NEW_POST_URL = "https://cyprusnews.substack.com/publish/post?type=newsletter&back=%2Fpublish%2Fhome"
-TOP_STORIES_H3_RE = re.compile(r'(?im)^\s*#{3}\s*(?:Top\s*stories|Κύριες\s*Ειδήσεις|Главные\s*новости|Головні\s*новини)\b.*$')
+TOP_STORIES_H3_RE = re.compile(r'(?im)^\s*#{3}\s*(?:Top\s*stories|Κύριες\s*Ειδήσεις|Главные\s*новости|Головні\s*новини|כותרות\s*ראשיות)\b.*$')
 markdown_link_pattern = re.compile(r"\[([^\]]+)\]\((https?://[^\)]+)\)")
 LINK_MOD = "Meta" if platform.system() == "Darwin" else "Control"
 

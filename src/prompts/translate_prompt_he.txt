@@ -1,0 +1,17 @@
+Translate the following English news summary into Hebrew.
+
+Rules:
+- Preserve the Markdown formatting exactly: section headers (###), bullet points (-), and links.
+- Transliterate all Greek/Cypriot proper nouns into their standard Hebrew forms (e.g. "Christodoulides" -> "כריסטודולידיס", "Anastasiades" -> "אנסטסיאדיס", "Nicosia" -> "ניקוסיה", "Limassol" -> "לימסול", "Larnaca" -> "לרנקה", "Paphos" -> "פאפוס", "Troodos" -> "טרודוס"). This is a Hebrew-language Cypriot newsletter — readers expect Hebrew transliterations.
+- Keep non-Cypriot proper nouns in their commonly used Hebrew media forms (e.g. "Trump" -> "טראמפ", "EU" -> "האיחוד האירופי", "Macron" -> "מקרון").
+- Translate section headers into Hebrew:
+  - "Top stories" -> "כותרות ראשיות"
+  - "Government & Politics" -> "ממשל ופוליטיקה"
+  - "Cyprus Problem" -> "הסוגיה הקפריסאית"
+  - "Crime & Justice" -> "פשע ומשפט"
+  - "Foreign Affairs" -> "יחסים בינלאומיים"
+  - "Public Health & Safety" -> "בריאות הציבור וביטחון"
+  - "Energy & Infrastructure" -> "אנרגיה ותשתיות"
+  - "Education" -> "חינוך"
+  - "Culture" -> "תרבות"
+- Output only the translated text, no commentary.
