@@ -34,10 +34,14 @@ def extract_title_and_body(markdown_text):
 
     return title, "\n".join(body_lines).strip()
 
+RTL_LANGUAGES = {"he"}
+
 def post_to_substack(md_path, publish=False, cover_path="cover.png",
-                     substack_url=None, session_file=None):
+                     substack_url=None, session_file=None, lang=None):
     actual_url = substack_url or SUBSTACK_NEW_POST_URL
     actual_session = Path(session_file) if session_file else SESSION_FILE
+    is_rtl = lang in RTL_LANGUAGES
+    arrow_after_link = "ArrowLeft" if is_rtl else "ArrowRight"
 
     def log_info(message: str):
         print(f"SUBSTACK: {message}")
@@ -343,7 +347,7 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png",
                     time.sleep(0.2)
                     page.keyboard.press("Enter")
                     time.sleep(0.2)
-                    page.keyboard.press("ArrowRight")
+                    page.keyboard.press(arrow_after_link)
 
                     pos = end
 

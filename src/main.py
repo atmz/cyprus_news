@@ -234,7 +234,7 @@ def main():
 
         if new_summary or not Path.exists(flag_file):
             with timing_step("post_to_substack", **log_context):
-                if post_to_substack(Path(summary_md), post, cover_path=cover_path):
+                if post_to_substack(Path(summary_md), post, cover_path=cover_path, lang="en"):
                     Path(flag_file).touch()
 
     # --- Multi-language translation and posting ---
@@ -319,7 +319,8 @@ def main():
                     Path(target_output_file), post,
                     cover_path=cover_path,
                     substack_url=substack_url,
-                    session_file=str(session_path)
+                    session_file=str(session_path),
+                    lang=lang
                 ):
                     Path(target_flag_file).touch()
       except Exception as e:
