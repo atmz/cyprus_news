@@ -39,8 +39,22 @@
     ],
     "summary_filename": "summary_ru.txt",
     "summary_without_links_filename": "summary_without_links_ru.txt",
-    "substack_url": "",
+    "substack_url": "https://kiprnovosti.substack.com/publish/post?type=newsletter&back=%2Fpublish%2Fhome",
     "substack_session_file": "substack_session.json",
     "flag_filename": "flag_ru.txt"
+  },
+  "uk": {
+    "enabled": false,
+    "summary_source": "translate_from:en",
+    "article_sources": [
+      {"name": "Cyprus Mail", "tag": "CM", "file": "data/cyprus_articles.json"},
+      {"name": "In-Cyprus", "tag": "IC", "file": "data/in_cyprus_local_articles.json"},
+      {"name": "In-Cyprus", "tag": "IC", "file": "data/in_cyprus_local_economy_articles.json"}
+    ],
+    "summary_filename": "summary_uk.txt",
+    "summary_without_links_filename": "summary_without_links_uk.txt",
+    "substack_url": "https://kiprnovyny.substack.com/publish/post?type=newsletter&back=%2Fpublish%2Fhome",
+    "substack_session_file": "substack_session.json",
+    "flag_filename": "flag_uk.txt"
   }
 }

@@ -19,6 +19,15 @@ RUSSIAN_MONTHS = {
     5: "мая", 6: "июня", 7: "июля", 8: "августа",
     9: "сентября", 10: "октября", 11: "ноября", 12: "декабря"
 }
+UKRAINIAN_DAYS = {
+    0: "понеділок", 1: "вівторок", 2: "середа", 3: "четвер",
+    4: "п'ятниця", 5: "субота", 6: "неділя"
+}
+UKRAINIAN_MONTHS = {
+    1: "січня", 2: "лютого", 3: "березня", 4: "квітня",
+    5: "травня", 6: "червня", 7: "липня", 8: "серпня",
+    9: "вересня", 10: "жовтня", 11: "листопада", 12: "грудня"
+}
 
 def _summary_reference(day):
     cyprus_now = datetime.now(ZoneInfo("Asia/Nicosia"))
@@ -47,7 +56,29 @@ def _summary_reference_ru(day):
         return "сегодняшнего"
     return "вчерашнего"
 
+def _summary_reference_uk(day):
+    cyprus_now = datetime.now(ZoneInfo("Asia/Nicosia"))
+    day_date = day.date() if isinstance(day, datetime) else day
+    if cyprus_now.date() == day_date:
+        return "сьогоднішнього"
+    elif cyprus_now.date() == (day_date + timedelta(days=1)) and cyprus_now.hour < 2:
+        return "сьогоднішнього"
+    return "вчорашнього"
+
 def generate_date_heading(day, lang="en"):
+    if lang == "uk":
+        day_name = UKRAINIAN_DAYS[day.weekday()]
+        month_name = UKRAINIAN_MONTHS[day.month]
+        date_str = f"{day_name}, {day.day} {month_name} {day.year}"
+        heading = f"## 📰 Огляд новин — {date_str}\n\n"
+        ref = _summary_reference_uk(day)
+        heading += (
+            f"Огляд {ref} [вечірнього випуску новин (20:00) телеканалу РІК](https://tv.rik.cy/show/eideseis-ton-8/). "
+            f"Де можливо, додано посилання на відповідні статті. "
+            f"Огляд підготовлено за допомогою AI і може містити неточності."
+        )
+        return heading
+
     if lang == "ru":
         day_name = RUSSIAN_DAYS[day.weekday()]
         month_name = RUSSIAN_MONTHS[day.month]
