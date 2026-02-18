@@ -110,7 +110,7 @@ def generate_date_heading(day, lang="en"):
         heading = f"## 📰 Haber Özeti — {date_str}\n\n"
         ref = _summary_reference_tr(day)
         heading += (
-            f"Kıbrıs Cumhuriyeti kamu yayıncısı [RİK'in {ref} akşam haber bülteninin (20:00)](https://tv.rik.cy/show/eideseis-ton-8/), "
+            f"Kıbrıs Cumhuriyeti kamu yayıncısı [RİK](https://tv.rik.cy/show/eideseis-ton-8/)'in {ref} akşam haber bülteninin (20:00), "
             f"yapay zekâ kullanılarak hazırlanmış özeti. "
             f"Mümkün olduğunda ilgili haberlere bağlantılar eklenmiştir. "
             f"Bu özet yanlışlıklar içerebilir ve bir insan tarafından incelenmemiştir."
@@ -124,7 +124,7 @@ def generate_date_heading(day, lang="en"):
         heading = f"## 📰 סיכום חדשות — {date_str}\n\n"
         ref = _summary_reference_he(day)
         heading += (
-            f"סיכום {ref} [שידור חדשות הערב (20:00) של ערוץ RIK](https://tv.rik.cy/show/eideseis-ton-8/). "
+            f"סיכום {ref} שידור חדשות הערב (20:00) של ערוץ [RIK](https://tv.rik.cy/show/eideseis-ton-8/). "
             f"במידת האפשר, צורפו קישורים לכתבות רלוונטיות. "
             f"הסיכום הוכן בסיוע AI, עשוי להכיל אי-דיוקים ולא נבדק על ידי אדם."
         )

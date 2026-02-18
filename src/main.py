@@ -249,6 +249,7 @@ def main():
         translation_langs = {run_lang: translation_langs[run_lang]}
 
     for lang, lang_config in translation_langs.items():
+      try:
         source_lang = get_source_language(lang_config)
         source_summary_file = txt / config[source_lang]["summary_without_links_filename"]
 
@@ -321,6 +322,11 @@ def main():
                     session_file=str(session_path)
                 ):
                     Path(target_flag_file).touch()
+      except Exception as e:
+        print(f"❌ Error processing language '{lang}': {e}")
+        import traceback
+        traceback.print_exc()
+        continue
 
 
 if __name__ == "__main__":
