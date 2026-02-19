@@ -18,14 +18,21 @@ This file applies to the entire repository unless a more specific AGENTS.md exis
 
 ## Supported languages
 - **English (en)**: Primary language. Summary generated from RIK transcript. Articles from Cyprus Mail, In-Cyprus.
-- **Greek (el)**: Translated from English. Articles from Philenews (tag Φ), Sigmalive (SL), Politis (Π).
+- **Greek (el)**: Summarized natively in Greek from RIK transcript (`summary_source: "summarize_native"`). Articles from Philenews (tag Φ), Sigmalive (SL), Politis (Π).
 - **Russian (ru)**: Translated from English. Articles from EvropaKipr (ЕК), Cyprus Butterfly (CB).
 - **Ukrainian (uk)**: Translated from English. Uses English article sources (no Ukrainian Cyprus news sites).
 - **Turkish (tr)**: Translated from English. Articles from Kıbrıs Postası (KP) plus English sources. Turkish phrasing is politically sensitive — heading explicitly says "Republic of Cyprus public broadcaster RIK" (vetted wording).
 - **Hebrew (he)**: Translated from English. Uses English article sources. RTL language — requires special handling in Substack posting (ArrowLeft for cursor movement, bidi marker stripping in validation).
 
 ## Multi-language pipeline
-The pipeline flow for non-English languages:
+The pipeline flow for non-English languages depends on `summary_source` in `config/languages.json`:
+
+### `"summarize_native"` (e.g. Greek)
+1. `summarize_for_day(day, lang)` summarizes the RIK transcript directly in the target language using language-specific prompts (`src/prompts/prompt_{lang}.txt`, etc.)
+2. Language-specific article sources are scraped and linked
+3. Final summary is posted to the language-specific Substack
+
+### `"translate_from:en"` (e.g. Russian, Ukrainian, Turkish, Hebrew)
 1. English summary is generated from the RIK transcript
 2. English summary is translated using `src/translate.py` with a language-specific prompt (`src/prompts/translate_prompt_{lang}.txt`)
 3. Localized date heading is prepended (`src/date_heading.py`)
@@ -36,7 +43,7 @@ The pipeline flow for non-English languages:
 Each language is wrapped in try/except so a failure in one language doesn't block others.
 
 ## Adding a new language
-1. Add entry to `config/languages.json` with `summary_source: "translate_from:en"`, article sources, Substack URL, and filenames.
+1. Add entry to `config/languages.json` with `summary_source` (`"translate_from:en"` or `"summarize_native"`), article sources, Substack URL, and filenames.
 2. Create `src/prompts/translate_prompt_{lang}.txt` with section header translations and proper noun transliterations.
 3. Add localized day/month names, `_summary_reference_{lang}()`, and heading block to `src/date_heading.py`.
 4. Add the translated "Top stories" header to `TOP_STORIES_MARKERS` in `src/summarize.py` and `TOP_STORIES_H3_RE` in `src/post_to_substack.py`.
@@ -67,6 +74,7 @@ All loaders follow the same pattern:
 - Generated daily outputs live under `summaries/YYYY-MM-DD/{media,txt}` and are referenced by helpers in `src/helpers.py`.
 - Prompts are plain text files in `src/prompts/`; when editing prompts, keep formatting consistent and avoid trailing whitespace.
 - Per-language translate prompts: `src/prompts/translate_prompt_{lang}.txt` (falls back to generic `translate_prompt.txt`).
+- Per-language summarization prompts: `src/prompts/{prompt,first_chunk_system_prompt,followup_chunk_system_prompt,headline_system_prompt}_{lang}.txt` (falls back to English versions without suffix). Used by `summarize_native` languages.
 - Summaries expect canonical section headings (e.g., "Top stories", "Culture") in `summarize.combine_summaries`; update tests if you change the section list.
 - Avoid adding new network calls inside tests; tests are expected to run offline.
 

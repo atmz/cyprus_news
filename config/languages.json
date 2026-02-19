@@ -17,7 +17,7 @@
   },
   "el": {
     "enabled": true,
-    "summary_source": "translate_from:en",
+    "summary_source": "summarize_native",
     "article_sources": [
       {"name": "Philenews", "tag": "Φ", "file": "data/philenews_kipros_articles.json"},
       {"name": "Philenews", "tag": "Φ", "file": "data/philenews_oikonomia_articles.json"},

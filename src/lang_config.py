@@ -19,6 +19,12 @@ def get_translation_languages(config=None):
     return {k: v for k, v in enabled.items()
             if v["summary_source"].startswith("translate_from:")}
 
+def get_native_summary_languages(config=None):
+    """Return languages where summary_source == 'summarize_native'."""
+    enabled = get_enabled_languages(config)
+    return {k: v for k, v in enabled.items()
+            if v["summary_source"] == "summarize_native"}
+
 def get_source_language(lang_config):
     """Parse 'translate_from:en' -> 'en'."""
     return lang_config["summary_source"].split(":", 1)[1]

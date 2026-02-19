@@ -29,13 +29,19 @@ def get_article_sources(lang="en"):
         return config[lang].get("article_sources", [])
     return []
 MODEL_NAME = "gpt-4.1"
-PROMPT_FILE = "src/prompts/prompt.txt"
+PROMPTS_DIR = "src/prompts"
 LINK_PROMPT_FILE = "src/prompts/link_prompt.txt"
 SYSTEM_PROMPT_FILE = "src/prompts/system_prompt.txt"
-FIRST_CHUNK_SYSTEM_PROMPT_FILE = "src/prompts/first_chunk_system_prompt.txt"
-FOLLOWUP_CHUNK_SYSTEM_PROMPT_FILE = "src/prompts/followup_chunk_system_prompt.txt"
-HEADLINE_SYSTEM_PROMPT_FILE = "src/prompts/headline_system_prompt.txt"
 DEDUPLICATION_PROMPT_FILE = "src/prompts/deduplication_prompt.txt"
+
+
+def _resolve_prompt_file(base_name, lang):
+    """Try prompt_{lang}.txt first, fall back to prompt.txt."""
+    if lang and lang != "en":
+        lang_path = os.path.join(PROMPTS_DIR, f"{base_name}_{lang}.txt")
+        if os.path.exists(lang_path):
+            return lang_path
+    return os.path.join(PROMPTS_DIR, f"{base_name}.txt")
 
 
 
@@ -330,39 +336,49 @@ def link_articles_to_summary(client, summary_text, filtered_articles, link_promp
     )
     return response.choices[0].message.content.strip(), response.usage
 
-def summarize_for_day(day):
+def summarize_for_day(day, lang="en"):
 
     # --- Load required files ---
     output_folder = get_text_folder_for_day(day)
     log_context = {
         "date": day.isoformat(),
         "output_folder": output_folder,
+        "lang": lang,
     }
 
-    date_heading = generate_date_heading(day, "en")
+    config = load_language_config()
+    lang_cfg = config.get(lang, config["en"])
 
-    summary_file = output_folder / "summary_without_links.txt"
-    output_file = output_folder / "summary.txt"
+    date_heading = generate_date_heading(day, lang)
+
+    summary_file = output_folder / lang_cfg["summary_without_links_filename"]
+    output_file = output_folder / lang_cfg["summary_filename"]
     transcript_file = output_folder / "transcript_gr.txt"
+
+    # Resolve prompt files with language-specific fallback
+    prompt_file = _resolve_prompt_file("prompt", lang)
+    first_chunk_file = _resolve_prompt_file("first_chunk_system_prompt", lang)
+    followup_chunk_file = _resolve_prompt_file("followup_chunk_system_prompt", lang)
+    headline_file = _resolve_prompt_file("headline_system_prompt", lang)
 
     with timing_step("summarize_read_transcript", **log_context, transcript_path=transcript_file):
         with open(transcript_file, "r", encoding="utf-8") as f:
             transcript_text = f.read()
     with timing_step("summarize_load_prompts", **log_context):
-        with open(PROMPT_FILE, "r", encoding="utf-8") as f:
+        with open(prompt_file, "r", encoding="utf-8") as f:
             prompt_text = f.read().strip().replace("[DATE]", day.strftime('%A, %d %B %Y'))
         with open(LINK_PROMPT_FILE, "r", encoding="utf-8") as f:
             link_prompt = f.read().strip()
         with open(DEDUPLICATION_PROMPT_FILE, "r", encoding="utf-8") as f:
             deduplication_prompt = f.read().strip()
 
-        with open(FIRST_CHUNK_SYSTEM_PROMPT_FILE, "r", encoding="utf-8") as f:
+        with open(first_chunk_file, "r", encoding="utf-8") as f:
             first_chunk_system_prompt = f.read().strip()
-        with open(FOLLOWUP_CHUNK_SYSTEM_PROMPT_FILE, "r", encoding="utf-8") as f:
+        with open(followup_chunk_file, "r", encoding="utf-8") as f:
             followup_chunk_system_prompt = f.read().strip()
-        with open(HEADLINE_SYSTEM_PROMPT_FILE, "r", encoding="utf-8") as f:
+        with open(headline_file, "r", encoding="utf-8") as f:
             headline_system_prompt = f.read().strip()
-        
+
 
     client = OpenAI()
     # --- Main Logic ---
@@ -390,7 +406,8 @@ def summarize_for_day(day):
 
     start_date = day - timedelta(days=1)
     end_date = day + timedelta(days=1)
-    filtered_articles = load_articles(start_date, end_date, get_article_sources("en"))
+    article_sources = get_article_sources(lang)
+    filtered_articles = load_articles(start_date, end_date, article_sources)
 
     top_stories, main_summary = split_summary(summary)
 
@@ -398,8 +415,7 @@ def summarize_for_day(day):
         cleaned_main_summary, usage2 = cleanup_merged_summary(client, main_summary, deduplication_prompt)
 
     with timing_step("summarize_link_articles", **log_context):
-        en_sources = get_article_sources("en")
-        linked_main_summary, usage3 = link_articles_to_summary(client, cleaned_main_summary, filtered_articles, link_prompt, en_sources)
+        linked_main_summary, usage3 = link_articles_to_summary(client, cleaned_main_summary, filtered_articles, link_prompt, article_sources)
 
     final_output = date_heading + "\n\n" + top_stories + "\n\n" + linked_main_summary
     final_output = strip_summary_marker(final_output)
@@ -421,6 +437,6 @@ def summarize_for_day(day):
     COST_PER_1K_COMPLETION = 0.015
     estimated_cost = (total_tokens / 1000) * ((COST_PER_1K_PROMPT + COST_PER_1K_COMPLETION) / 2)
 
-    print(f"\n✅ Final summary with links saved to {output_file}")
+    print(f"\n✅ Final {lang} summary with links saved to {output_file}")
     print(f"📊 Token usage: ~{total_tokens} total")
     print(f"💰 Estimated cost: ${estimated_cost:.4f} USD")

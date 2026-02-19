@@ -2,6 +2,7 @@ import json
 import os
 import re
 from datetime import datetime
+from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 from playwright.sync_api import sync_playwright
 
@@ -72,7 +73,7 @@ def fetch_articles(base_url, known_urls=None):
 
     # Find all links to /news/ articles
     for a_tag in soup.find_all("a", href=re.compile(r"/news/")):
-        href = a_tag.get("href", "")
+        href = urljoin(base_url, a_tag.get("href", ""))
         if not href or href in known_urls or href in seen_urls:
             continue
 
@@ -112,6 +113,10 @@ def fetch_articles(base_url, known_urls=None):
 def _refresh_category(base_url, json_path):
     os.makedirs(os.path.dirname(json_path), exist_ok=True)
     existing_articles = load_existing_articles(json_path)
+    # Fix any previously stored relative URLs
+    for a in existing_articles:
+        if a.get("url") and not a["url"].startswith("http"):
+            a["url"] = urljoin(base_url, a["url"])
     existing_urls = {a["url"] for a in existing_articles}
 
     new_articles = fetch_articles(base_url, known_urls=existing_urls)

@@ -17,9 +17,9 @@ class LangConfigTestCase(unittest.TestCase):
         config = load_language_config()
         self.assertEqual(config["en"]["summary_source"], "transcript")
 
-    def test_greek_translates_from_english(self):
+    def test_greek_uses_native_summarization(self):
         config = load_language_config()
-        self.assertEqual(config["el"]["summary_source"], "translate_from:en")
+        self.assertEqual(config["el"]["summary_source"], "summarize_native")
 
     def test_each_language_has_required_keys(self):
         config = load_language_config()

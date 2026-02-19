@@ -163,7 +163,7 @@ def generate_date_heading(day, lang="en"):
         heading = f"## 📰 Περίληψη Ειδήσεων — {date_str}\n\n"
         ref = _summary_reference_el(day)
         heading += (
-            f"Περίληψη {ref} [βραδινού δελτίου ειδήσεων (8μμ) του ΡΙΚ](https://tv.rik.cy/show/eideseis-ton-8/). "
+            f"Περίληψη {ref} βραδινού δελτίου ειδήσεων (8μμ) του [ΡΙΚ](https://tv.rik.cy/show/eideseis-ton-8/). "
             f"Όπου υπάρχουν, περιλαμβάνονται σύνδεσμοι σε σχετικά άρθρα. "
             f"Η περίληψη δημιουργήθηκε με τη βοήθεια AI, ενδέχεται να περιέχει ανακρίβειες και δεν ελέγχθηκε από άνθρωπο."
         )
