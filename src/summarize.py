@@ -122,7 +122,10 @@ def generate_chunked_summary(
 ):
 
     def count_tokens(text):
-        encoding = tiktoken.encoding_for_model(model)
+        try:
+            encoding = tiktoken.encoding_for_model(model)
+        except KeyError:
+            encoding = tiktoken.get_encoding("o200k_base")
         return len(encoding.encode(text))
 
     # Split into paragraphs and then chunk based on token count
