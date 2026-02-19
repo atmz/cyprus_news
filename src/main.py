@@ -46,7 +46,7 @@ from date_heading import generate_date_heading
 
 
 CY_TZ = ZoneInfo("Europe/Nicosia")
-CUTOFF_HOUR = 22  # 10pm
+START_HOUR = 7  # Don't process until 7am — more articles available by then
 
 
 def download_video(url, local_path):
@@ -210,10 +210,10 @@ def main():
             return
     else:
         now_cy = datetime.now(CY_TZ)
-        if now_cy.hour < CUTOFF_HOUR:
-            day = (now_cy.date() - timedelta(days=1))
-        else:
-            day = now_cy.date()
+        if now_cy.hour < START_HOUR:
+            print(f"⏳ It's {now_cy.strftime('%H:%M')} in Cyprus — too early, waiting until {START_HOUR}:00.")
+            return
+        day = now_cy.date() - timedelta(days=1)
 
     txt = get_text_folder_for_day(day)
     cover_path = txt / "cover.png"
