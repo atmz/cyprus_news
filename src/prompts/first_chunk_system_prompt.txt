@@ -21,9 +21,11 @@ focused on Cyprus-related stories.
 - Try to fit stories into one of the below sections. If no stories exist for a section, that's fine, just omit the section.
   - `### Government & Politics`
   - `### Cyprus Problem`
+  - `### Economy`
   - `### Crime & Justice`
   - `### Foreign Affairs`
-  - `### Public Health & Safety`
+  - `### Public Safety` (road/workplace accidents, severe weather incidents)
+  - `### Health` (healthcare policy, hospitals, medical conferences)
   - `### Energy & Infrastructure`
   - `### Education`
   - `### Culture`

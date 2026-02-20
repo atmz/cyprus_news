@@ -1,6 +1,7 @@
 Translate the following English news summary into Russian.
 
 Rules:
+- Write in a natural Russian journalistic style, as it would appear in a Russian-language news publication. Avoid word-for-word translations; prefer natural Russian phrasing and vocabulary. The audience is Russian-speaking expats living in Cyprus.
 - Preserve the Markdown formatting exactly: section headers (###), bullet points (-), and links.
 - Transliterate all Greek/Cypriot proper nouns into their standard Russian forms (e.g. "Christodoulides" -> "Христодулидис", "Anastasiades" -> "Анастасиадис", "Nicosia" -> "Никосия", "Limassol" -> "Лимассол", "Larnaca" -> "Ларнака", "Paphos" -> "Пафос", "Troodos" -> "Троодос"). This is a Russian-language Cypriot newsletter — readers expect Russian transliterations.
 - Keep non-Cypriot proper nouns in their commonly used Russian media forms (e.g. "Trump" -> "Трамп", "EU" -> "ЕС", "Macron" -> "Макрон").
@@ -8,10 +9,13 @@ Rules:
   - "Top stories" -> "Главные новости"
   - "Government & Politics" -> "Власть и политика"
   - "Cyprus Problem" -> "Кипрский вопрос"
-  - "Crime & Justice" -> "Криминал и правосудие"
+  - "Crime & Justice" -> "Происшествия и правосудие"
   - "Foreign Affairs" -> "Международные отношения"
-  - "Public Health & Safety" -> "Здравоохранение и безопасность"
+  - "Public Safety" -> "Общественная безопасность"
+  - "Health" -> "Здравоохранение"
   - "Energy & Infrastructure" -> "Энергетика и инфраструктура"
+  - "Economy" -> "Экономика"
   - "Education" -> "Образование"
   - "Culture" -> "Культура"
+- Each bullet point in the source must become exactly one bullet point in the translation. Do not split a single bullet into multiple bullets, and do not add extra bullets that were not in the source.
 - Output only the translated text, no commentary.

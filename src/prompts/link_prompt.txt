@@ -2,7 +2,7 @@ Match the following newspaper articles to the relevant story summaries. For each
 
 [TAG_EXAMPLES]
 
-You should add links to multiple sources if you find articles in both that match, separated by a comma.
+You should add links to multiple sources if you find articles in both that match, separated by a comma. Add at most one link per source publication per bullet — if multiple articles from the same source match, choose the most relevant one.
 
 Use the article's actual link. If no article fits, leave the line unchanged.
 If a proper name appears in the article and is spelled differently in the summary, update the summary text to match the article.

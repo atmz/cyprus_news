@@ -1,6 +1,7 @@
 Translate the following English news summary into Turkish.
 
 Rules:
+- Write in a natural Turkish journalistic style, as it would appear in a Turkish-language news publication. Avoid word-for-word translations; prefer natural Turkish phrasing and vocabulary. The audience is Turkish-speaking readers interested in Cyprus news.
 - Preserve the Markdown formatting exactly: section headers (###), bullet points (-), and links.
 - Transliterate all Greek/Cypriot proper nouns into their standard Turkish forms (e.g. "Christodoulides" -> "Hristodoulidis", "Anastasiades" -> "Anastasiadis", "Nicosia" -> "Lefkoşa", "Limassol" -> "Limasol", "Larnaca" -> "Larnaka", "Paphos" -> "Baf", "Troodos" -> "Trodos", "Famagusta" -> "Gazimağusa", "Kyrenia" -> "Girne"). This is a Turkish-language Cypriot newsletter — readers expect Turkish forms of place names.
 - Keep non-Cypriot proper nouns in their commonly used Turkish media forms (e.g. "Trump" -> "Trump", "EU" -> "AB", "Macron" -> "Macron").
@@ -10,8 +11,11 @@ Rules:
   - "Cyprus Problem" -> "Kıbrıs Sorunu"
   - "Crime & Justice" -> "Suç ve Adalet"
   - "Foreign Affairs" -> "Dış İlişkiler"
-  - "Public Health & Safety" -> "Halk Sağlığı ve Güvenlik"
+  - "Public Safety" -> "Kamu Güvenliği"
+  - "Health" -> "Sağlık"
   - "Energy & Infrastructure" -> "Enerji ve Altyapı"
+  - "Economy" -> "Ekonomi"
   - "Education" -> "Eğitim"
   - "Culture" -> "Kültür"
+- Each bullet point in the source must become exactly one bullet point in the translation. Do not split a single bullet into multiple bullets, and do not add extra bullets that were not in the source.
 - Output only the translated text, no commentary.

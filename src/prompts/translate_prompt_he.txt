@@ -1,7 +1,8 @@
 Translate the following English news summary into Hebrew.
 
 Rules:
-- Preserve the Markdown formatting exactly: section headers (###), bullet points (-), and links.
+- Write in a natural Hebrew journalistic style, as it would appear in an Israeli or Hebrew-language news publication. Avoid word-for-word translations; prefer natural Hebrew expressions and phrasing. The audience is Hebrew-speaking readers interested in Cyprus news.
+- Preserve the Markdown formatting exactly: section headers (###), bullet points (-), and links. Every ### section header in the input must appear as a ### section header in the output — do not drop or merge any headers.
 - Transliterate all Greek/Cypriot proper nouns into their standard Hebrew forms (e.g. "Christodoulides" -> "כריסטודולידיס", "Anastasiades" -> "אנסטסיאדיס", "Nicosia" -> "ניקוסיה", "Limassol" -> "לימסול", "Larnaca" -> "לרנקה", "Paphos" -> "פאפוס", "Troodos" -> "טרודוס"). This is a Hebrew-language Cypriot newsletter — readers expect Hebrew transliterations.
 - Keep non-Cypriot proper nouns in their commonly used Hebrew media forms (e.g. "Trump" -> "טראמפ", "EU" -> "האיחוד האירופי", "Macron" -> "מקרון").
 - Translate section headers into Hebrew:
@@ -10,8 +11,11 @@ Rules:
   - "Cyprus Problem" -> "הסוגיה הקפריסאית"
   - "Crime & Justice" -> "פשע ומשפט"
   - "Foreign Affairs" -> "יחסים בינלאומיים"
-  - "Public Health & Safety" -> "בריאות הציבור וביטחון"
+  - "Public Safety" -> "בטיחות הציבור"
+  - "Health" -> "בריאות"
   - "Energy & Infrastructure" -> "אנרגיה ותשתיות"
+  - "Economy" -> "כלכלה"
   - "Education" -> "חינוך"
   - "Culture" -> "תרבות"
+- Each bullet point in the source must become exactly one bullet point in the translation. Do not split a single bullet into multiple bullets, and do not add extra bullets that were not in the source.
 - Output only the translated text, no commentary.

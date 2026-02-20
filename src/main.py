@@ -198,6 +198,7 @@ def main():
     parser = argparse.ArgumentParser(description="Generate and post Cyprus news summary.")
     parser.add_argument("date", nargs="?", help="Date in YYYY-MM-DD format (defaults to yesterday)")
     parser.add_argument("--draft", action="store_true", help="Save draft instead of publishing")
+    parser.add_argument("--no-post", action="store_true", help="Skip Substack posting entirely (generate summaries only)")
     parser.add_argument("--lang", type=str, help="Run only a specific language pipeline (e.g. 'el'). English files must already exist for translation languages.")
 
     args = parser.parse_args()
@@ -218,168 +219,163 @@ def main():
     txt = get_text_folder_for_day(day)
     cover_path = txt / "cover.png"
     post = False if args.draft else True
+    no_post = args.no_post
     run_lang = args.lang  # None means run all
 
-    # --- English pipeline (skip if --lang targets a non-English language) ---
-    if run_lang is None or run_lang == "en":
-        new_summary = generate_for_date(day)
-        flag_file = txt / "flag.txt"
-        summary_md = txt / "summary.txt"
-        log_context = {
-            "date": day.isoformat(),
-            "summary_path": summary_md,
-            "cover_path": cover_path,
-            "publish": post,
-        }
-
-        if new_summary or not Path.exists(flag_file):
-            with timing_step("post_to_substack", **log_context):
-                if post_to_substack(Path(summary_md), post, cover_path=cover_path, lang="en"):
-                    Path(flag_file).touch()
-
-    # --- Native summary languages (e.g. Greek directly from transcript) ---
     config = load_language_config()
     native_langs = get_native_summary_languages(config)
+    translation_langs = get_translation_languages(config)
 
-    # If --lang specified a native summary language, only run that one
+    # Apply --lang filter
     if run_lang and run_lang != "en":
         if run_lang in native_langs:
             native_langs = {run_lang: native_langs[run_lang]}
         else:
             native_langs = {}
-
-    for lang, lang_cfg in native_langs.items():
-      try:
-        target_summary_file = txt / lang_cfg["summary_without_links_filename"]
-        target_output_file = txt / lang_cfg["summary_filename"]
-        target_flag_file = txt / lang_cfg["flag_filename"]
-
-        if not target_output_file.exists():
-            # Refresh article sources for this language
-            article_sources = lang_cfg.get("article_sources", [])
-            for name, refresher in LANG_REFRESHERS.get(lang, []):
-                try:
-                    refresher()
-                except Exception as e:
-                    print(f"⚠️ Failed to refresh {name}: {e}")
-
-            print(f"Summarizing natively in {lang}...")
-            with timing_step("summarize_native", date=day.isoformat(), lang=lang):
-                summarize_for_day(day, lang=lang)
-        else:
-            print(f"{target_output_file} exists — skipping {lang} native summarization.")
-
-        # Post to Substack for this language
-        if target_output_file.exists() and not Path(target_flag_file).exists():
-            secrets_root = Path(os.getenv("SECRETS_ROOT", "./data"))
-            session_path = secrets_root / lang_cfg["substack_session_file"]
-            substack_url = lang_cfg["substack_url"]
-
-            with timing_step("post_to_substack", date=day.isoformat(), lang=lang):
-                if post_to_substack(
-                    Path(target_output_file), post,
-                    cover_path=cover_path,
-                    substack_url=substack_url,
-                    session_file=str(session_path),
-                    lang=lang
-                ):
-                    Path(target_flag_file).touch()
-      except Exception as e:
-        print(f"❌ Error processing native summary for '{lang}': {e}")
-        import traceback
-        traceback.print_exc()
-        continue
-
-    # --- Multi-language translation and posting ---
-    translation_langs = get_translation_languages(config)
-
-    # If --lang specified a translation language, only run that one
-    if run_lang and run_lang != "en":
         if run_lang in translation_langs:
             translation_langs = {run_lang: translation_langs[run_lang]}
         else:
             translation_langs = {}
 
-    for lang, lang_config in translation_langs.items():
-      try:
-        source_lang = get_source_language(lang_config)
-        source_summary_file = txt / config[source_lang]["summary_without_links_filename"]
+    # =========================================================
+    # PHASE 1: Generate all summaries
+    # =========================================================
 
-        if not source_summary_file.exists():
-            print(f"⚠️ Source summary for {source_lang} not found, skipping {lang}")
-            continue
+    # --- English ---
+    if run_lang is None or run_lang == "en":
+        generate_for_date(day)
 
-        target_summary_file = txt / lang_config["summary_without_links_filename"]
-        target_output_file = txt / lang_config["summary_filename"]
-        target_flag_file = txt / lang_config["flag_filename"]
+    # --- Native summary languages (e.g. Greek) ---
+    for lang, lang_cfg in native_langs.items():
+        try:
+            target_output_file = txt / lang_cfg["summary_filename"]
 
-        if not target_output_file.exists():
-            # Read source summary and strip the date heading (everything before first ###)
-            source_text = source_summary_file.read_text(encoding="utf-8")
-            body_match = re.search(r'(### .+)', source_text, re.DOTALL)
-            source_body = body_match.group(1) if body_match else source_text
+            if not target_output_file.exists():
+                for name, refresher in LANG_REFRESHERS.get(lang, []):
+                    try:
+                        refresher()
+                    except Exception as e:
+                        print(f"⚠️ Failed to refresh {name}: {e}")
 
-            print(f"Translating summary to {lang}...")
-            client = OpenAI()
-            with timing_step("translate_summary", date=day.isoformat(), lang=lang):
-                translated, usage = translate_summary(client, source_body, target_lang=lang)
-
-            # Generate localized date heading
-            date_heading = generate_date_heading(day, lang)
-
-            # Save translated summary without links
-            target_summary_file.write_text(
-                date_heading + "\n\n" + translated, encoding="utf-8"
-            )
-            print(f"✅ Translated summary saved to {target_summary_file}")
-
-            # Refresh article sources for this language
-            article_sources = lang_config.get("article_sources", [])
-            for name, refresher in LANG_REFRESHERS.get(lang, []):
-                try:
-                    refresher()
-                except Exception as e:
-                    print(f"⚠️ Failed to refresh {name}: {e}")
-
-            # Link injection (if article sources configured for this language)
-            if article_sources:
-                start_date = day - timedelta(days=1)
-                end_date = day + timedelta(days=1)
-                filtered_articles = load_articles(start_date, end_date, article_sources)
-                top_stories, main_summary = split_summary(translated)
-                with open("src/prompts/link_prompt.txt", "r", encoding="utf-8") as f:
-                    link_prompt = f.read().strip()
-                linked, _ = link_articles_to_summary(client, main_summary, filtered_articles, link_prompt, article_sources)
-                final = date_heading + "\n\n" + top_stories + "\n\n" + linked
+                print(f"Summarizing natively in {lang}...")
+                with timing_step("summarize_native", date=day.isoformat(), lang=lang):
+                    summarize_for_day(day, lang=lang)
             else:
-                final = date_heading + "\n\n" + translated
+                print(f"{target_output_file} exists — skipping {lang} native summarization.")
+        except Exception as e:
+            print(f"❌ Error generating native summary for '{lang}': {e}")
+            import traceback
+            traceback.print_exc()
 
-            final = strip_summary_marker(final)
-            target_output_file.write_text(final, encoding="utf-8")
-            print(f"✅ Final {lang} summary saved to {target_output_file}")
-        else:
-            print(f"{target_output_file} exists — skipping {lang} translation.")
+    # --- Translation languages ---
+    for lang, lang_config in translation_langs.items():
+        try:
+            source_lang = get_source_language(lang_config)
+            source_summary_file = txt / config[source_lang]["summary_without_links_filename"]
 
-        # Post to Substack for this language
-        if target_output_file.exists() and not Path(target_flag_file).exists():
-            secrets_root = Path(os.getenv("SECRETS_ROOT", "./data"))
-            session_path = secrets_root / lang_config["substack_session_file"]
-            substack_url = lang_config["substack_url"]
+            if not source_summary_file.exists():
+                print(f"⚠️ Source summary for {source_lang} not found, skipping {lang}")
+                continue
 
-            with timing_step("post_to_substack", date=day.isoformat(), lang=lang):
-                if post_to_substack(
-                    Path(target_output_file), post,
-                    cover_path=cover_path,
-                    substack_url=substack_url,
-                    session_file=str(session_path),
-                    lang=lang
-                ):
-                    Path(target_flag_file).touch()
-      except Exception as e:
-        print(f"❌ Error processing language '{lang}': {e}")
-        import traceback
-        traceback.print_exc()
-        continue
+            target_summary_file = txt / lang_config["summary_without_links_filename"]
+            target_output_file = txt / lang_config["summary_filename"]
+
+            if not target_output_file.exists():
+                source_text = source_summary_file.read_text(encoding="utf-8")
+                body_match = re.search(r'(### .+)', source_text, re.DOTALL)
+                source_body = body_match.group(1) if body_match else source_text
+
+                print(f"Translating summary to {lang}...")
+                client = OpenAI()
+                with timing_step("translate_summary", date=day.isoformat(), lang=lang):
+                    translated, usage = translate_summary(client, source_body, target_lang=lang)
+
+                date_heading = generate_date_heading(day, lang)
+                target_summary_file.write_text(
+                    date_heading + "\n\n" + translated, encoding="utf-8"
+                )
+                print(f"✅ Translated summary saved to {target_summary_file}")
+
+                article_sources = lang_config.get("article_sources", [])
+                for name, refresher in LANG_REFRESHERS.get(lang, []):
+                    try:
+                        refresher()
+                    except Exception as e:
+                        print(f"⚠️ Failed to refresh {name}: {e}")
+
+                if article_sources:
+                    start_date = day - timedelta(days=1)
+                    end_date = day + timedelta(days=1)
+                    filtered_articles = load_articles(start_date, end_date, article_sources)
+                    top_stories, main_summary = split_summary(translated)
+                    with open("src/prompts/link_prompt.txt", "r", encoding="utf-8") as f:
+                        link_prompt = f.read().strip()
+                    linked, _ = link_articles_to_summary(client, main_summary, filtered_articles, link_prompt, article_sources)
+                    final = date_heading + "\n\n" + top_stories + "\n\n" + linked
+                else:
+                    final = date_heading + "\n\n" + translated
+
+                final = strip_summary_marker(final)
+                target_output_file.write_text(final, encoding="utf-8")
+                print(f"✅ Final {lang} summary saved to {target_output_file}")
+            else:
+                print(f"{target_output_file} exists — skipping {lang} translation.")
+        except Exception as e:
+            print(f"❌ Error generating translation for '{lang}': {e}")
+            import traceback
+            traceback.print_exc()
+
+    # =========================================================
+    # PHASE 2: Post all summaries to Substack
+    # =========================================================
+
+    if no_post:
+        print("⏭️  --no-post specified, skipping all Substack posting.")
+        return
+
+    secrets_root = Path(os.getenv("SECRETS_ROOT", "./data"))
+
+    # --- English ---
+    if run_lang is None or run_lang == "en":
+        summary_md = txt / "summary.txt"
+        flag_file = txt / "flag.txt"
+        if summary_md.exists() and not flag_file.exists():
+            log_context = {"date": day.isoformat(), "summary_path": summary_md, "cover_path": cover_path, "publish": post}
+            with timing_step("post_to_substack", **log_context):
+                if post_to_substack(summary_md, post, cover_path=cover_path, lang="en"):
+                    flag_file.touch()
+
+    # --- Native summary languages ---
+    for lang, lang_cfg in native_langs.items():
+        try:
+            target_output_file = txt / lang_cfg["summary_filename"]
+            target_flag_file = txt / lang_cfg["flag_filename"]
+            if target_output_file.exists() and not target_flag_file.exists():
+                session_path = secrets_root / lang_cfg["substack_session_file"]
+                substack_url = lang_cfg["substack_url"]
+                with timing_step("post_to_substack", date=day.isoformat(), lang=lang):
+                    if post_to_substack(target_output_file, post, cover_path=cover_path, substack_url=substack_url, session_file=str(session_path), lang=lang):
+                        target_flag_file.touch()
+        except Exception as e:
+            print(f"❌ Error posting native summary for '{lang}': {e}")
+            import traceback
+            traceback.print_exc()
+
+    # --- Translation languages ---
+    for lang, lang_config in translation_langs.items():
+        try:
+            target_output_file = txt / lang_config["summary_filename"]
+            target_flag_file = txt / lang_config["flag_filename"]
+            if target_output_file.exists() and not target_flag_file.exists():
+                session_path = secrets_root / lang_config["substack_session_file"]
+                substack_url = lang_config["substack_url"]
+                with timing_step("post_to_substack", date=day.isoformat(), lang=lang):
+                    if post_to_substack(target_output_file, post, cover_path=cover_path, substack_url=substack_url, session_file=str(session_path), lang=lang):
+                        target_flag_file.touch()
+        except Exception as e:
+            print(f"❌ Error posting translation for '{lang}': {e}")
+            import traceback
+            traceback.print_exc()
 
 
 if __name__ == "__main__":

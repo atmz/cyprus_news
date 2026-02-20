@@ -22,9 +22,11 @@ You are being given a *section* of the broadcast, possibly combined with some pr
 - Try to fit stories into one of the below sections. If no stories exist for a section, that's fine, just omit it.
   - `### Κυβέρνηση & Πολιτική`
   - `### Κυπριακό`
+  - `### Οικονομία`
   - `### Έγκλημα & Δικαιοσύνη`
   - `### Εξωτερικές Υποθέσεις`
-  - `### Δημόσια Υγεία & Ασφάλεια`
+  - `### Δημόσια Ασφάλεια` (τροχαία/εργατικά ατυχήματα, έντονα καιρικά φαινόμενα)
+  - `### Υγεία` (υγειονομική πολιτική, νοσοκομεία, ιατρικά συνέδρια)
   - `### Ενέργεια & Υποδομές`
   - `### Εκπαίδευση`
   - `### Πολιτισμός`

@@ -67,21 +67,39 @@ def combine_summaries(chunks):
         for section, bullets in parsed.items():
             combined[section].extend(bullets)
 
-    # Optional: Deduplicate within sections
-    for section in combined:
-        combined[section] = list(dict.fromkeys(combined[section]))
+    # Deduplicate within sections — exact matches first, then fuzzy
+    from difflib import SequenceMatcher
 
-    # Define canonical section order
+    def is_near_duplicate(a, b, full_threshold=0.7, prefix_threshold=0.75, prefix_len=80):
+        if SequenceMatcher(None, a, b).ratio() > full_threshold:
+            return True
+        if SequenceMatcher(None, a[:prefix_len], b[:prefix_len]).ratio() > prefix_threshold:
+            return True
+        return False
+
+    for section in combined:
+        combined[section] = list(dict.fromkeys(combined[section]))  # exact
+        deduped = []
+        for bullet in combined[section]:
+            if not any(is_near_duplicate(bullet, kept) for kept in deduped):
+                deduped.append(bullet)
+            else:
+                print(f"🗑️  Deduped [{section}]: {bullet[:100]}...")
+        combined[section] = deduped
+
+    # Define canonical section order (English and Greek)
     section_order = [
-        "Top stories",
-        "Public Health & Safety",
-        "Energy & Infrastructure",
-        "Crime & Justice",
-        "Government & Politics",
-        "Cyprus Problem",
-        "Foreign Affairs",
-        "Education",
-        "Culture"
+        "Top stories",          "Κύριες Ειδήσεις",
+        "Public Safety",          "Δημόσια Ασφάλεια",
+        "Health",                 "Υγεία",
+        "Energy & Infrastructure", "Ενέργεια & Υποδομές",
+        "Crime & Justice",      "Έγκλημα & Δικαιοσύνη",
+        "Government & Politics", "Κυβέρνηση & Πολιτική",
+        "Cyprus Problem",       "Κυπριακό",
+        "Economy",              "Οικονομία",
+        "Foreign Affairs",      "Εξωτερικές Υποθέσεις",
+        "Education",            "Εκπαίδευση",
+        "Culture",              "Πολιτισμός",
     ]
 
     # Generate final markdown
@@ -314,7 +332,7 @@ def link_articles_to_summary(client, summary_text, filtered_articles, link_promp
     # Build dynamic system prompt with actual tag names
     tags = [s["tag"] for s in article_sources] if article_sources else ["CM", "IC"]
     tag_list = " or ".join(f"({t})" for t in dict.fromkeys(tags))
-    system_msg = f"You are a careful editor helping link summaries to matching newspaper articles. Do not alter text except to add a {tag_list} link."
+    system_msg = f"You are a careful editor helping link summaries to matching newspaper articles. Do not alter text except to add a {tag_list} link. Preserve all ### section headers, bullet points, and markdown structure exactly as they appear in the input."
 
     linking_prompt = f"""{prompt_with_tags}
 
