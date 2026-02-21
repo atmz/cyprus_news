@@ -215,7 +215,24 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png",
                 + "; ".join(missing[:3])
             )
 
-    def wait_for_publish_success(page, timeout_s: int = 30) -> bool:
+    def dismiss_draft_error_dialog(page) -> bool:
+        """Detect and dismiss 'Draft not saved' / 'Post out of date' modal. Returns True if found."""
+        error_selectors = ["text=Draft not saved", "text=Post out of date", "text=post out of date"]
+        for sel in error_selectors:
+            try:
+                el = page.locator(sel).first
+                if el.is_visible(timeout=1000):
+                    log_info(f"Found error dialog ({sel}), dismissing via OK...")
+                    ok_btn = page.locator("button:has-text('OK'), button:has-text('Ok')").first
+                    if ok_btn.is_visible(timeout=2000):
+                        ok_btn.click()
+                        page.wait_for_timeout(1500)
+                    return True
+            except Exception:
+                pass
+        return False
+
+    def wait_for_publish_success(page, timeout_s: int = 60) -> bool:
         deadline = time.time() + timeout_s
         log_info(f"Waiting for publish confirmation (timeout={timeout_s}s)...")
         success_texts = [
@@ -241,6 +258,59 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png",
             log_info(f"Saved HTML snapshot for manual review: {html_path}")
         except Exception as e:
             log_info(f"Failed to save HTML snapshot: {e}")
+        return False
+
+    def publish_with_retry(page, max_attempts: int = 3) -> bool:
+        """Attempt to publish, handling 'Post out of date' with reload+retry."""
+        for attempt in range(max_attempts):
+            if attempt > 0:
+                log_info(f"Retrying publish (attempt {attempt + 1}/{max_attempts}) — reloading to sync draft...")
+                page.reload()
+                try:
+                    page.wait_for_selector("textarea[placeholder='Title']", timeout=20000)
+                except Exception:
+                    pass
+                page.wait_for_timeout(3000)
+
+            dismiss_draft_error_dialog(page)
+            page.wait_for_timeout(2000)
+
+            try:
+                log_info("Clicking Continue...")
+                page.click("text=Continue", timeout=10000)
+            except Exception as e:
+                log_info(f"Could not click Continue on attempt {attempt + 1}: {e}")
+                if attempt < max_attempts - 1:
+                    continue
+                raise
+
+            page.wait_for_timeout(1000)
+            dismiss_draft_error_dialog(page)
+
+            try:
+                log_info("Clicking Send to everyone now...")
+                page.click("text=Send to everyone now", timeout=10000)
+            except Exception as e:
+                log_info(f"Could not click 'Send to everyone now' on attempt {attempt + 1}: {e}")
+                if attempt < max_attempts - 1:
+                    continue
+                raise
+
+            page.wait_for_timeout(1500)
+
+            if dismiss_draft_error_dialog(page):
+                log_info("'Post out of date' after clicking send — will reload and retry...")
+                if attempt < max_attempts - 1:
+                    continue
+                return False
+
+            if wait_for_publish_success(page, timeout_s=60):
+                return True
+
+            log_info(f"Publish confirmation not received on attempt {attempt + 1}")
+            if attempt < max_attempts - 1:
+                continue
+
         return False
 
 
@@ -388,24 +458,20 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png",
             log_info(f"Subscribe button insertion failed: {e}")
 
         if publish:
-            log_info("Publish requested; attempting to publish.")
+            log_info("Publish requested; waiting for editor to stabilize before publish...")
+            page.wait_for_timeout(5000)
             try:
-                log_info("Clicking Continue...")
-                page.wait_for_timeout(500)
-                page.click("text=Continue", timeout=5000)
-                log_info("Clicking Send to everyone now...")
-                page.wait_for_timeout(1000)
-                page.click("text=Send to everyone now", timeout=5000)
-                if not wait_for_publish_success(page, timeout_s=30):
-                    raise RuntimeError("Publish flow did not confirm success before timeout.")
-                log_info(f"Publish flow complete. Current URL: {page.url}")
-                print("✅ Post published.")
-                browser.close()
-                return True
+                if publish_with_retry(page, max_attempts=3):
+                    log_info(f"Publish flow complete. Current URL: {page.url}")
+                    print("✅ Post published.")
+                    browser.close()
+                    return True
+                else:
+                    raise RuntimeError("Publish flow did not confirm success after all retries.")
             except Exception as e:
                 log_info(f"Publish flow failed: {e}")
                 page.screenshot(path="substack_publish_failed.png", full_page=True)
-                print("⚠️ Could not find Publish button — post might already be published.")
+                print("⚠️ Could not publish — post might already be published or require manual intervention.")
         else:
             log_info("Draft mode: waiting for auto-save (including image upload)...")
             page.wait_for_timeout(10000)
