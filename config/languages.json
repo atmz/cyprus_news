@@ -7,7 +7,10 @@
       {"name": "Cyprus Mail", "tag": "CM", "file": "data/cyprus_articles.json"},
       {"name": "Cyprus Mail", "tag": "CM", "file": "data/cm_crime_articles.json"},
       {"name": "In-Cyprus", "tag": "IC", "file": "data/in_cyprus_local_articles.json"},
-      {"name": "In-Cyprus", "tag": "IC", "file": "data/in_cyprus_local_economy_articles.json"}
+      {"name": "In-Cyprus", "tag": "IC", "file": "data/in_cyprus_local_economy_articles.json"},
+      {"name": "Politis EN", "tag": "PE", "file": "data/en_politis_politics_articles.json"},
+      {"name": "Politis EN", "tag": "PE", "file": "data/en_politis_economy_articles.json"},
+      {"name": "Politis EN", "tag": "PE", "file": "data/en_politis_social_articles.json"}
     ],
     "summary_filename": "summary.txt",
     "summary_without_links_filename": "summary_without_links.txt",
@@ -66,6 +69,7 @@
       {"name": "In-Cyprus", "tag": "IC", "file": "data/in_cyprus_local_articles.json"},
       {"name": "In-Cyprus", "tag": "IC", "file": "data/in_cyprus_local_economy_articles.json"}
     ],
+    "first_sections": ["Kıbrıs Sorunu"],
     "summary_filename": "summary_tr.txt",
     "summary_without_links_filename": "summary_without_links_tr.txt",
     "substack_url": "https://rikhaberleri.substack.com/publish/post?type=newsletter&back=%2Fpublish%2Fhome",

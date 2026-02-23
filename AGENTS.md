@@ -17,7 +17,7 @@ This file applies to the entire repository unless a more specific AGENTS.md exis
 - `cyprus-news-cron` shows the production cron invocation and required environment setup.
 
 ## Supported languages
-- **English (en)**: Primary language. Summary generated from RIK transcript. Articles from Cyprus Mail, In-Cyprus.
+- **English (en)**: Primary language. Summary generated from RIK transcript. Articles from Cyprus Mail, In-Cyprus, Politis EN (PE).
 - **Greek (el)**: Summarized natively in Greek from RIK transcript (`summary_source: "summarize_native"`). Articles from Philenews (tag Φ), Sigmalive (SL), Politis (Π).
 - **Russian (ru)**: Translated from English. Articles from EvropaKipr (ЕК), Cyprus Butterfly (CB).
 - **Ukrainian (uk)**: Translated from English. Uses English article sources (no Ukrainian Cyprus news sites).

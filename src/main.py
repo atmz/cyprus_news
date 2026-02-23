@@ -15,7 +15,7 @@ from helpers import get_media_folder_for_day, get_root_folder_for_day, get_text_
 from article_loaders.in_cyprus_loader import refresh_ic
 from article_loaders.philenews_loader import refresh_philenews
 from article_loaders.sigmalive_loader import refresh_sigmalive
-from article_loaders.politis_loader import refresh_politis
+from article_loaders.politis_loader import refresh_politis, refresh_en_politis
 from article_loaders.evropakipr_loader import refresh_evropakipr
 from article_loaders.cyprusbutterfly_loader import refresh_cyprusbutterfly
 from article_loaders.kibrispostasi_loader import refresh_kibrispostasi
@@ -36,7 +36,7 @@ LANG_REFRESHERS = {
     ],
 }
 from post_to_substack import post_to_substack
-from summarize import load_articles, summarize_for_day, link_articles_to_summary, strip_summary_marker, split_summary, get_article_sources
+from summarize import load_articles, summarize_for_day, link_articles_to_summary, strip_summary_marker, split_summary, get_article_sources, reorder_sections
 from image import generate_cover_from_md
 from transcribe import transcribe_for_day
 from timing import timing_step
@@ -88,6 +88,10 @@ def refresh_saved_articles():
         refresh_ic()
     except Exception as e:
         print(f"⚠️ Failed to refresh in cyprus: {e}")
+    try:
+        refresh_en_politis()
+    except Exception as e:
+        print(f"⚠️ Failed to refresh English Politis: {e}")
 
 def generate_for_date(day: date):
     make_folders(day)
@@ -289,6 +293,10 @@ def main():
                 client = OpenAI()
                 with timing_step("translate_summary", date=day.isoformat(), lang=lang):
                     translated, usage = translate_summary(client, source_body, target_lang=lang)
+
+                first_sections = lang_config.get("first_sections")
+                if first_sections:
+                    translated = reorder_sections(translated, first_sections)
 
                 date_heading = generate_date_heading(day, lang)
                 target_summary_file.write_text(

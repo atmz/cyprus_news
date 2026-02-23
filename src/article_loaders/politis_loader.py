@@ -118,5 +118,96 @@ def refresh_politis():
     )
 
 
+# ---------------------------------------------------------------------------
+# English Politis (en.politis.com.cy)
+# ---------------------------------------------------------------------------
+# The English site uses the same <article>/<h3>/<time> structure, but each
+# featured card has a category <a> before the <h3>, so we find article links
+# via the <h3> element rather than the first <a> in the article.
+
+def fetch_en_politis_articles(base_url, known_urls=None):
+    known_urls = known_urls or set()
+    new_articles = []
+
+    with sync_playwright() as p:
+        browser = p.chromium.launch(
+            headless=False,
+            args=["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
+        )
+        page = browser.new_page(
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36",
+            viewport={"width": 1280, "height": 800},
+        )
+        print(f"🌐 Navigating to {base_url}")
+        try:
+            page.goto(base_url, wait_until="domcontentloaded", timeout=60000)
+        except Exception as e:
+            print(f"❌ Failed to load page: {e}")
+            browser.close()
+            return []
+        page.wait_for_timeout(3000)
+        html = page.content()
+        browser.close()
+
+    soup = BeautifulSoup(html, "html.parser")
+
+    for article_tag in soup.find_all("article"):
+        # Article link is always inside <h3>; skip category link that may
+        # appear before it in featured cards.
+        h3_tag = article_tag.find("h3")
+        if not h3_tag:
+            continue
+        link_tag = h3_tag.find("a", href=True)
+        if not link_tag:
+            continue
+
+        href = urljoin(base_url, link_tag["href"])
+        if href in known_urls:
+            continue
+
+        title = link_tag.get_text(strip=True)
+        if not title:
+            continue
+
+        # Abstract from <h4> (present on large featured cards only)
+        h4_tag = article_tag.find("h4")
+        abstract = h4_tag.get_text(strip=True) if h4_tag else None
+
+        # Date from <time> (present on small cards only; no datetime attr)
+        dt = None
+        time_tag = article_tag.find("time")
+        if time_tag:
+            dt = parse_politis_date(time_tag.get_text(strip=True))
+
+        new_articles.append({
+            "title": title,
+            "abstract": abstract,
+            "datetime": dt,
+            "url": href,
+        })
+
+    return new_articles
+
+
+def refresh_en_politis():
+    categories = [
+        ("https://en.politis.com.cy/politics", "data/en_politis_politics_articles.json"),
+        ("https://en.politis.com.cy/economy",  "data/en_politis_economy_articles.json"),
+        ("https://en.politis.com.cy/social-lens", "data/en_politis_social_articles.json"),
+    ]
+    for base_url, json_path in categories:
+        os.makedirs(os.path.dirname(json_path), exist_ok=True)
+        existing = load_existing_articles(json_path)
+        for a in existing:
+            if a.get("url") and not a["url"].startswith("http"):
+                a["url"] = urljoin(base_url, a["url"])
+        existing_urls = {a["url"] for a in existing}
+        new_articles = fetch_en_politis_articles(base_url, known_urls=existing_urls)
+        all_articles = new_articles + existing
+        with open(json_path, "w", encoding="utf-8") as f:
+            json.dump(all_articles, f, ensure_ascii=False, indent=2)
+        print(f"🎉 {base_url}: {len(new_articles)} new, {len(all_articles)} total")
+
+
 if __name__ == "__main__":
     refresh_politis()
