@@ -1,6 +1,7 @@
 import json
 import os
 import re
+import requests
 from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 from playwright.sync_api import sync_playwright
@@ -125,31 +126,28 @@ def refresh_politis():
 # featured card has a category <a> before the <h3>, so we find article links
 # via the <h3> element rather than the first <a> in the article.
 
+_EN_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36"
+}
+
+
 def fetch_en_politis_articles(base_url, known_urls=None):
     known_urls = known_urls or set()
-    new_articles = []
 
-    with sync_playwright() as p:
-        browser = p.chromium.launch(
-            headless=False,
-            args=["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
-        )
-        page = browser.new_page(
-            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36",
-            viewport={"width": 1280, "height": 800},
-        )
-        print(f"🌐 Navigating to {base_url}")
-        try:
-            page.goto(base_url, wait_until="domcontentloaded", timeout=60000)
-        except Exception as e:
-            print(f"❌ Failed to load page: {e}")
-            browser.close()
-            return []
-        page.wait_for_timeout(3000)
-        html = page.content()
-        browser.close()
+    print(f"🌐 Fetching {base_url}")
+    try:
+        response = requests.get(base_url, headers=_EN_HEADERS, timeout=15)
+        response.raise_for_status()
+    except Exception as e:
+        print(f"❌ Failed to fetch {base_url}: {e}")
+        return []
 
-    soup = BeautifulSoup(html, "html.parser")
+    soup = BeautifulSoup(response.text, "html.parser")
+
+    # Collect into a dict keyed by URL so that when the same article appears
+    # in both a large featured card (no <time>) and a small card (<time>
+    # present), we keep the version that has the datetime.
+    articles_by_url = {}
 
     for article_tag in soup.find_all("article"):
         # Article link is always inside <h3>; skip category link that may
@@ -169,24 +167,33 @@ def fetch_en_politis_articles(base_url, known_urls=None):
         if not title:
             continue
 
-        # Abstract from <h4> (present on large featured cards only)
+        # Abstract from <h4> (featured cards only; small cards have a
+        # one-word category label in <h4> which we discard)
         h4_tag = article_tag.find("h4")
-        abstract = h4_tag.get_text(strip=True) if h4_tag else None
+        abstract = None
+        if h4_tag:
+            candidate = h4_tag.get_text(strip=True)
+            if " " in candidate:  # skip "POLITICS", "ECONOMY", etc.
+                abstract = candidate
 
-        # Date from <time> (present on small cards only; no datetime attr)
+        # Date from <time> (small cards only; no datetime attr on the element)
         dt = None
         time_tag = article_tag.find("time")
         if time_tag:
             dt = parse_politis_date(time_tag.get_text(strip=True))
 
-        new_articles.append({
-            "title": title,
-            "abstract": abstract,
-            "datetime": dt,
-            "url": href,
-        })
+        if href not in articles_by_url:
+            articles_by_url[href] = {
+                "title": title,
+                "abstract": abstract,
+                "datetime": dt,
+                "url": href,
+            }
+        elif dt is not None and articles_by_url[href]["datetime"] is None:
+            # Upgrade the existing entry with the datetime from the small card
+            articles_by_url[href]["datetime"] = dt
 
-    return new_articles
+    return list(articles_by_url.values())
 
 
 def refresh_en_politis():
