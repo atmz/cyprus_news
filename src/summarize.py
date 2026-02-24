@@ -115,6 +115,22 @@ def combine_summaries(chunks):
             final_md += "\n".join(combined[section]) + "\n\n"
     return final_md
 
+def reorder_sections(markdown: str, first_sections: list[str]) -> str:
+    """Reorder markdown sections so that first_sections appear at the top."""
+    parts = re.split(r'(?=^### )', markdown.strip(), flags=re.MULTILINE)
+    prioritized = []
+    rest = []
+    for part in parts:
+        if not part.strip():
+            continue
+        header_match = re.match(r'^### (.+)', part)
+        if header_match and header_match.group(1).strip() in first_sections:
+            prioritized.append(part)
+        else:
+            rest.append(part)
+    return "\n".join(prioritized + rest).strip() + "\n"
+
+
 def limit_headlines(text: str, max_count: int = 10) -> str:
     lines = text.strip().splitlines()
     header_lines = []
