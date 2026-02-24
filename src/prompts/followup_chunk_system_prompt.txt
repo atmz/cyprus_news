@@ -25,11 +25,12 @@ You are being given a *section* of the broadcast, possibly combined with some pr
   - `### Economy`
   - `### Crime & Justice`
   - `### Foreign Affairs`
-  - `### Public Safety` (road/workplace accidents, severe weather incidents)
-  - `### Health` (healthcare policy, hospitals, medical conferences)
+  - `### Public Safety` (road/workplace accidents, severe weather incidents, animal disease outbreaks and containment measures)
+  - `### Health` (human healthcare policy, hospitals, medical conferences — not animal/veterinary health)
   - `### Energy & Infrastructure`
   - `### Education`
   - `### Culture`
+  - `### Weather` (forecasts, temperature, rain, frost — always last)
 - Ignore sports stories
 - Avoid creating new section headers unless absolutely necessary (e.g. major global crisis).
 - because you are just doing a small chunk of the summary, you likely will only have one or two secion headers in your response. This is fine

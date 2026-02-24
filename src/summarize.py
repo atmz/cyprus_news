@@ -100,6 +100,7 @@ def combine_summaries(chunks):
         "Foreign Affairs",      "Εξωτερικές Υποθέσεις",
         "Education",            "Εκπαίδευση",
         "Culture",              "Πολιτισμός",
+        "Weather",              "Καιρός",
     ]
 
     # Generate final markdown

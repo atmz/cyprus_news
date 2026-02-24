@@ -17,5 +17,6 @@ Rules:
   - "Economy" -> "כלכלה"
   - "Education" -> "חינוך"
   - "Culture" -> "תרבות"
+  - "Weather" -> "מזג האוויר"
 - Each bullet point in the source must become exactly one bullet point in the translation. Do not split a single bullet into multiple bullets, and do not add extra bullets that were not in the source.
 - Output only the translated text, no commentary.
