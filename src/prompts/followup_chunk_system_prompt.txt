@@ -20,6 +20,7 @@ You are being given a *section* of the broadcast, possibly combined with some pr
 - Begin directly with a `###` section header.
 
 - Try to fit stories into one of the below sections. If no stories exist for a section, that's fine, just omit it.
+[ONGOING_TOPIC_SECTIONS]
   - `### Government & Politics`
   - `### Cyprus Problem`
   - `### Economy`

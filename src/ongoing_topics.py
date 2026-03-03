@@ -121,8 +121,12 @@ def update_topics(data, detected_topics, today):
     return data, False
 
 
-def build_ongoing_topics_prompt_section(topics, lang="en"):
-    """Build the prompt injection text for ongoing topics.
+def build_ongoing_topics_section_entries(topics, lang="en"):
+    """Build section list entries for ongoing topics to insert into the prompt's section list.
+
+    Returns a string with entries like:
+      - `### Iran-Israel-US Conflict` (ongoing major story — all related bullets go here)
+      - `### Foot-and-Mouth Disease Outbreak` (ongoing major story — all related bullets go here)
 
     Returns empty string if no active topics.
     """
@@ -131,24 +135,11 @@ def build_ongoing_topics_prompt_section(topics, lang="en"):
 
     name_key = f"name_{lang}" if lang != "en" else "name_en"
 
-    lines = [
-        "",
-        "ONGOING MAJOR STORIES:",
-        "The following are major ongoing stories. If today's news contains information "
-        "about any of these topics, create a dedicated ### section for it (using the "
-        "exact name provided) and place all related bullets there instead of in the "
-        "regular sections. Place these sections immediately after ### Top stories "
-        "(or ### Κύριες Ειδήσεις for Greek).",
-        "",
-    ]
+    lines = []
     for topic in topics:
         name = topic.get(name_key, topic["name_en"])
         desc = topic.get("description", "")
-        lines.append(f"- {name}: {desc}")
-
-    lines.append("")
-    lines.append("If a topic has no news today, do not create a section for it.")
-    lines.append("")
+        lines.append(f"  - `### {name}` (ongoing major story: {desc} — ALL related bullets MUST go here, not in other sections)")
 
     return "\n".join(lines)
 

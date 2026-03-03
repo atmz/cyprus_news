@@ -17,7 +17,7 @@ import tiktoken
 from timing import timing_step
 from date_heading import generate_date_heading
 from lang_config import load_language_config
-from ongoing_topics import load_ongoing_topics, build_ongoing_topics_prompt_section
+from ongoing_topics import load_ongoing_topics, build_ongoing_topics_section_entries
 
 
 # --- Configuration ---
@@ -199,10 +199,9 @@ def generate_chunked_summary(
     if current_chunk:
         chunks.append(chunk_separator.join(current_chunk))
 
-    # Inject ongoing topics into system prompts if available
-    if ongoing_topics_section:
-        first_chunk_system_prompt = first_chunk_system_prompt + "\n" + ongoing_topics_section
-        followup_chunk_system_prompt = followup_chunk_system_prompt + "\n" + ongoing_topics_section
+    # Inject ongoing topics into prompt section lists (replace placeholder)
+    first_chunk_system_prompt = first_chunk_system_prompt.replace("[ONGOING_TOPIC_SECTIONS]\n", ongoing_topics_section)
+    followup_chunk_system_prompt = followup_chunk_system_prompt.replace("[ONGOING_TOPIC_SECTIONS]\n", ongoing_topics_section)
 
     all_summaries = []
     total_usage = {"prompt_tokens": 0, "completion_tokens": 0}
@@ -443,7 +442,10 @@ def summarize_for_day(day, lang="en"):
     # Load ongoing topics for prompt injection
     topics_data = load_ongoing_topics()
     active_topics = topics_data.get("topics", [])
-    ongoing_topics_section = build_ongoing_topics_prompt_section(active_topics, lang=lang)
+    ongoing_topics_section = build_ongoing_topics_section_entries(active_topics, lang=lang)
+    # Add trailing newline so replacement works cleanly when topics exist
+    if ongoing_topics_section:
+        ongoing_topics_section = ongoing_topics_section + "\n"
     # Collect topic names for section ordering
     name_key = f"name_{lang}" if lang != "en" else "name_en"
     ongoing_topic_names = [t.get(name_key, t["name_en"]) for t in active_topics]

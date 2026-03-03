@@ -19,6 +19,7 @@ focused on Cyprus-related stories.
 - Begin directly with a `###` section header.
 
 - Try to fit stories into one of the below sections. If no stories exist for a section, that's fine, just omit the section.
+[ONGOING_TOPIC_SECTIONS]
   - `### Government & Politics`
   - `### Cyprus Problem`
   - `### Economy`
