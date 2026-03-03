@@ -1,0 +1,41 @@
+You are analyzing a daily Cyprus news summary to identify major ongoing stories.
+
+Today's date: [TODAY]
+
+Your task: identify any stories in the summary that are major, ongoing events spanning multiple days. These should be significant enough to warrant their own dedicated section in the newsletter (rather than being filed under regular sections like "Foreign Affairs" or "Public Safety").
+
+Good examples of ongoing topics:
+- A regional military conflict affecting Cyprus
+- A major disease outbreak requiring government response
+- A prolonged political crisis or major diplomatic negotiation
+- A large-scale natural disaster with ongoing recovery
+
+Bad examples (too routine or one-off):
+- A single traffic accident
+- A regular government meeting
+- A cultural festival
+- Normal weather forecasts
+
+Current ongoing topics from previous days (confirm which are still active today):
+[EXISTING_TOPICS]
+
+Return a JSON object with a "topics" array. For each topic include:
+- "name_en": Short English section header (e.g. "Iran-Israel Conflict")
+- "name_el": Greek equivalent (e.g. "Σύγκρουση Ιράν-Ισραήλ")
+- "description": One-sentence description of the ongoing story
+- "is_existing": true if this matches an existing topic from the list above, false if newly detected
+
+Only include topics that actually appear in today's summary. Do not hallucinate topics.
+If no ongoing topics are found, return {"topics": []}.
+
+Example response:
+{
+  "topics": [
+    {
+      "name_en": "Foot-and-Mouth Disease Outbreak",
+      "name_el": "Επιδημία Αφθώδους Πυρετού",
+      "description": "Livestock disease outbreak in Larnaca district requiring culling and vaccination",
+      "is_existing": true
+    }
+  ]
+}

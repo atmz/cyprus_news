@@ -37,6 +37,10 @@ LANG_REFRESHERS = {
 }
 from post_to_substack import post_to_substack
 from summarize import load_articles, summarize_for_day, link_articles_to_summary, strip_summary_marker, split_summary, get_article_sources, reorder_sections
+from ongoing_topics import (
+    load_ongoing_topics, save_ongoing_topics, expire_topics,
+    detect_ongoing_topics, update_topics, restructure_summary_with_topics,
+)
 from image import generate_cover_from_md
 from transcribe import transcribe_for_day
 from timing import timing_step
@@ -248,6 +252,45 @@ def main():
     # --- English ---
     if run_lang is None or run_lang == "en":
         generate_for_date(day)
+
+        # --- Ongoing topic detection (runs on English summary) ---
+        en_summary_without_links = txt / config["en"]["summary_without_links_filename"]
+        if en_summary_without_links.exists():
+            try:
+                with timing_step("detect_ongoing_topics", date=day.isoformat()):
+                    topics_data = load_ongoing_topics()
+                    topics_data = expire_topics(topics_data, day)
+
+                    summary_text = en_summary_without_links.read_text(encoding="utf-8")
+                    client = OpenAI()
+                    detected = detect_ongoing_topics(
+                        client, summary_text, topics_data["topics"], day
+                    )
+
+                    topics_data, topics_changed = update_topics(topics_data, detected, day)
+                    save_ongoing_topics(topics_data)
+
+                    if topics_changed:
+                        print("🔄 New ongoing topics detected, restructuring English summary...")
+                        restructured = restructure_summary_with_topics(
+                            client, summary_text, topics_data["topics"], lang="en"
+                        )
+                        en_summary_without_links.write_text(restructured, encoding="utf-8")
+                        print(f"✅ Restructured summary saved to {en_summary_without_links}")
+
+                        # Also restructure the final linked summary if it exists
+                        en_summary_final = txt / config["en"]["summary_filename"]
+                        if en_summary_final.exists():
+                            final_text = en_summary_final.read_text(encoding="utf-8")
+                            restructured_final = restructure_summary_with_topics(
+                                client, final_text, topics_data["topics"], lang="en"
+                            )
+                            en_summary_final.write_text(restructured_final, encoding="utf-8")
+                            print(f"✅ Restructured final summary saved to {en_summary_final}")
+            except Exception as e:
+                print(f"⚠️ Ongoing topic detection failed (non-fatal): {e}")
+                import traceback
+                traceback.print_exc()
 
     # --- Native summary languages (e.g. Greek) ---
     for lang, lang_cfg in native_langs.items():

@@ -1,0 +1,18 @@
+You are restructuring a Cyprus news summary to move bullets related to ongoing major stories into dedicated top-level sections.
+
+The following ongoing topics need their own ### sections, placed immediately after ### Top stories (before the regular sections):
+
+[TOPIC_LIST]
+
+Instructions:
+1. Read through all sections of the summary.
+2. For each ongoing topic, find bullets in ANY section that are primarily about that topic.
+3. Move those bullets into a new ### section with the topic name, placed right after ### Top stories.
+4. If a bullet is only tangentially related (e.g. a politician briefly mentioning the topic while discussing something else), leave it in its original section.
+5. If moving a bullet would leave a regular section empty, remove that section header entirely.
+6. Do NOT modify bullet text — move them exactly as they are, including any links.
+7. Do NOT add new bullets or commentary.
+8. Preserve all markdown formatting (### headers, - bullets).
+9. Keep ### Top stories first, then ongoing topic sections, then remaining canonical sections in their original order.
+
+Output the full restructured summary.

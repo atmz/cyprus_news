@@ -17,6 +17,7 @@ import tiktoken
 from timing import timing_step
 from date_heading import generate_date_heading
 from lang_config import load_language_config
+from ongoing_topics import load_ongoing_topics, build_ongoing_topics_prompt_section
 
 
 # --- Configuration ---
@@ -47,7 +48,7 @@ def _resolve_prompt_file(base_name, lang):
 
 from textwrap import dedent
 
-def combine_summaries(chunks):
+def combine_summaries(chunks, ongoing_topic_names=None):
     # Function to parse a summary into a dictionary of sections
     def parse_summary_sections(summary_text):
         sections = defaultdict(list)
@@ -87,8 +88,11 @@ def combine_summaries(chunks):
                 print(f"🗑️  Deduped [{section}]: {bullet[:100]}...")
         combined[section] = deduped
 
+    # Build section order: Top stories, then ongoing topics, then canonical sections
+    ongoing_topic_names = ongoing_topic_names or []
+
     # Define canonical section order (English and Greek)
-    section_order = [
+    canonical_sections = [
         "Top stories",          "Κύριες Ειδήσεις",
         "Public Safety",          "Δημόσια Ασφάλεια",
         "Health",                 "Υγεία",
@@ -102,6 +106,17 @@ def combine_summaries(chunks):
         "Culture",              "Πολιτισμός",
         "Weather",              "Καιρός",
     ]
+
+    # Insert ongoing topic names after Top stories
+    top_stories_names = ["Top stories", "Κύριες Ειδήσεις"]
+    section_order = []
+    for s in canonical_sections:
+        section_order.append(s)
+        if s in top_stories_names:
+            # Insert ongoing topic names right after this Top stories variant
+            for topic_name in ongoing_topic_names:
+                if topic_name not in section_order:
+                    section_order.append(topic_name)
 
     # Generate final markdown
     final_md = ""
@@ -159,7 +174,9 @@ def generate_chunked_summary(
     model="gpt-4.1",
     chunk_separator="\n\n",
     max_chunk_size=3000,
-    sleep_time=20
+    sleep_time=20,
+    ongoing_topics_section="",
+    ongoing_topic_names=None,
 ):
 
     def count_tokens(text):
@@ -181,6 +198,11 @@ def generate_chunked_summary(
             current_chunk = [para]
     if current_chunk:
         chunks.append(chunk_separator.join(current_chunk))
+
+    # Inject ongoing topics into system prompts if available
+    if ongoing_topics_section:
+        first_chunk_system_prompt = first_chunk_system_prompt + "\n" + ongoing_topics_section
+        followup_chunk_system_prompt = followup_chunk_system_prompt + "\n" + ongoing_topics_section
 
     all_summaries = []
     total_usage = {"prompt_tokens": 0, "completion_tokens": 0}
@@ -239,7 +261,7 @@ def generate_chunked_summary(
             print(f"🕒 Sleeping {sleep_time}s before next chunk...")
             time.sleep(sleep_time)
     all_summaries.insert(0,headlines)
-    combined_summary = combine_summaries(all_summaries)
+    combined_summary = combine_summaries(all_summaries, ongoing_topic_names=ongoing_topic_names or [])
     return combined_summary, total_usage
 
 
@@ -418,6 +440,14 @@ def summarize_for_day(day, lang="en"):
     client = OpenAI()
     # --- Main Logic ---
 
+    # Load ongoing topics for prompt injection
+    topics_data = load_ongoing_topics()
+    active_topics = topics_data.get("topics", [])
+    ongoing_topics_section = build_ongoing_topics_prompt_section(active_topics, lang=lang)
+    # Collect topic names for section ordering
+    name_key = f"name_{lang}" if lang != "en" else "name_en"
+    ongoing_topic_names = [t.get(name_key, t["name_en"]) for t in active_topics]
+
     summary_exists = os.path.exists(summary_file)
     if summary_exists:
         print(f"📄 Found existing summary: {summary_file}, skipping summarization.")
@@ -433,6 +463,8 @@ def summarize_for_day(day, lang="en"):
                 first_chunk_system_prompt,
                 followup_chunk_system_prompt,
                 headline_system_prompt,
+                ongoing_topics_section=ongoing_topics_section,
+                ongoing_topic_names=ongoing_topic_names,
             )
 
             with open(summary_file, "w", encoding="utf-8") as f:
