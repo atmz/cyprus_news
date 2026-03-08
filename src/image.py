@@ -127,7 +127,12 @@ def build_image_prompt(day_str: str, headlines_md: str, lead_subject: str | None
         "Avoid faces; use silhouettes, hands, emblems, buildings, or symbolic objects instead. "
     )
 
-    if mentions_current_leaders(bullets_text):
+    # Only add leader name hints when the lead subject itself is about a
+    # Cyprus leader — not when leaders are mentioned incidentally in other
+    # headlines (e.g. "President convened security council" while the lead
+    # story is about Iran).
+    leader_check_text = lead_subject if lead_subject else bullets_text
+    if mentions_current_leaders(leader_check_text):
         face_clause = (
         "If depicting people, use stylized caricature (exaggerated but respectful), avoid likeness-level realism. Note that the current president of Cyprus is Nikos Christodoulides; make sure to use his likeness and not that of previous leaders. The current leader of the TRNC is Tufan Erhürman."
             if allow_faces else
