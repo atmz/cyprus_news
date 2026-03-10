@@ -154,7 +154,7 @@ def build_ongoing_topics_section_entries(topics, lang="en"):
     for topic in topics:
         name = topic.get(name_key, topic["name_en"])
         desc = topic.get("description", "")
-        lines.append(f"  - `### {name}` (ongoing major story: {desc} — ALL related bullets MUST go here, not in other sections)")
+        lines.append(f"  - `### {name}` — use this EXACT header. All bullets about: {desc}")
 
     return "\n".join(lines)
 

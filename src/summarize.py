@@ -88,6 +88,23 @@ def combine_summaries(chunks, ongoing_topic_names=None):
                 print(f"🗑️  Deduped [{section}]: {bullet[:100]}...")
         combined[section] = deduped
 
+    # Remove bullets from ongoing topic sections that duplicate Top Stories
+    top_stories_keys = ["Top stories", "Κύριες Ειδήσεις"]
+    top_bullets = []
+    for k in top_stories_keys:
+        top_bullets.extend(combined.get(k, []))
+    if top_bullets and ongoing_topic_names:
+        for topic_name in (ongoing_topic_names or []):
+            if topic_name not in combined:
+                continue
+            deduped = []
+            for bullet in combined[topic_name]:
+                if any(is_near_duplicate(bullet, tb) for tb in top_bullets):
+                    print(f"🗑️  Cross-deduped [{topic_name}] vs Top stories: {bullet[:80]}...")
+                else:
+                    deduped.append(bullet)
+            combined[topic_name] = deduped
+
     # Build section order: Top stories, then ongoing topics, then canonical sections
     ongoing_topic_names = ongoing_topic_names or []
 
