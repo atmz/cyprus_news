@@ -189,11 +189,17 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png",
         normalized = strip_bidi(normalized)
         return normalized.strip()
 
+    # Characters that editors often mangle (smart quotes, dashes, etc.)
+    _SPECIAL_CHARS = re.compile(r'["""\u2018\u2019\u201C\u201D\u2013\u2014]')
+
     def collect_required_snippets(text: str, max_snippets: int = 6) -> list[str]:
         snippets = []
         for line in normalize_expected_text(text).splitlines():
             cleaned = line.strip()
             if len(cleaned) < 8:
+                continue
+            # Skip lines with special characters that editors tend to mangle
+            if _SPECIAL_CHARS.search(cleaned):
                 continue
             snippets.append(cleaned)
             if len(snippets) >= max_snippets:

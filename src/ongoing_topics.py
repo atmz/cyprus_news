@@ -79,6 +79,27 @@ def detect_ongoing_topics(client, summary_text, existing_topics, today):
         return []
 
 
+def _find_existing_match(name, existing_by_name):
+    """Find an existing topic by exact or fuzzy name match.
+
+    Returns the existing topic's name_en key if found, None otherwise.
+    """
+    # Exact match
+    if name in existing_by_name:
+        return name
+
+    # Fuzzy: check if one name contains the other (handles
+    # "Iran-Israel Conflict" matching "Iran-Israel-US Conflict")
+    name_lower = name.lower()
+    for existing_name in existing_by_name:
+        existing_lower = existing_name.lower()
+        if name_lower in existing_lower or existing_lower in name_lower:
+            print(f"📎 Fuzzy-matched detected topic '{name}' to existing '{existing_name}'")
+            return existing_name
+
+    return None
+
+
 def update_topics(data, detected_topics, today):
     """Merge detected topics into the ongoing topics list.
 
@@ -88,19 +109,17 @@ def update_topics(data, detected_topics, today):
     existing_by_name = {t["name_en"]: t for t in data["topics"]}
     topics_changed = False
 
-    confirmed_names = set()
-
     for detected in detected_topics:
         name = detected.get("name_en", "").strip()
         if not name:
             continue
 
-        if name in existing_by_name:
+        match = _find_existing_match(name, existing_by_name)
+        if match:
             # Existing topic confirmed today - bump last_seen
-            if existing_by_name[name]["last_seen"] != today_str:
-                existing_by_name[name]["last_seen"] = today_str
-                print(f"📌 Ongoing topic confirmed: {name}")
-            confirmed_names.add(name)
+            if existing_by_name[match]["last_seen"] != today_str:
+                existing_by_name[match]["last_seen"] = today_str
+                print(f"📌 Ongoing topic confirmed: {match}")
         else:
             # New topic detected
             new_topic = {
@@ -114,11 +133,7 @@ def update_topics(data, detected_topics, today):
             topics_changed = True
             print(f"🆕 New ongoing topic detected: {name}")
 
-    # Check if any new topics were added
-    if topics_changed:
-        return data, True
-
-    return data, False
+    return data, topics_changed
 
 
 def build_ongoing_topics_section_entries(topics, lang="en"):

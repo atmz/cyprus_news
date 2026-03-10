@@ -20,8 +20,8 @@ Current ongoing topics from previous days (confirm which are still active today)
 [EXISTING_TOPICS]
 
 Return a JSON object with a "topics" array. For each topic include:
-- "name_en": Short English section header (e.g. "Iran-Israel Conflict")
-- "name_el": Greek equivalent (e.g. "Σύγκρουση Ιράν-Ισραήλ")
+- "name_en": Short English section header. IMPORTANT: if confirming an existing topic, use the EXACT name from the list above — do not rephrase or shorten it.
+- "name_el": Greek equivalent. Again, use the exact name from the existing list if confirming.
 - "description": One-sentence description of the ongoing story
 - "is_existing": true if this matches an existing topic from the list above, false if newly detected
 

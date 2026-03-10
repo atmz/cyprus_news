@@ -107,16 +107,22 @@ def combine_summaries(chunks, ongoing_topic_names=None):
         "Weather",              "Καιρός",
     ]
 
-    # Insert ongoing topic names after Top stories
-    top_stories_names = ["Top stories", "Κύριες Ειδήσεις"]
+    # Insert ongoing topic names after both Top stories variants
+    # (they come as a pair: "Top stories", "Κύριες Ειδήσεις")
+    # We insert after the second one so topics don't jump ahead of
+    # the Greek Top stories header.
+    top_stories_names = {"Top stories", "Κύριες Ειδήσεις"}
     section_order = []
+    top_stories_seen = 0
+    top_stories_total = sum(1 for s in canonical_sections if s in top_stories_names)
     for s in canonical_sections:
         section_order.append(s)
         if s in top_stories_names:
-            # Insert ongoing topic names right after this Top stories variant
-            for topic_name in ongoing_topic_names:
-                if topic_name not in section_order:
-                    section_order.append(topic_name)
+            top_stories_seen += 1
+            if top_stories_seen == top_stories_total:
+                for topic_name in ongoing_topic_names:
+                    if topic_name not in section_order:
+                        section_order.append(topic_name)
 
     # Generate final markdown
     final_md = ""
