@@ -118,7 +118,16 @@ def build_image_prompt(day_str: str, headlines_md: str, lead_subject: str | None
             "so-called regime",
             "so-called government",
         ])
-        has_president = "president" in lowered
+        # Only match "president" in a Cyprus context — exclude references
+        # to foreign presidents (US, France, EU Commission, etc.)
+        foreign_president_terms = [
+            "us president", "u.s. president", "american president",
+            "french president", "president macron", "president trump",
+            "president biden", "president of the european",
+            "president von der leyen", "president of the commission",
+        ]
+        has_foreign_president = any(term in lowered for term in foreign_president_terms)
+        has_president = "president" in lowered and not has_foreign_president
         has_leader = "leader" in lowered
         return has_president or (has_leader and trnc_context)
     face_clause = (
