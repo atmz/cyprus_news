@@ -50,7 +50,7 @@ from date_heading import generate_date_heading
 
 
 CY_TZ = ZoneInfo("Europe/Nicosia")
-START_HOUR = 7  # Don't process until 7am — more articles available by then
+START_HOUR = 6  # Don't process until 6am — more articles available by then
 
 
 def download_video(url, local_path):
