@@ -53,14 +53,20 @@ CY_TZ = ZoneInfo("Europe/Nicosia")
 START_HOUR = 6  # Don't process until 6am — more articles available by then
 
 
+MIN_VIDEO_SIZE_MB = 100
+
 def download_video(url, local_path):
     response = requests.get(url, stream=True)
     if response.status_code == 200:
         with open(local_path, 'wb') as f:
             for chunk in response.iter_content(chunk_size=8192):
                 f.write(chunk)
+        size_mb = os.path.getsize(local_path) / (1024 * 1024)
+        if size_mb < MIN_VIDEO_SIZE_MB:
+            os.remove(local_path)
+            raise Exception(f"Downloaded file from {url} too small ({size_mb:.1f} MB < {MIN_VIDEO_SIZE_MB} MB)")
     else:
-        raise Exception(f"Failed to download vide from {url}. Status code: {response.status_code}")
+        raise Exception(f"Failed to download video from {url}. Status code: {response.status_code}")
 
 def extract_audio(local_filename_video, local_filename_audio, local_filename_audio_short_prefix):
     subprocess.run([
@@ -101,9 +107,13 @@ def generate_for_date(day: date):
     make_folders(day)
 
     date_str = day.strftime('%d%m%y')  # e.g. 280625
-    url_video = f"http://v6.cloudskep.com/rikvod/idisisstisokto/8news{date_str}.mp4?attachment=true"
-    url_video_alternate = f"http://v6.cloudskep.com/rikvod/idisisstisokto/8news{date_str}02.mp4?attachment=true"
-    url_video_alternate_2 = f"http://v6.cloudskep.com/rikvod/idisisstisokto/8news_{date_str}.mp4?attachment=true"
+    base = "http://v6.cloudskep.com/rikvod/idisisstisokto"
+    video_urls = [
+        f"{base}/8news{date_str}.mp4?attachment=true",
+        f"{base}/8news{date_str}02.mp4?attachment=true",
+        f"{base}/8news_{date_str}.mp4?attachment=true",
+        f"{base}/d8news{date_str}.mp4?attachment=true",
+    ]
 
     # Target paths
     media = get_media_folder_for_day(day)
@@ -137,15 +147,16 @@ def generate_for_date(day: date):
             with timing_step(
                 "video_download",
                 **log_context,
-                urls=[url_video, url_video_alternate, url_video_alternate_2],
+                urls=video_urls,
             ):
-                try:
-                    download_video(url_video, local_filename_video)
-                except Exception:
+                for i, url in enumerate(video_urls):
                     try:
-                        download_video(url_video_alternate, local_filename_video)
+                        download_video(url, local_filename_video)
+                        break
                     except Exception:
-                        download_video(url_video_alternate_2, local_filename_video)
+                        if i == len(video_urls) - 1:
+                            raise
+                        continue
                 
                 
 
