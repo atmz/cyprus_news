@@ -348,7 +348,14 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png",
         page = context.new_page()
 
         log_info(f"Opening editor URL: {actual_url}")
-        page.goto(actual_url)
+        try:
+            page.goto(actual_url, timeout=60000)
+        except Exception as e:
+            log_info(f"page.goto timed out: {e}")
+            screenshot_path = str(DATA_DIR / "substack_goto_timeout.png")
+            page.screenshot(path=screenshot_path, full_page=True)
+            log_info(f"Screenshot saved to {screenshot_path}")
+            raise RuntimeError(f"Could not load Substack editor (network issue?): {e}") from e
         try:
             page.wait_for_selector("textarea[placeholder='Title']", timeout=15000)
         except Exception as e:
@@ -358,7 +365,12 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png",
             screenshot_path = str(DATA_DIR / "substack_title_missing.png")
             page.screenshot(path=screenshot_path, full_page=True)
             log_info(f"Screenshot saved to {screenshot_path}")
-            raise e
+            if "sign" in current_url.lower() or "sign" in page_title.lower() or "login" in current_url.lower():
+                raise RuntimeError(
+                    f"SESSION EXPIRED: Substack redirected to login page ({current_url}). "
+                    f"Re-run login_to_ss.py and copy the session file to the secrets mount."
+                ) from e
+            raise
         log_info(f"Editor loaded. Current URL: {page.url}")
         log_info(f"Writing title: {title}")
         page.fill("textarea[placeholder='Title']", title)

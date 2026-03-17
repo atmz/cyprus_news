@@ -402,10 +402,15 @@ def main():
         summary_md = txt / "summary.txt"
         flag_file = txt / "flag.txt"
         if summary_md.exists() and not flag_file.exists():
-            log_context = {"date": day.isoformat(), "summary_path": summary_md, "cover_path": cover_path, "publish": post}
-            with timing_step("post_to_substack", **log_context):
-                if post_to_substack(summary_md, post, cover_path=cover_path, lang="en"):
-                    flag_file.touch()
+            try:
+                log_context = {"date": day.isoformat(), "summary_path": summary_md, "cover_path": cover_path, "publish": post}
+                with timing_step("post_to_substack", **log_context):
+                    if post_to_substack(summary_md, post, cover_path=cover_path, lang="en"):
+                        flag_file.touch()
+            except Exception as e:
+                print(f"❌ Error posting English summary: {e}")
+                import traceback
+                traceback.print_exc()
 
     # --- Native summary languages ---
     for lang, lang_cfg in native_langs.items():
