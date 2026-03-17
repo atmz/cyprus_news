@@ -9,6 +9,7 @@ import platform
 # --- CONFIG ---
 
 SECRETS_ROOT = Path(os.getenv("SECRETS_ROOT", "./data"))
+DATA_DIR = Path(os.getenv("DATA_DIR", "./data"))
 SESSION_FILE = SECRETS_ROOT / "substack_session.json"
 SUBSTACK_NEW_POST_URL = "https://cyprusnews.substack.com/publish/post?type=newsletter&back=%2Fpublish%2Fhome"
 TOP_STORIES_H3_RE = re.compile(r'(?im)^\s*#{3}\s*(?:Top\s*stories|Κύριες\s*Ειδήσεις|Главные\s*новости|Головні\s*новини|כותרות\s*ראשיות|Manşetler)\b.*$')
@@ -259,7 +260,7 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png",
         log_info("Publish confirmation timed out.")
         try:
             timestamp = int(time.time())
-            html_path = f"substack_publish_timeout_{timestamp}.html"
+            html_path = str(DATA_DIR / f"substack_publish_timeout_{timestamp}.html")
             Path(html_path).write_text(page.content(), encoding="utf-8")
             log_info(f"Saved HTML snapshot for manual review: {html_path}")
         except Exception as e:
@@ -351,8 +352,12 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png",
         try:
             page.wait_for_selector("textarea[placeholder='Title']", timeout=15000)
         except Exception as e:
-            log_info(f"Failed to find title field: {e}")
-            page.screenshot(path="substack_title_missing.png", full_page=True)
+            current_url = page.url
+            page_title = page.title()
+            log_info(f"Failed to find title field. Current URL: {current_url}, Page title: {page_title}")
+            screenshot_path = str(DATA_DIR / "substack_title_missing.png")
+            page.screenshot(path=screenshot_path, full_page=True)
+            log_info(f"Screenshot saved to {screenshot_path}")
             raise e
         log_info(f"Editor loaded. Current URL: {page.url}")
         log_info(f"Writing title: {title}")
@@ -444,7 +449,7 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png",
             log_info("Editor content validated.")
         except Exception as e:
             log_info(f"Editor content validation failed: {e}")
-            page.screenshot(path="substack_content_validation_failed.png", full_page=True)
+            page.screenshot(path=str(DATA_DIR / "substack_content_validation_failed.png"), full_page=True)
             raise
         # If we never saw the header, you can optionally insert at top/end:
         # if not image_inserted:
@@ -476,7 +481,7 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png",
                     raise RuntimeError("Publish flow did not confirm success after all retries.")
             except Exception as e:
                 log_info(f"Publish flow failed: {e}")
-                page.screenshot(path="substack_publish_failed.png", full_page=True)
+                page.screenshot(path=str(DATA_DIR / "substack_publish_failed.png"), full_page=True)
                 print("⚠️ Could not publish — post might already be published or require manual intervention.")
         else:
             log_info("Draft mode: waiting for auto-save (including image upload)...")
