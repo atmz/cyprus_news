@@ -107,13 +107,18 @@ def generate_for_date(day: date):
     make_folders(day)
 
     date_str = day.strftime('%d%m%y')  # e.g. 280625
-    base = "http://v6.cloudskep.com/rikvod/idisisstisokto"
-    video_urls = [
-        f"{base}/8news{date_str}.mp4?attachment=true",
-        f"{base}/8news{date_str}02.mp4?attachment=true",
-        f"{base}/8news_{date_str}.mp4?attachment=true",
-        f"{base}/d8news{date_str}.mp4?attachment=true",
+    bases = [
+        "https://v6.cloudskep.com/rikvod/idisisstisokto",
+        "http://v6.cloudskep.com/rikvod/idisisstisokto",
     ]
+    suffixes = [
+        f"/8news{date_str}.mp4?attachment=true",
+        f"/8newss{date_str}.mp4?attachment=true",
+        f"/8news{date_str}02.mp4?attachment=true",
+        f"/8news_{date_str}.mp4?attachment=true",
+        f"/d8news{date_str}.mp4?attachment=true",
+    ]
+    video_urls = [b + s for s in suffixes for b in bases]
 
     # Target paths
     media = get_media_folder_for_day(day)
@@ -149,14 +154,17 @@ def generate_for_date(day: date):
                 **log_context,
                 urls=video_urls,
             ):
+                errors = []
                 for i, url in enumerate(video_urls):
                     try:
                         download_video(url, local_filename_video)
+                        print(f"✅ Downloaded from: {url}")
                         break
-                    except Exception:
+                    except Exception as e:
+                        errors.append(f"  {url}: {e}")
                         if i == len(video_urls) - 1:
+                            print("❌ All video URLs failed:\n" + "\n".join(errors))
                             raise
-                        continue
                 
                 
 
