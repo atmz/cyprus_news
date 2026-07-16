@@ -34,7 +34,7 @@
     "flag_filename": "flag_el.txt"
   },
   "ru": {
-    "enabled": true,
+    "enabled": false,
     "summary_source": "translate_from:en",
     "article_sources": [
       {"name": "EvropaKipr", "tag": "ЕК", "file": "data/evropakipr_novosti_articles.json"},
@@ -47,7 +47,7 @@
     "flag_filename": "flag_ru.txt"
   },
   "uk": {
-    "enabled": true,
+    "enabled": false,
     "summary_source": "translate_from:en",
     "article_sources": [
       {"name": "Cyprus Mail", "tag": "CM", "file": "data/cyprus_articles.json"},
@@ -61,7 +61,7 @@
     "flag_filename": "flag_uk.txt"
   },
   "tr": {
-    "enabled": true,
+    "enabled": false,
     "summary_source": "translate_from:en",
     "article_sources": [
       {"name": "Kıbrıs Postası", "tag": "KP", "file": "data/kibrispostasi_articles.json"},
@@ -77,7 +77,7 @@
     "flag_filename": "flag_tr.txt"
   },
   "he": {
-    "enabled": true,
+    "enabled": false,
     "summary_source": "translate_from:en",
     "article_sources": [
       {"name": "Cyprus Mail", "tag": "CM", "file": "data/cyprus_articles.json"},
