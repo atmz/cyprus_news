@@ -29,7 +29,7 @@ def get_article_sources(lang="en"):
     if lang in config:
         return config[lang].get("article_sources", [])
     return []
-MODEL_NAME = "gpt-4.1"
+MODEL_NAME = "gpt-5.6-luna"
 PROMPTS_DIR = "src/prompts"
 LINK_PROMPT_FILE = "src/prompts/link_prompt.txt"
 SYSTEM_PROMPT_FILE = "src/prompts/system_prompt.txt"
@@ -194,7 +194,7 @@ def generate_chunked_summary(
     first_chunk_system_prompt,
     followup_chunk_system_prompt,
     headline_system_prompt,
-    model="gpt-4.1",
+    model="gpt-5.6-luna",
     chunk_separator="\n\n",
     max_chunk_size=3000,
     sleep_time=20,
@@ -239,8 +239,7 @@ def generate_chunked_summary(
                     {"role": "system", "content": headline_system_prompt},
                     {"role": "user", "content": user_prompt},
                     {"role": "user", "content": chunk}
-                ],
-                temperature=0.0
+                ]
             )
             headlines = limit_headlines(response.choices[0].message.content.strip())
             print(f"Summarized chunk{str(i)}\n system_prompt:{headline_system_prompt}\nuser_prompt:{user_prompt}\n chunk:{chunk}\n summary{headlines}\n")
@@ -267,8 +266,7 @@ def generate_chunked_summary(
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
                 {"role": "user", "content": chunk_with_overlap}
-            ],
-            temperature=0.0
+            ]
         )
 
         summary = response.choices[0].message.content.strip()
@@ -331,8 +329,7 @@ def cleanup_merged_summary(client, summary_text, deduplication_prompt):
         model=MODEL_NAME,
         messages=[
             {"role": "user", "content": final_prompt}
-        ],
-        temperature=0.2
+        ]
     )
     print(f"prompt:{final_prompt}\noutput{response.choices[0].message.content.strip()}")
     return response.choices[0].message.content.strip(), response.usage
@@ -410,8 +407,7 @@ def link_articles_to_summary(client, summary_text, filtered_articles, link_promp
         messages=[
             {"role": "system", "content": system_msg},
             {"role": "user", "content": linking_prompt}
-        ],
-        temperature=0.3
+        ]
     )
     return response.choices[0].message.content.strip(), response.usage
 
@@ -525,8 +521,8 @@ def summarize_for_day(day, lang="en"):
     if usage3:
         total_tokens += usage3.prompt_tokens + usage3.completion_tokens
 
-    COST_PER_1K_PROMPT = 0.005
-    COST_PER_1K_COMPLETION = 0.015
+    COST_PER_1K_PROMPT = 0.0002
+    COST_PER_1K_COMPLETION = 0.0012
     estimated_cost = (total_tokens / 1000) * ((COST_PER_1K_PROMPT + COST_PER_1K_COMPLETION) / 2)
 
     print(f"\n✅ Final {lang} summary with links saved to {output_file}")

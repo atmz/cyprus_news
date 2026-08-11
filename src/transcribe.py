@@ -19,7 +19,7 @@ def transcribe_with_retry(client, audio_file, retries=3, min_chars=200):
 
     for attempt in range(retries):
         result = client.audio.transcriptions.create(
-            model="gpt-4o-transcribe",
+            model="gpt-transcribe",
             file=audio_file
         )
         text = result.text.strip()

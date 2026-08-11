@@ -7,8 +7,8 @@ from datetime import date
 TOPICS_FILE = "data/ongoing_topics.json"
 DETECT_PROMPT_FILE = "src/prompts/detect_topics_prompt.txt"
 RESTRUCTURE_PROMPT_FILE = "src/prompts/restructure_summary_prompt.txt"
-DETECT_MODEL = "gpt-4.1-mini"
-RESTRUCTURE_MODEL = "gpt-4.1-mini"
+DETECT_MODEL = "gpt-5.6-luna"
+RESTRUCTURE_MODEL = "gpt-5.6-luna"
 
 
 def load_ongoing_topics():
@@ -64,7 +64,6 @@ def detect_ongoing_topics(client, summary_text, existing_topics, today):
             {"role": "system", "content": prompt},
             {"role": "user", "content": summary_text},
         ],
-        temperature=0.0,
         response_format={"type": "json_object"},
     )
 
@@ -183,8 +182,7 @@ def restructure_summary_with_topics(client, summary_text, detected_topics, lang=
         messages=[
             {"role": "system", "content": prompt},
             {"role": "user", "content": summary_text},
-        ],
-        temperature=0.0,
+        ]
     )
 
     result = response.choices[0].message.content.strip()
