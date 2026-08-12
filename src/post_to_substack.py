@@ -107,7 +107,7 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png",
         before_count = visuals.count()
 
         # Open toolbar image menu → Add image → native file chooser
-        image_btn = page.locator("button[aria-label='Image'][title='Insert image']").first
+        image_btn = page.locator("button[title='Insert image']").first
         image_btn.wait_for(state="visible", timeout=5000)
         image_btn.click()
 
