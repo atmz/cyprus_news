@@ -6,8 +6,8 @@ Here's what happens every day:
 
 1. **Video download** — The broadcast recording is downloaded automatically after it airs.
 2. **Transcription** — The audio is extracted and transcribed from Greek using OpenAI's Whisper speech-to-text model.
-3. **Summarization** — The Greek transcript is summarized into structured English by GPT-4o, organized into sections like Government & Politics, Justice, Education, etc.
-4. **Article linking** — English-language articles from the [Cyprus Mail](https://cyprus-mail.com) and [In-Cyprus](https://in-cyprus.philenews.com) are scraped and matched to the relevant stories. Where a match is found, a link is added so you can read more.
+3. **Summarization** — The Greek transcript is summarized into structured English by GPT-4.1, organized into sections like Government & Politics, Justice, Education, etc.
+4. **Article linking** — English-language articles from the [Cyprus Mail](https://cyprus-mail.com), [In-Cyprus](https://in-cyprus.philenews.com), and [Politis](https://en.politis.com.cy) are scraped and matched to the relevant stories. Where a match is found, a link is added so you can read more.
 5. **Cover image** — An AI-generated cover image is created based on the day's top stories.
 6. **Publishing** — The finished summary is posted to Substack automatically.
 
@@ -31,7 +31,7 @@ If something looks wrong, it probably is. When accuracy matters, check the origi
 
 ### The Greek edition
 
-A Greek-language version of this newsletter is also available at [kyproseidiseis.substack.com](https://kyproseidiseis.substack.com). It is translated from the English summary (not re-summarized from the transcript), with links to Greek-language articles from [Philenews](https://www.philenews.com), [Sigmalive](https://www.sigmalive.com), and [Politis](https://www.politis.com.cy).
+A Greek-language version of this newsletter is also available at [kyproseidiseis.substack.com](https://kyproseidiseis.substack.com). It is summarized directly from the RIK transcript in Greek (not translated from English), with links to Greek-language articles from [Philenews](https://www.philenews.com), [Sigmalive](https://www.sigmalive.com), and [Politis](https://www.politis.com.cy).
 
 ### Open source
 

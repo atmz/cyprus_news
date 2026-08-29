@@ -31,7 +31,8 @@ def fetch_new_articles(base_url, known_urls=None):
             break  # No more articles/pages
 
         for tag in article_tags:
-            link_tag = tag.find("a", class_="_lnkTitle_cekga_5")
+            # Class names are CSS-module hashes that rotate on site rebuilds — match prefix only
+            link_tag = tag.find("a", class_=lambda c: c and c.startswith("_lnkTitle_"))
             if not link_tag:
                 continue
             full_url = urljoin(base_url, link_tag.get("href"))
@@ -42,7 +43,7 @@ def fetch_new_articles(base_url, known_urls=None):
             title_tag = tag.find("h2")
             abstract_tag = tag.find("div", class_="abstract")
             time_tag = tag.find("time")
-            author_tag = tag.find("div", class_="_authorsCnt_cekga_14")
+            author_tag = tag.find("div", class_=lambda c: c and c.startswith("_authorsCnt_"))
             image_tag = tag.find("img")
 
             article = {

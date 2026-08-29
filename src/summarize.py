@@ -30,6 +30,8 @@ def get_article_sources(lang="en"):
         return config[lang].get("article_sources", [])
     return []
 MODEL_NAME = "gpt-5.6-luna"
+# Linking needs aggressive article matching — luna links ~40% less than gpt-4.1 on identical input
+LINK_MODEL_NAME = "gpt-4.1"
 PROMPTS_DIR = "src/prompts"
 LINK_PROMPT_FILE = "src/prompts/link_prompt.txt"
 SYSTEM_PROMPT_FILE = "src/prompts/system_prompt.txt"
@@ -403,7 +405,7 @@ def link_articles_to_summary(client, summary_text, filtered_articles, link_promp
 
     print("Sending to OpenAI for article-linking...")
     response = client.chat.completions.create(
-        model=MODEL_NAME,
+        model=LINK_MODEL_NAME,
         messages=[
             {"role": "system", "content": system_msg},
             {"role": "user", "content": linking_prompt}
