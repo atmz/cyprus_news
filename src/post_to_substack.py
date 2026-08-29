@@ -253,7 +253,7 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png",
                 if page.locator(f"text={text}").first.is_visible():
                     log_info(f"Publish confirmation detected: {text}")
                     return True
-            if "/publish/" not in page.url:
+            if "/publish/post" not in page.url:
                 log_info(f"Publish confirmation inferred from URL: {page.url}")
                 return True
             page.wait_for_timeout(500)
