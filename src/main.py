@@ -11,7 +11,7 @@ from zoneinfo import ZoneInfo
 from openai import OpenAI
 
 from article_loaders.cm_loader import refresh_cm
-from helpers import get_media_folder_for_day, get_root_folder_for_day, get_text_folder_for_day, make_folders
+from helpers import build_summary_with_note, get_media_folder_for_day, get_root_folder_for_day, get_text_folder_for_day, make_folders
 from article_loaders.in_cyprus_loader import refresh_ic
 from article_loaders.philenews_loader import refresh_philenews
 from article_loaders.sigmalive_loader import refresh_sigmalive
@@ -411,10 +411,24 @@ def main():
         flag_file = txt / "flag.txt"
         if summary_md.exists() and not flag_file.exists():
             try:
-                log_context = {"date": day.isoformat(), "summary_path": summary_md, "cover_path": cover_path, "publish": post}
+                # One-time queued editor's note: drop data/editors_note.txt and
+                # it is prepended to the next English email, then consumed.
+                note_file = Path("data/editors_note.txt")
+                note_text = note_file.read_text(encoding="utf-8").strip() if note_file.exists() else ""
+                post_md = summary_md
+                if note_text:
+                    print("📝 Editors note queued — prepending to English summary.")
+                    post_md = txt / "summary_with_note.txt"
+                    post_md.write_text(
+                        build_summary_with_note(summary_md.read_text(encoding="utf-8"), note_text),
+                        encoding="utf-8",
+                    )
+                log_context = {"date": day.isoformat(), "summary_path": post_md, "cover_path": cover_path, "publish": post}
                 with timing_step("post_to_substack", **log_context):
-                    if post_to_substack(summary_md, post, cover_path=cover_path, lang="en"):
+                    if post_to_substack(post_md, post, cover_path=cover_path, lang="en"):
                         flag_file.touch()
+                        if note_text:
+                            note_file.unlink(missing_ok=True)
             except Exception as e:
                 print(f"❌ Error posting English summary: {e}")
                 import traceback

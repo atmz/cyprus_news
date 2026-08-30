@@ -184,6 +184,9 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png",
 
     def normalize_expected_text(text: str) -> str:
         normalized = markdown_link_pattern.sub(r"\1", text)
+        # Full-italic lines (e.g. '*Editors note: ...*') are typed without
+        # their asterisks, so drop them from the expected text too.
+        normalized = re.sub(r"(?m)^\*([^*].*)\*\s*$", r"\1", normalized)
         normalized = re.sub(r"(?m)^\s*#{1,6}\s*", "", normalized)
         normalized = normalized.replace("- ", "• ")
         normalized = re.sub(r"[ \t]+", " ", normalized)
@@ -419,6 +422,21 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png",
                     fast_type(page, "• ")
                     line = line[2:].strip()
 
+                # Full-italic line (e.g. '*Editors note: ...*') — insert_text
+                # doesn't convert markdown, so toggle italics via the editor
+                # shortcut and type the inner text without asterisks.
+                italic_line = (
+                    len(line) > 2
+                    and line.startswith("*")
+                    and line.endswith("*")
+                    and not line.startswith("**")
+                )
+                if italic_line:
+                    line = line[1:-1].strip()
+                    page.keyboard.down(LINK_MOD)
+                    page.keyboard.press("KeyI")
+                    page.keyboard.up(LINK_MOD)
+
                 # Type text with labeled links
                 pos = 0
                 for m in markdown_link_pattern.finditer(line):
@@ -454,6 +472,11 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png",
                         rule_type(page, remaining)
                     else:
                         fast_type(page, remaining)
+
+                if italic_line:
+                    page.keyboard.down(LINK_MOD)
+                    page.keyboard.press("KeyI")
+                    page.keyboard.up(LINK_MOD)
 
                 page.keyboard.press("Enter")
         page.keyboard.press("Enter")
