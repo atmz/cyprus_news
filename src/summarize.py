@@ -82,6 +82,10 @@ def combine_summaries(chunks, ongoing_topic_names=None):
 
     for section in combined:
         combined[section] = list(dict.fromkeys(combined[section]))  # exact
+        if section in ("Top stories", "Κύριες Ειδήσεις"):
+            # Verbatim broadcast headlines are short and may legitimately look
+            # alike — fuzzy matching here drops real stories, so exact-only.
+            continue
         deduped = []
         for bullet in combined[section]:
             if not any(is_near_duplicate(bullet, kept) for kept in deduped):

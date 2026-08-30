@@ -2,6 +2,7 @@
 
 import json
 import os
+import re
 from datetime import date
 
 TOPICS_FILE = "data/ongoing_topics.json"
@@ -158,11 +159,38 @@ def build_ongoing_topics_section_entries(topics, lang="en"):
     return "\n".join(lines)
 
 
+TOP_STORIES_HEADER_NAMES = [
+    "Top stories", "Κύριες Ειδήσεις", "Главные новости",
+    "Головні новини", "כותרות ראשיות", "Manşetler",
+]
+
+
+def _split_off_top_stories(summary_text):
+    """Split into (before, top_stories_block, rest).
+
+    'before' is anything preceding the Top stories header (date heading,
+    disclaimer); the block runs up to the next ### header. Returns
+    ("", "", summary_text) when no Top stories section exists.
+    """
+    header_re = r"(?m)^### +(?:%s)\s*$" % "|".join(
+        re.escape(n) for n in TOP_STORIES_HEADER_NAMES
+    )
+    m = re.search(header_re, summary_text)
+    if not m:
+        return "", "", summary_text
+    nxt = re.search(r"(?m)^### ", summary_text[m.end():])
+    end = m.end() + nxt.start() if nxt else len(summary_text)
+    return summary_text[:m.start()], summary_text[m.start():end], summary_text[end:]
+
+
 def restructure_summary_with_topics(client, summary_text, detected_topics, lang="en"):
     """Use LLM to move bullets related to ongoing topics into dedicated sections.
 
     Only called when new topics were detected (topics_changed=True).
-    Returns the restructured summary text.
+    Returns the restructured summary text. The Top stories section is split
+    off before the LLM call and reattached verbatim afterwards — it holds
+    the broadcast headlines (and drives the cover image), so the model must
+    never get the chance to move or edit them.
     """
     name_key = f"name_{lang}" if lang != "en" else "name_en"
 
@@ -177,14 +205,18 @@ def restructure_summary_with_topics(client, summary_text, detected_topics, lang=
 
     prompt = restructure_prompt.replace("[TOPIC_LIST]", "\n".join(topic_descriptions))
 
+    before, top_block, rest = _split_off_top_stories(summary_text)
+
     response = client.chat.completions.create(
         model=RESTRUCTURE_MODEL,
         messages=[
             {"role": "system", "content": prompt},
-            {"role": "user", "content": summary_text},
+            {"role": "user", "content": rest},
         ]
     )
 
     result = response.choices[0].message.content.strip()
+    if top_block:
+        result = before + top_block.rstrip("\n") + "\n\n" + result
     print(f"🔄 Summary restructured with ongoing topic sections")
     return result
