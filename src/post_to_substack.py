@@ -314,9 +314,12 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png",
             if wait_for_publish_success(page, timeout_s=60):
                 return True
 
-            log_info(f"Publish confirmation not received on attempt {attempt + 1}")
-            if attempt < max_attempts - 1:
-                continue
+            # 'Send to everyone now' was clicked and no error dialog appeared, so
+            # the post is most likely live even though confirmation wasn't seen.
+            # Treat it as published: retrying or re-running would email every
+            # subscriber a duplicate, while a missed confirmation is only a log line.
+            log_info("⚠️ Publish clicked but confirmation not detected — assuming published; verify manually.")
+            return True
 
         return False
 
