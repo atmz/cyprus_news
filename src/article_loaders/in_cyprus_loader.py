@@ -46,11 +46,13 @@ def fetch_new_articles(base_url, known_urls=None, max_clicks=20):
             page.goto(base_url, wait_until="domcontentloaded", timeout=60000)
         except Exception as e:
             print(f"❌ Failed to load page: {e}")
-            page.screenshot(path="goto_failed.png", full_page=True)
+            try:
+                page.screenshot(path="goto_failed.png", full_page=True, timeout=10000)
+            except Exception:
+                pass
             return []
 
         page.wait_for_timeout(2000)
-        page.screenshot(path="after_goto.png", full_page=True)
 
         # Accept cookies if the popup exists
         try:
@@ -63,10 +65,21 @@ def fetch_new_articles(base_url, known_urls=None, max_clicks=20):
                 print("🍪 No cookie banner found.")
         except Exception as e:
             print(f"⚠️ Cookie click error: {e}")
-        page.screenshot(path="debug2.png", full_page=True)
         while click_count < max_clicks:
             print(f"\n🔁 Scroll round {click_count+1}")
-            html = page.content()
+            # The cookie banner (and 'Load more') can trigger navigations; content()
+            # raises if called mid-navigation, so settle and retry.
+            html = None
+            for _ in range(3):
+                try:
+                    page.wait_for_load_state("load", timeout=15000)
+                    html = page.content()
+                    break
+                except Exception:
+                    page.wait_for_timeout(1500)
+            if html is None:
+                print("⚠️ Could not read page content — stopping.")
+                break
             soup = BeautifulSoup(html, "html.parser")
             article_blocks = soup.find_all("div", class_="td_module_flex")
 
