@@ -8,7 +8,13 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.append(str(ROOT / "src"))
 
-from summarize_beta import apply_title_prefix, summarize_for_day_beta
+from summarize_beta import (
+    _restore_section_headers,
+    _strip_llm_preamble,
+    apply_title_prefix,
+    generate_chunked_summary_beta,
+    summarize_for_day_beta,
+)
 
 FAKE_USAGE = {"input_tokens": 10, "output_tokens": 5, "cost_usd": 0.001}
 
@@ -94,6 +100,56 @@ class SummarizeForDayBetaTestCase(unittest.TestCase):
             # Only the cleanup call should have hit the LLM (no chunk summarization)
             self.assertEqual(len(calls), 1)
             self.assertIn("SUMMARY:", calls[0])
+
+
+class StripLlmPreambleTestCase(unittest.TestCase):
+    def test_drops_leading_commentary_line(self):
+        text = (
+            "Looking at the articles provided, I found two clear matches.\n\n"
+            "### Economy\n- cleaned bullet"
+        )
+        out = _strip_llm_preamble(text)
+        self.assertEqual(out, "### Economy\n- cleaned bullet")
+
+    def test_noop_when_already_starts_with_header(self):
+        text = "### Economy\n- cleaned bullet"
+        self.assertEqual(_strip_llm_preamble(text), text)
+
+    def test_noop_when_no_headers_at_all(self):
+        text = "Just some plain text with no section headers."
+        self.assertEqual(_strip_llm_preamble(text), text)
+
+
+class RestoreSectionHeadersTestCase(unittest.TestCase):
+    def test_converts_downgraded_headers(self):
+        text = "## Economy\n- bullet one\n\n## Society\n- bullet two"
+        out = _restore_section_headers(text)
+        self.assertEqual(out, "### Economy\n- bullet one\n\n### Society\n- bullet two")
+
+    def test_leaves_correct_headers_untouched(self):
+        text = "### Economy\n- bullet one"
+        self.assertEqual(_restore_section_headers(text), text)
+
+
+class GenerateChunkedSummaryBetaTestCase(unittest.TestCase):
+    def test_headline_without_header_gets_top_stories_prefix(self):
+        def headerless_complete(prompt, system_prompt=None, model=None, timeout=600, retries=1):
+            if system_prompt and "headline" in (system_prompt or "").lower():
+                return "- headline one\n- headline two", FAKE_USAGE
+            return "### Economy\n- economy bullet", FAKE_USAGE
+
+        with patch("summarize_beta.complete", side_effect=headerless_complete):
+            combined, usage = generate_chunked_summary_beta(
+                "Some short transcript text.",
+                "user prompt",
+                "first chunk system prompt",
+                "followup chunk system prompt",
+                "headline system prompt",
+                model="claude-sonnet-5",
+                sleep_time=0,
+            )
+
+        self.assertIn("### Top stories", combined)
 
 
 if __name__ == "__main__":

@@ -4,10 +4,16 @@ This file is the beta lane's scratch space — it may freely diverge from
 summarize.py. Pure helpers are imported from summarize (read-only reuse);
 copy one in here only when an experiment needs to change it.
 See docs/superpowers/specs/2026-09-12-beta-pipeline-design.md.
+
+The deterministic guards below (_restore_section_headers, _strip_llm_preamble,
+and the "### Top stories" fallback in generate_chunked_summary_beta) exist
+because claude-sonnet-5 (vs prod's gpt models) tended to drop the Top stories
+header, add commentary, and rewrite header levels in the 2026-02-24 E2E run.
 """
 
 import json
 import os
+import re
 import time
 from datetime import timedelta
 
@@ -24,6 +30,7 @@ from summarize import (
     limit_headlines,
     load_articles,
     split_summary,
+    strip_hallucinated_links,
     strip_summary_marker,
 )
 from timing import timing_step
@@ -48,6 +55,26 @@ def _add_usage(total, usage):
         total["input_tokens"] += usage.get("input_tokens", 0)
         total["output_tokens"] += usage.get("output_tokens", 0)
         total["cost_usd"] += usage.get("cost_usd", 0.0)
+
+
+def _restore_section_headers(text):
+    """Undo header downgrades: the linking/cleanup model sometimes rewrites
+    "### " section headers down to "## ". Their inputs never contain the
+    "## " date heading, so any "## " line here is a downgraded section
+    header, and this deterministic rewrite is safe to always apply.
+    """
+    return re.sub(r"(?m)^## ", "### ", text)
+
+
+def _strip_llm_preamble(text):
+    """Drop chatty commentary the model sometimes prepends before the first
+    section header (e.g. "Looking at the articles provided, I found...").
+    A no-op when the text has no headers at all, or already starts with one.
+    """
+    if "### " in text and not text.strip().startswith("### "):
+        idx = text.index("### ")
+        return text[idx:]
+    return text
 
 
 def generate_chunked_summary_beta(
@@ -93,6 +120,8 @@ def generate_chunked_summary_beta(
                 model=model,
             )
             headlines = limit_headlines(text)
+            if "### " not in headlines:
+                headlines = "### Top stories\n" + headlines
             _add_usage(total_usage, usage)
 
         previous_summary = "".join(all_summaries)
@@ -125,7 +154,15 @@ def generate_chunked_summary_beta(
 def cleanup_merged_summary_beta(summary_text, deduplication_prompt, model):
     final_prompt = f"{deduplication_prompt}\n\nSUMMARY:\n{summary_text}\n"
     print("[beta] Sending to claude for cleanup...")
-    return complete(final_prompt, model=model)
+    system_prompt = (
+        "You are a careful editor. Output ONLY the cleaned summary in markdown — "
+        "no preamble, no explanations, no closing remarks. Preserve all ### section "
+        "headers, bullet points, and markdown structure exactly."
+    )
+    text, usage = complete(final_prompt, system_prompt=system_prompt, model=model)
+    text = _restore_section_headers(text)
+    text = _strip_llm_preamble(text)
+    return text, usage
 
 
 def link_articles_to_summary_beta(summary_text, filtered_articles, link_prompt,
@@ -141,14 +178,18 @@ def link_articles_to_summary_beta(summary_text, filtered_articles, link_prompt,
     system_msg = (
         f"You are a careful editor helping link summaries to matching newspaper articles. "
         f"Do not alter text except to add a {tag_list} link. Preserve all ### section "
-        f"headers, bullet points, and markdown structure exactly as they appear in the input."
+        f"headers, bullet points, and markdown structure exactly as they appear in the input. "
+        f"Output ONLY the modified summary — no preamble, no explanations, no closing remarks."
     )
     linking_prompt = (
         f"{prompt_with_tags}\n\nSUMMARY:\n{summary_text}\n\n"
         f"ARTICLES:\n{json.dumps(filtered_articles, ensure_ascii=False)}\n"
     )
     print("[beta] Sending to claude for article-linking...")
-    return complete(linking_prompt, system_prompt=system_msg, model=model)
+    text, usage = complete(linking_prompt, system_prompt=system_msg, model=model)
+    text = _restore_section_headers(text)
+    text = _strip_llm_preamble(text)
+    return strip_hallucinated_links(text, filtered_articles), usage
 
 
 def summarize_for_day_beta(day, cfg=None):
