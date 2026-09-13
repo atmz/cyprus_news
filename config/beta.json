@@ -1,7 +1,7 @@
 {
   "enabled": true,
   "model": "claude-sonnet-5",
-  "prompts_dir": "src/prompts",
+  "prompts_dir": "src/prompts_beta",
   "title_prefix": "🧪 ",
   "article_sources": [
     {"name": "Cyprus Mail", "tag": "CM", "file": "data/cyprus_articles.json"},
