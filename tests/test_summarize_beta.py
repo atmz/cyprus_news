@@ -152,6 +152,40 @@ class GenerateChunkedSummaryBetaTestCase(unittest.TestCase):
 
         self.assertIn("### Top stories", combined)
 
+    def test_headline_call_sends_chunk_alone_without_user_prompt(self):
+        # The generic user_prompt contradicts headline_system_prompt, and
+        # claude follows the user message over the system message — so the
+        # headline call must receive the bare chunk.
+        user_prompt = "Summarize the following Greek news transcript in English."
+        chunk = "Some short transcript text."
+        calls = []
+
+        def recording_complete(prompt, system_prompt=None, model=None, timeout=600, retries=1):
+            calls.append({"prompt": prompt, "system_prompt": system_prompt})
+            return "### Top stories\n- headline one", FAKE_USAGE
+
+        with patch("summarize_beta.complete", side_effect=recording_complete):
+            generate_chunked_summary_beta(
+                chunk,
+                user_prompt,
+                "first chunk system prompt",
+                "followup chunk system prompt",
+                "headline system prompt",
+                model="claude-sonnet-5",
+                sleep_time=0,
+            )
+
+        self.assertEqual(len(calls), 2)
+        # First call: headlines — bare chunk, no "Summarize the following..."
+        self.assertEqual(calls[0]["prompt"], chunk)
+        self.assertNotIn("Summarize the following", calls[0]["prompt"])
+        self.assertNotIn(user_prompt, calls[0]["prompt"])
+        self.assertEqual(calls[0]["system_prompt"], "headline system prompt")
+        # Second call: chunk summarization — still carries the user prompt
+        self.assertIn(user_prompt, calls[1]["prompt"])
+        self.assertIn(chunk, calls[1]["prompt"])
+        self.assertEqual(calls[1]["system_prompt"], "first chunk system prompt")
+
 
 class StripHallucinatedLinksTestCase(unittest.TestCase):
     def test_removes_unsupplied_url_keeps_supplied_one(self):

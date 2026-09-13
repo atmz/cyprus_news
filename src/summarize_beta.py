@@ -114,8 +114,15 @@ def generate_chunked_summary_beta(
         is_first = (i == 0)
         if is_first:
             print(f"\n⏳ [beta] Summarizing headlines... ({_count_tokens(chunk)} tokens)")
+            # Send the chunk alone — NOT prefixed with user_prompt. The generic
+            # user_prompt ("Summarize the following Greek news transcript in
+            # English.") contradicts headline_system_prompt ("Output only the
+            # headlines... Begin with `### Top stories`"), and claude-sonnet-5
+            # follows the user message over the system message: in the
+            # 2026-02-24 E2E runs this returned a full sectioned summary instead
+            # of a headline list, so the Top stories section was lost entirely.
             text, usage = complete(
-                f"{user_prompt}\n\n{chunk}",
+                chunk,
                 system_prompt=headline_system_prompt,
                 model=model,
             )
