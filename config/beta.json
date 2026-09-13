@@ -1,5 +1,5 @@
 {
-  "enabled": false,
+  "enabled": true,
   "model": "claude-sonnet-5",
   "prompts_dir": "src/prompts",
   "title_prefix": "🧪 ",
@@ -15,6 +15,6 @@
   "summary_filename": "summary_beta.txt",
   "summary_without_links_filename": "summary_without_links_beta.txt",
   "flag_filename": "flag_beta.txt",
-  "substack_url": "REPLACE_WITH_BETA_PUBLISH_URL",
+  "substack_url": "https://cyprusnewsbeta.substack.com/publish/post?type=newsletter&back=%2Fpublish%2Fhome",
   "substack_session_file": "substack_session.json"
 }
