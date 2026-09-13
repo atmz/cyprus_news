@@ -57,6 +57,12 @@ def run_beta(day, publish=True, no_post=False, cfg=None):
     flag_file = txt / cfg["flag_filename"]
     if summary_file.exists() and not flag_file.exists():
         cover_path = txt / "cover.png"
+        if not cover_path.exists():
+            print(f"⏳ [beta] {cover_path} not found — waiting for prod cover, skipping post this run.")
+            return
+        if not cfg["substack_url"].startswith("https://"):
+            print("❌ [beta] substack_url is not configured (still the placeholder?) — skipping post.")
+            return
         secrets_root = Path(os.getenv("SECRETS_ROOT", "./data"))
         session_path = secrets_root / cfg["substack_session_file"]
         with timing_step("post_to_substack_beta", date=day.isoformat()):

@@ -22,7 +22,7 @@ Context summary for the next agent/session working on this repo.
 1. **Substack editor automation breaks when Substack ships UI changes.** Most recent: they removed `aria-label="Image"` from the toolbar button (fixed in `8d877cd` by matching `title='Insert image'` alone). Prefer `title=` attributes over aria-labels; Substack's aria-labels are unstable. To debug, probe the live editor headlessly using `data/substack_session.json` as `storage_state` (opening the editor URL creates a harmless draft). This is also captured in auto-memory (`substack-ui-debugging.md`).
 2. **Scrapers break silently when sites rebuild.** Cyprus Mail uses CSS-module class hashes that rotate (e.g. `_lnkTitle_cekga_5` → `_lnkTitle_1gnys_25`); fixed in `84e35cf` by prefix-matching (`class_=lambda c: c and c.startswith("_lnkTitle_")`). Symptom of a dead scraper: posts lose that source's link tags — e.g. no (CM) links — while the pipeline otherwise succeeds. In-Cyprus now redirects to en.philenews.com but works.
 3. **Session expiry:** if Substack redirects to login, re-run `login_to_ss.py` and copy the session file to the NAS secrets mount.
-4. **Pre-existing test failures** (not regressions, confirmed via git stash): `test_combine_summaries_merges_and_orders_sections` (fuzzy-dedup thresholds eat "Item A"/"Item B" as near-duplicates) and `test_parse_relative_time_returns_none` (philenews loader). Everything else passes: `.venv/bin/python -m pytest tests`.
+4. **Pre-existing test failures** (not regressions, confirmed via git stash): `test_parse_relative_time_returns_none` (philenews loader). Everything else passes: `.venv/bin/python -m pytest tests`.
 
 ## Working tree state (as of this handoff)
 

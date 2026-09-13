@@ -65,6 +65,7 @@ class RunBetaTestCase(unittest.TestCase):
 
             def fake_summarize(d, cfg=None):
                 (txt / "summary_beta.txt").write_text("## 🧪 x", encoding="utf-8")
+                (txt / "cover.png").touch()
 
             with patch("main_beta.get_text_folder_for_day", return_value=txt), \
                  patch("main_beta.summarize_for_day_beta", side_effect=fake_summarize), \
@@ -82,10 +83,37 @@ class RunBetaTestCase(unittest.TestCase):
             txt = Path(tmp)
             (txt / "transcript_gr.txt").write_text("κείμενο", encoding="utf-8")
             (txt / "summary_beta.txt").write_text("## 🧪 x", encoding="utf-8")
+            (txt / "cover.png").touch()
             with patch("main_beta.get_text_folder_for_day", return_value=txt), \
                  patch("main_beta.post_to_substack", return_value=False):
                 run_beta(day, cfg=BASE_CFG)
                 self.assertFalse((txt / "flag_beta.txt").exists())
+
+    def test_missing_cover_skips_posting_and_leaves_no_flag(self):
+        day = date(2026, 9, 1)
+        with TemporaryDirectory() as tmp:
+            txt = Path(tmp)
+            (txt / "transcript_gr.txt").write_text("κείμενο", encoding="utf-8")
+            (txt / "summary_beta.txt").write_text("## 🧪 x", encoding="utf-8")
+            # cover.png deliberately absent — prod hasn't generated it yet.
+            with patch("main_beta.get_text_folder_for_day", return_value=txt), \
+                 patch("main_beta.post_to_substack") as mock_post:
+                run_beta(day, cfg=BASE_CFG)
+                mock_post.assert_not_called()
+                self.assertFalse((txt / "flag_beta.txt").exists())
+
+    def test_placeholder_substack_url_skips_posting(self):
+        day = date(2026, 9, 1)
+        with TemporaryDirectory() as tmp:
+            txt = Path(tmp)
+            (txt / "transcript_gr.txt").write_text("κείμενο", encoding="utf-8")
+            (txt / "summary_beta.txt").write_text("## 🧪 x", encoding="utf-8")
+            (txt / "cover.png").touch()
+            cfg = {**BASE_CFG, "substack_url": "REPLACE_WITH_BETA_PUBLISH_URL"}
+            with patch("main_beta.get_text_folder_for_day", return_value=txt), \
+                 patch("main_beta.post_to_substack") as mock_post:
+                run_beta(day, cfg=cfg)
+                mock_post.assert_not_called()
 
     def test_no_post_skips_posting(self):
         day = date(2026, 9, 1)
