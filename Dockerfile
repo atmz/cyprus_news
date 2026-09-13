@@ -3,6 +3,11 @@ FROM mcr.microsoft.com/playwright/python:v1.53.0-jammy
 # Install additional tools
 RUN apt-get update && apt-get install -y cron ffmpeg
 
+# Node 20 + Claude Code CLI for the beta pipeline (claude -p backend)
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
+    && npm install -g @anthropic-ai/claude-code
+
 # Set workdir
 WORKDIR /app
 
