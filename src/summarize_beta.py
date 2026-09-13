@@ -30,7 +30,6 @@ from summarize import (
     limit_headlines,
     load_articles,
     split_summary,
-    strip_hallucinated_links,
     strip_summary_marker,
 )
 from timing import timing_step
@@ -75,6 +74,30 @@ def _strip_llm_preamble(text):
         idx = text.index("### ")
         return text[idx:]
     return text
+
+
+_LINK_PATTERN = re.compile(r'\[\([^\]]+\)\]\((https?://[^\s)]+)\)')
+
+
+def strip_hallucinated_links(text, filtered_articles):
+    """Beta's own copy of summarize.strip_hallucinated_links: mirrors an
+    in-flight (uncommitted) prod change and is copied here per the fork's
+    self-containment rule rather than imported.
+    """
+    valid_urls = {a["u"] for a in filtered_articles if a.get("u")}
+    removed = []
+
+    def _strip_invalid(match):
+        url = match.group(1)
+        if url in valid_urls:
+            return match.group(0)
+        removed.append(url)
+        return ""
+
+    result = _LINK_PATTERN.sub(_strip_invalid, text)
+    if removed:
+        print(f"⚠️ [beta] Stripped {len(removed)} hallucinated link(s) not in supplied article pool: {removed}")
+    return result
 
 
 def generate_chunked_summary_beta(

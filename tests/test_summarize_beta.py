@@ -13,6 +13,7 @@ from summarize_beta import (
     _strip_llm_preamble,
     apply_title_prefix,
     generate_chunked_summary_beta,
+    strip_hallucinated_links,
     summarize_for_day_beta,
 )
 
@@ -150,6 +151,27 @@ class GenerateChunkedSummaryBetaTestCase(unittest.TestCase):
             )
 
         self.assertIn("### Top stories", combined)
+
+
+class StripHallucinatedLinksTestCase(unittest.TestCase):
+    def test_removes_unsupplied_url_keeps_supplied_one(self):
+        articles = [{"t": "Real story", "a": "abstract", "u": "https://cyprus-mail.com/real", "tag": "CM"}]
+        text = (
+            "- Some story happened. [(CM)](https://cyprus-mail.com/real)\n"
+            "- Another story. [(Φ)](https://philenews.com/hallucinated-greek-link)"
+        )
+        cleaned = strip_hallucinated_links(text, articles)
+        self.assertIn("https://cyprus-mail.com/real", cleaned)
+        self.assertNotIn("philenews.com/hallucinated-greek-link", cleaned)
+        self.assertNotIn("[(Φ)]", cleaned)
+
+    def test_noop_when_all_links_are_supplied(self):
+        articles = [
+            {"t": "A", "a": "a", "u": "https://cyprus-mail.com/a", "tag": "CM"},
+            {"t": "B", "a": "b", "u": "https://en.philenews.com/b", "tag": "IC"},
+        ]
+        text = "- Story. [(CM)](https://cyprus-mail.com/a) [(IC)](https://en.philenews.com/b)"
+        self.assertEqual(strip_hallucinated_links(text, articles), text)
 
 
 if __name__ == "__main__":
