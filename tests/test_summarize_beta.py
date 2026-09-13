@@ -8,6 +8,7 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.append(str(ROOT / "src"))
 
+import summarize_beta
 from summarize_beta import (
     _restore_section_headers,
     _strip_llm_preamble,
@@ -176,8 +177,16 @@ class GenerateChunkedSummaryBetaTestCase(unittest.TestCase):
             )
 
         self.assertEqual(len(calls), 2)
-        # First call: headlines — bare chunk, no "Summarize the following..."
-        self.assertEqual(calls[0]["prompt"], chunk)
+        # First call: headlines — the minimal headline instruction plus the
+        # chunk, never the generic "Summarize the following..." user prompt
+        # (which made claude return a full sectioned summary), and never a
+        # bare chunk either (which lost the only English instruction and
+        # produced Greek headlines in the 2026-09-12 run).
+        self.assertEqual(
+            calls[0]["prompt"],
+            summarize_beta.HEADLINE_USER_INSTRUCTION + "\n\n" + chunk,
+        )
+        self.assertIn("English", calls[0]["prompt"])
         self.assertNotIn("Summarize the following", calls[0]["prompt"])
         self.assertNotIn(user_prompt, calls[0]["prompt"])
         self.assertEqual(calls[0]["system_prompt"], "headline system prompt")

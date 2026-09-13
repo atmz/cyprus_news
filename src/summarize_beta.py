@@ -77,6 +77,14 @@ def _strip_llm_preamble(text):
     return text
 
 
+# Minimal user instruction for the headline call: names the task (so it can't
+# be mistaken for a summarization request) and pins the output language, which
+# otherwise only lived in the general user_prompt we deliberately omit there.
+HEADLINE_USER_INSTRUCTION = (
+    "Extract the opening headlines from this transcript chunk, written in English."
+)
+
+
 def generate_chunked_summary_beta(
     transcript_text,
     user_prompt,
@@ -114,15 +122,17 @@ def generate_chunked_summary_beta(
         is_first = (i == 0)
         if is_first:
             print(f"\n⏳ [beta] Summarizing headlines... ({_count_tokens(chunk)} tokens)")
-            # Send the chunk alone — NOT prefixed with user_prompt. The generic
-            # user_prompt ("Summarize the following Greek news transcript in
-            # English.") contradicts headline_system_prompt ("Output only the
-            # headlines... Begin with `### Top stories`"), and claude-sonnet-5
-            # follows the user message over the system message: in the
-            # 2026-02-24 E2E runs this returned a full sectioned summary instead
-            # of a headline list, so the Top stories section was lost entirely.
+            # Do NOT prefix the chunk with user_prompt: its "Summarize the
+            # following Greek news transcript in English." contradicts
+            # headline_system_prompt ("Output only the headlines... Begin with
+            # `### Top stories`"), and claude-sonnet-5 follows the user message
+            # over the system message — in the 2026-02-24 E2E runs that
+            # returned a full sectioned summary and the Top stories section was
+            # lost. But a bare chunk loses the ONLY English instruction, and
+            # the 2026-09-12 run produced Greek headlines — so carry a minimal
+            # headline-specific instruction instead.
             text, usage = complete(
-                chunk,
+                HEADLINE_USER_INSTRUCTION + "\n\n" + chunk,
                 system_prompt=headline_system_prompt,
                 model=model,
             )
