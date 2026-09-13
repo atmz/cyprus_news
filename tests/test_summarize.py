@@ -53,6 +53,31 @@ class SummarizeTestCase(unittest.TestCase):
         self.assertIn("(CM)", examples)
         self.assertIn("(IC)", examples)
 
+    def test_strip_hallucinated_links_removes_unsupplied_url(self):
+        articles = [{"t": "Real story", "a": "abstract", "u": "https://cyprus-mail.com/real", "tag": "CM"}]
+        text = (
+            "- Some story happened. [(CM)](https://cyprus-mail.com/real)\n"
+            "- Another story. [(Φ)](https://philenews.com/hallucinated-greek-link)"
+        )
+        cleaned = summarize.strip_hallucinated_links(text, articles)
+        self.assertIn("https://cyprus-mail.com/real", cleaned)
+        self.assertNotIn("philenews.com/hallucinated-greek-link", cleaned)
+        self.assertNotIn("[(Φ)]", cleaned)
+
+    def test_strip_hallucinated_links_keeps_all_supplied_urls(self):
+        articles = [
+            {"t": "A", "a": "a", "u": "https://cyprus-mail.com/a", "tag": "CM"},
+            {"t": "B", "a": "b", "u": "https://en.philenews.com/b", "tag": "IC"},
+        ]
+        text = "- Story. [(CM)](https://cyprus-mail.com/a) [(IC)](https://en.philenews.com/b)"
+        cleaned = summarize.strip_hallucinated_links(text, articles)
+        self.assertEqual(text, cleaned)
+
+    def test_strip_hallucinated_links_no_articles_strips_all_links(self):
+        text = "- Story. [(CM)](https://cyprus-mail.com/a)"
+        cleaned = summarize.strip_hallucinated_links(text, [])
+        self.assertNotIn("cyprus-mail.com", cleaned)
+
 
 if __name__ == "__main__":
     unittest.main()

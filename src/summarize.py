@@ -380,6 +380,34 @@ def build_tag_examples(article_sources):
     return "\n".join(examples)
 
 
+_LINK_PATTERN = re.compile(r'\[\([^\]]+\)\]\((https?://[^\s)]+)\)')
+
+
+def strip_hallucinated_links(text, filtered_articles):
+    """Drop any inserted link whose URL isn't one we actually supplied.
+
+    The link model (gpt-4.1) is a general-knowledge model, not restricted to
+    the ARTICLES list we pass it — for a topic it recognizes, it can insert a
+    URL to an article it remembers from training instead of one of ours
+    (e.g. a Greek-language source when we only supplied English ones). This
+    is a defense-in-depth backstop for that; the prompt also asks it not to.
+    """
+    valid_urls = {a["u"] for a in filtered_articles if a.get("u")}
+    removed = []
+
+    def _strip_invalid(match):
+        url = match.group(1)
+        if url in valid_urls:
+            return match.group(0)
+        removed.append(url)
+        return ""
+
+    result = _LINK_PATTERN.sub(_strip_invalid, text)
+    if removed:
+        print(f"⚠️ Stripped {len(removed)} hallucinated link(s) not in supplied article pool: {removed}")
+    return result
+
+
 def link_articles_to_summary(client, summary_text, filtered_articles, link_prompt, article_sources=None):
 
     if not filtered_articles:
@@ -415,7 +443,8 @@ def link_articles_to_summary(client, summary_text, filtered_articles, link_promp
             {"role": "user", "content": linking_prompt}
         ]
     )
-    return response.choices[0].message.content.strip(), response.usage
+    content = strip_hallucinated_links(response.choices[0].message.content.strip(), filtered_articles)
+    return content, response.usage
 
 def summarize_for_day(day, lang="en"):
 
