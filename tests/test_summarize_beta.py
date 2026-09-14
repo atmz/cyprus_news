@@ -196,6 +196,19 @@ class GenerateChunkedSummaryBetaTestCase(unittest.TestCase):
         self.assertEqual(calls[1]["system_prompt"], "first chunk system prompt")
 
 
+class StripInlineEmphasisTestCase(unittest.TestCase):
+    def test_removes_italics_and_bold(self):
+        text = "- Minister told *Kathimerini* the plan is **final** and proceeding."
+        self.assertEqual(
+            summarize_beta._strip_inline_emphasis(text),
+            "- Minister told Kathimerini the plan is final and proceeding.",
+        )
+
+    def test_leaves_links_and_plain_text_untouched(self):
+        text = "- A story. [(CM)](https://cyprus-mail.com/a), [(IC)](https://en.philenews.com/b)"
+        self.assertEqual(summarize_beta._strip_inline_emphasis(text), text)
+
+
 class StripHallucinatedLinksTestCase(unittest.TestCase):
     def test_removes_unsupplied_url_keeps_supplied_one(self):
         articles = [{"t": "Real story", "a": "abstract", "u": "https://cyprus-mail.com/real", "tag": "CM"}]

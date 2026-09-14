@@ -77,6 +77,17 @@ def _strip_llm_preamble(text):
     return text
 
 
+def _strip_inline_emphasis(text):
+    """Remove inline bold/italic markdown from bullets. The Substack poster
+    types text literally (only links are converted), so *Kathimerini* reaches
+    readers with raw asterisks — observed in the 2026-09-13 published post.
+    Link labels like [(CM)](url) contain no asterisks, so this is safe.
+    """
+    text = re.sub(r"\*\*([^*\n]+)\*\*", r"\1", text)
+    text = re.sub(r"\*([^*\n]+)\*", r"\1", text)
+    return text
+
+
 # Minimal user instruction for the headline call: names the task (so it can't
 # be mistaken for a summarization request) and pins the output language, which
 # otherwise only lived in the general user_prompt we deliberately omit there.
@@ -287,6 +298,7 @@ def summarize_for_day_beta(day, cfg=None):
 
     final_output = date_heading + "\n\n" + top_stories + "\n\n" + linked_main_summary
     final_output = strip_summary_marker(final_output)
+    final_output = _strip_inline_emphasis(final_output)
 
     with open(output_file, "w", encoding="utf-8") as f:
         f.write(final_output)

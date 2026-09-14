@@ -16,6 +16,8 @@ You are being given a *section* of the broadcast, possibly combined with some pr
 - Preserve politically significant formulations in their standard English renderings rather than paraphrasing — e.g. "bicommunal, bizonal federation with political equality", names of agreements, UN terminology, exact legal charges. These phrases carry precise meaning in Cypriot politics.
 - Classify by the story's substance, not its venue or occasion: a minister announcing policy at a festival is an Economy or Politics story, not Culture.
 - Keep items to one or two sentences, never more than three. When trimming, cut connective narration and adjectives — keep names, numbers, and concrete facts.
+- Translate ambiguous Greek terms conservatively and do not state facts the broadcast did not: e.g. «ζευγάρι/ζευγάρια» means a pair (two people together) and not necessarily a romantic couple — prefer neutral phrasing like "two men and two women" unless the relationship is explicitly stated.
+- Plain text only inside bullets: never use bold or italic markdown (no asterisks). Publication and programme names are written without italics.
 
 ### Required Format:
 - Do **not** generate the top-level heading (e.g. `## 📰 News Summary...`). That will be added automatically.
