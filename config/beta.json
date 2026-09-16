@@ -1,6 +1,6 @@
 {
   "enabled": true,
-  "model": "claude-sonnet-5",
+  "model": "claude-opus-5",
   "prompts_dir": "src/prompts_beta",
   "title_prefix": "🧪 ",
   "article_sources": [
