@@ -183,6 +183,37 @@ def _split_off_top_stories(summary_text):
     return summary_text[:m.start()], summary_text[m.start():end], summary_text[end:]
 
 
+def drop_empty_sections(markdown):
+    """Remove "### " section headers that have no bullets under them.
+
+    The restructure model creates a header for every active ongoing topic,
+    including topics with no news that day (seven bare headers were published
+    on 2026-09-15). Deterministic backstop: a section survives only if at
+    least one "- " / "• " bullet appears before the next header.
+    """
+    lines = markdown.splitlines()
+    out = []
+    section = None  # buffered [header, *body] for the current ### section
+    def flush():
+        nonlocal section
+        if section is not None:
+            if any(l.lstrip().startswith(("- ", "• ")) for l in section[1:]):
+                out.extend(section)
+            section = None
+    for line in lines:
+        if line.startswith("### "):
+            flush()
+            section = [line]
+        elif section is not None:
+            section.append(line)
+        else:
+            out.append(line)
+    flush()
+    # collapse runs of blank lines left behind by removed sections
+    cleaned = re.sub(r"\n{3,}", "\n\n", "\n".join(out))
+    return cleaned.strip() + "\n"
+
+
 def restructure_summary_with_topics(client, summary_text, detected_topics, lang="en"):
     """Use LLM to move bullets related to ongoing topics into dedicated sections.
 
@@ -215,7 +246,7 @@ def restructure_summary_with_topics(client, summary_text, detected_topics, lang=
         ]
     )
 
-    result = response.choices[0].message.content.strip()
+    result = drop_empty_sections(response.choices[0].message.content.strip())
     if top_block:
         result = before + top_block.rstrip("\n") + "\n\n" + result
     print(f"🔄 Summary restructured with ongoing topic sections")

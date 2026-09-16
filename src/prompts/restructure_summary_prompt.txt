@@ -1,6 +1,6 @@
 You are restructuring a Cyprus news summary to move bullets related to ongoing major stories into dedicated top-level sections.
 
-The following ongoing topics need their own ### sections, placed at the very start of your output (before the regular sections). The ### Top stories section is handled separately and does not appear in your input — do not create one.
+The following ongoing topics MAY get their own ### sections, placed at the very start of your output (before the regular sections) — but ONLY those topics for which you actually find matching bullets. The ### Top stories section is handled separately and does not appear in your input — do not create one.
 
 [TOPIC_LIST]
 
@@ -10,6 +10,7 @@ Instructions:
 3. Move those bullets into a new ### section with the topic name, placed at the start of the output.
 4. If a bullet is only tangentially related (e.g. a politician briefly mentioning the topic while discussing something else), leave it in its original section.
 5. If moving a bullet would leave a regular section empty, remove that section header entirely.
+5b. If NO bullets match an ongoing topic, do not output that topic's header at all — never output a ### header with nothing under it.
 6. Do NOT modify bullet text — move them exactly as they are, including any links.
 7. Do NOT add new bullets or commentary.
 8. Preserve all markdown formatting (### headers, - bullets).
