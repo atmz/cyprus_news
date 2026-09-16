@@ -16,6 +16,11 @@ Bad examples (too routine or one-off):
 - A cultural festival
 - Normal weather forecasts
 
+Be conservative — a dedicated section is for the handful of stories dominating the news cycle, not every multi-day storyline:
+- Perennial international themes (the Middle East conflict in general, the Russia–Ukraine war, EU affairs) are NOT ongoing topics unless there is a direct, sustained Cyprus angle driving daily coverage.
+- A story that fits comfortably in a regular section (e.g. one court-case update a day under Crime & Justice) does not need promotion; promote only when a story generates several bullets a day across sections.
+- Prefer returning fewer topics. More than ~6 active topics at once means the bar is too low.
+
 Current ongoing topics from previous days (confirm which are still active today):
 [EXISTING_TOPICS]
 
