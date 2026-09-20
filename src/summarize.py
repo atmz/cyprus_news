@@ -50,6 +50,13 @@ def _resolve_prompt_file(base_name, lang):
 
 from textwrap import dedent
 
+def _norm_section_name(name):
+    """Normalize a section name for matching: curly quotes/apostrophes vary
+    between the stored topic names and what the models emit."""
+    return (name.replace("’", "'").replace("‘", "'")
+                .replace("“", '"').replace("”", '"').strip())
+
+
 def combine_summaries(chunks, ongoing_topic_names=None):
     # Function to parse a summary into a dictionary of sections
     def parse_summary_sections(summary_text):
@@ -147,14 +154,24 @@ def combine_summaries(chunks, ongoing_topic_names=None):
                     if topic_name not in section_order:
                         section_order.append(topic_name)
 
-    # Generate final markdown
+    # Generate final markdown. Match section names with apostrophes/quotes
+    # normalized: topic names are stored with curly quotes ("Workers’ Strike")
+    # but models often emit straight ones, and an unmatched name used to be
+    # treated as an unexpected section and appended after Weather (observed
+    # in both lanes on 2026-09-16).
+    combined_by_norm = {}
+    for name in combined.keys():
+        combined_by_norm.setdefault(_norm_section_name(name), name)
     final_md = ""
+    emitted = set()
     for section in section_order:
-        if combined[section]:
+        name = combined_by_norm.get(_norm_section_name(section))
+        if name is not None and name not in emitted and combined[name]:
+            emitted.add(name)
             final_md += f"### {section}\n"
-            final_md += "\n".join(combined[section]) + "\n\n"
+            final_md += "\n".join(combined[name]) + "\n\n"
     for section in combined.keys():
-        if section not in section_order:
+        if section not in emitted and combined[section]:
             print(f"Unexpected section: {section}")
             final_md += f"### {section}\n"
             final_md += "\n".join(combined[section]) + "\n\n"
@@ -339,6 +356,19 @@ def cleanup_merged_summary(client, summary_text, deduplication_prompt):
     )
     print(f"prompt:{final_prompt}\noutput{response.choices[0].message.content.strip()}")
     return response.choices[0].message.content.strip(), response.usage
+
+
+def strip_inline_emphasis(text):
+    """Remove inline bold/italic markdown from summary text. The Substack
+    poster types text literally (only links are converted), so *Kathimerini*
+    or **extremely high** reaches email readers as raw asterisks — observed
+    in the published prod posts of 13-18 Sep 2026. Link labels like
+    [(CM)](url) contain no asterisks, so this is safe. Ported from the beta
+    lane, where it has run clean since 14 Sep.
+    """
+    text = re.sub(r"\*\*([^*\n]+)\*\*", r"\1", text)
+    text = re.sub(r"\*([^*\n]+)\*", r"\1", text)
+    return text
 
 
 def strip_summary_marker(text):
@@ -542,6 +572,7 @@ def summarize_for_day(day, lang="en"):
 
     final_output = date_heading + "\n\n" + top_stories + "\n\n" + linked_main_summary
     final_output = strip_summary_marker(final_output)
+    final_output = strip_inline_emphasis(final_output)
 
     with timing_step("summarize_write_output", **log_context, summary_path=output_file):
         with open(output_file, "w", encoding="utf-8") as f:

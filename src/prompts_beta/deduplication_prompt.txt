@@ -5,6 +5,7 @@ Here is a multi-part news summary, sectioned by topic. Please clean it up by:
 -Removing duplicates or near-duplicates, especially those with similar content or phrasing.
 -Removing filler or placeholder content, such as any line saying "no item was found."
 -Trimming excess: Limit each section to a maximum of seven bullet points. When a section exceeds that, cut the least newsworthy items — routine ceremonial appearances, minor announcements, event previews — rather than simply the last ones. Never cut the only coverage of a distinct story while a less substantial bullet remains.
+-Overall length budget: the finished summary should be roughly a five-minute read — aim for about 1,100 words and no more than ~30 bullets in total. To get there, first drop the least newsworthy items outright (ceremonial appearances, routine visits, previews of future events, minor international items), then compress remaining minor items to a single sentence. Major running stories keep their full detail — attributed positions, figures, and quotes are what to preserve; it is the minor items that absorb the cuts.
 -Preserving section headers and Markdown formatting exactly as given.
 
 Do not add commentary or alter the tone. Just return a clean, merged, and logically ordered summary in the same Markdown structure.

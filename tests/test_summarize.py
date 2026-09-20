@@ -79,5 +79,36 @@ class SummarizeTestCase(unittest.TestCase):
         self.assertNotIn("cyprus-mail.com", cleaned)
 
 
+    def test_strip_inline_emphasis_removes_bold_and_italics(self):
+        text = "- Minister told *Kathimerini* the risk is **extremely high** today."
+        self.assertEqual(
+            summarize.strip_inline_emphasis(text),
+            "- Minister told Kathimerini the risk is extremely high today.",
+        )
+
+    def test_strip_inline_emphasis_leaves_links_untouched(self):
+        text = "- Story. [(CM)](https://cyprus-mail.com/a), [(IC)](https://en.philenews.com/b)"
+        self.assertEqual(summarize.strip_inline_emphasis(text), text)
+
+    def test_combine_summaries_matches_topic_sections_across_apostrophe_styles(self):
+        # Topic stored with a curly apostrophe, model emits a straight one:
+        # the section must be ordered with the topics (before Weather), not
+        # appended after it as an unexpected section.
+        chunk = (
+            "### Public-Sector Workers' Strike\n"
+            "- Workers will strike on Thursday.\n\n"
+            "### Weather\n"
+            "- Sunny tomorrow.\n"
+        )
+        result = summarize.combine_summaries(
+            [chunk], ongoing_topic_names=["Public-Sector Workers\u2019 Strike"]
+        )
+        # The section is emitted under the canonical (curly-quoted) topic name
+        strike_pos = result.index("Strike")
+        weather_pos = result.index("### Weather")
+        self.assertLess(strike_pos, weather_pos)
+        self.assertIn("Workers will strike on Thursday.", result)
+
+
 if __name__ == "__main__":
     unittest.main()

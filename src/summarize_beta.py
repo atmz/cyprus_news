@@ -31,6 +31,7 @@ from summarize import (
     load_articles,
     split_summary,
     strip_hallucinated_links,
+    strip_inline_emphasis as _strip_inline_emphasis,
     strip_summary_marker,
 )
 from timing import timing_step
@@ -74,17 +75,6 @@ def _strip_llm_preamble(text):
     if "### " in text and not text.strip().startswith("### "):
         idx = text.index("### ")
         return text[idx:]
-    return text
-
-
-def _strip_inline_emphasis(text):
-    """Remove inline bold/italic markdown from bullets. The Substack poster
-    types text literally (only links are converted), so *Kathimerini* reaches
-    readers with raw asterisks — observed in the 2026-09-13 published post.
-    Link labels like [(CM)](url) contain no asterisks, so this is safe.
-    """
-    text = re.sub(r"\*\*([^*\n]+)\*\*", r"\1", text)
-    text = re.sub(r"\*([^*\n]+)\*", r"\1", text)
     return text
 
 
