@@ -169,17 +169,53 @@ def generate_chunked_summary_beta(
     return combined, total_usage
 
 
+# Word budget for the cleaned body (Top stories and the heading are added
+# separately and contribute ~300 more words). Static budgets in the prompt
+# alone were ignored across three attempts on the 2026-09-18 bulletin; the
+# measured-feedback pass below is what actually lands the length.
+CLEANUP_WORD_BUDGET = 1000
+
+
 def cleanup_merged_summary_beta(summary_text, deduplication_prompt, model):
     final_prompt = f"{deduplication_prompt}\n\nSUMMARY:\n{summary_text}\n"
     print("[beta] Sending to claude for cleanup...")
+    # NB: do not tell this call to "preserve all bullet points" — the system
+    # prompt outranks the user message, and that wording made the model
+    # ignore the length budget in the cleanup instructions entirely.
     system_prompt = (
-        "You are a careful editor. Output ONLY the cleaned summary in markdown — "
-        "no preamble, no explanations, no closing remarks. Preserve all ### section "
-        "headers, bullet points, and markdown structure exactly."
+        "You are the copy editor of a daily news email. Follow the cleanup "
+        "instructions in the user message exactly — including the hard length "
+        "budget, which requires dropping whole minor items. Keep the markdown "
+        "conventions (### section headers, '- ' bullets). Output ONLY the "
+        "finished summary — no preamble, no explanations, no closing remarks."
     )
     text, usage = complete(final_prompt, system_prompt=system_prompt, model=model)
     text = _restore_section_headers(text)
     text = _strip_llm_preamble(text)
+
+    words = len(text.split())
+    if words > CLEANUP_WORD_BUDGET:
+        print(f"[beta] Cleaned summary is {words} words (budget {CLEANUP_WORD_BUDGET}) — running a corrective pass...")
+        corrective_prompt = (
+            f"This news summary is {words} words; the hard budget is "
+            f"{CLEANUP_WORD_BUDGET} words. Cut it to under the budget: first "
+            "drop whole minor items (ceremonial appearances, routine visits, "
+            "previews, minor international items), then compress remaining "
+            "minor items to one sentence. Keep the day's major stories at "
+            "full detail — attributed positions, figures, quotes — and keep "
+            "all markdown formatting and links exactly as they are.\n\n"
+            f"SUMMARY:\n{text}\n"
+        )
+        text2, usage2 = complete(corrective_prompt, system_prompt=system_prompt, model=model)
+        text2 = _restore_section_headers(text2)
+        text2 = _strip_llm_preamble(text2)
+        # Keep the corrected version only if it actually shrank sensibly:
+        # a failed correction (empty, or barely changed) falls back.
+        if 0 < len(text2.split()) < words:
+            text = text2
+        if usage and usage2:
+            usage = {k: usage.get(k, 0) + usage2.get(k, 0) for k in set(usage) | set(usage2)}
+        print(f"[beta] After corrective pass: {len(text.split())} words.")
     return text, usage
 
 

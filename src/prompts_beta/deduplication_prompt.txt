@@ -4,8 +4,10 @@ Here is a multi-part news summary, sectioned by topic. Please clean it up by:
 -Reordering items within each section so that they follow a logical and thematic flow.
 -Removing duplicates or near-duplicates, especially those with similar content or phrasing.
 -Removing filler or placeholder content, such as any line saying "no item was found."
--Trimming excess: Limit each section to a maximum of seven bullet points. When a section exceeds that, cut the least newsworthy items — routine ceremonial appearances, minor announcements, event previews — rather than simply the last ones. Never cut the only coverage of a distinct story while a less substantial bullet remains.
--Overall length budget: the finished summary should be roughly a five-minute read — aim for about 1,100 words and no more than ~30 bullets in total. To get there, first drop the least newsworthy items outright (ceremonial appearances, routine visits, previews of future events, minor international items), then compress remaining minor items to a single sentence. Major running stories keep their full detail — attributed positions, figures, and quotes are what to preserve; it is the minor items that absorb the cuts.
+-Length budget (this is a hard requirement, not a preference): the finished summary must be readable in about five minutes as part of a longer email — at most 950 words and 26 bullets in total. Hitting this budget requires DROPPING whole minor stories, not merely shortening them. Count as you go; if your draft exceeds the budget, remove more items before returning it.
+-Drop first, in this order: ceremonial appearances and commemorations; routine visits, openings and award events; previews of future events; minor international items without a direct Cyprus angle; announcements with no stated consequence. Then compress any remaining minor items to one sentence.
+-Protect: the day's major running stories keep their full detail — attributed positions, exact figures, and quotes. The cuts come entirely from minor items; a reader should lose events, never depth on what matters.
+-Per-section cap: at most seven bullet points per section.
 -Preserving section headers and Markdown formatting exactly as given.
 
 Do not add commentary or alter the tone. Just return a clean, merged, and logically ordered summary in the same Markdown structure.
