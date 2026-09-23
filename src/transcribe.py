@@ -15,9 +15,12 @@ def print_helper(str : str):
 
 def transcribe_with_retry(client, audio_file, retries=3, min_chars=200):
     best_result = None
-    best_length = 0
+    best_length = -1  # keep even an empty result — never return None
 
     for attempt in range(retries):
+        # Rewind before every attempt: the first call consumes the file
+        # handle, and a retry would otherwise upload an empty (EOF) file.
+        audio_file.seek(0)
         result = client.audio.transcriptions.create(
             model="gpt-transcribe",
             file=audio_file
@@ -60,11 +63,21 @@ def transcribe_for_day(day : date):
                 break
             print_helper(f"Transcribing {filename}...")
             with timing_step("transcription_chunk", **log_context, chunk_index=i, chunk_path=filename):
+                # A short trailing segment (credits music after the 3-minute
+                # splits) legitimately transcribes to nothing — don't burn
+                # retries demanding 200 chars from a few seconds of audio,
+                # and never let an empty segment sink the whole transcript
+                # (this lost the 2026-09-22 bulletin for a full day).
+                small_file = os.path.getsize(filename) < 500_000  # ~<30s of mp3
                 with open(filename, "rb") as audio_file:
                     result = transcribe_with_retry(
                         client,
-                        audio_file
+                        audio_file,
+                        min_chars=0 if small_file else 200,
                     )
+                if result is None or not result.text.strip():
+                    print_helper(f"⚠️ Empty transcription for {filename} — skipping segment.")
+                else:
                     combined_text.append(result.text)
                     combined_json.append(result.model_dump())  # Convert to dict for JSON
             i += 1
