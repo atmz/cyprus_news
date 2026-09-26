@@ -12,8 +12,10 @@ Context summary for the next agent/session working on this repo.
 
 ## Current model setup (deliberate, recently tuned — don't "fix")
 
-- **`gpt-5.6-luna`** for summarization, cleanup, translation, ongoing topics — chosen for cost (~90% cheaper than the old gpt-4.1). **Luna rejects any `temperature` argument other than default**; all temperature args were removed.
-- **`gpt-4.1` for article linking only** (`LINK_MODEL_NAME` in `summarize.py`). An A/B test on identical inputs showed Luna injects ~40% fewer article links (2-4 vs 4-7); gpt-4.1 was deliberately kept there. If posts show sparse links again, check this first.
+- **ENGLISH lane: `claude-opus-5` via `claude -p`** (promoted from the beta lane 2026-09-26 after two weeks of side-by-side audits). `main.summarize_english_for_day` runs the claude pipeline (`summarize_beta.summarize_for_day_beta` with `config/prod_english.json` — prod filenames, prompts from `src/prompts_beta/`) and **falls back automatically to the OpenAI path** (`summarize_for_day`) on any failure, so an expired `CLAUDE_CODE_OAUTH_TOKEN` or CLI breakage degrades quality rather than killing the post. `src/prompts_beta/` is now shared by prod and beta — fork a new prompts dir (and point `beta.json` at it) before running prompt experiments.
+- **`gpt-5.6-luna`** for GREEK summarization, translation, ongoing topics — chosen for cost (~90% cheaper than the old gpt-4.1). **Luna rejects any `temperature` argument other than default**; all temperature args were removed. Migrating the Greek lane to claude is the natural next beta experiment.
+- **`gpt-4.1` for article linking on the OpenAI paths only** (`LINK_MODEL_NAME` in `summarize.py`; the claude English lane links with opus-5). An A/B test on identical inputs showed Luna injects ~40% fewer article links (2-4 vs 4-7); gpt-4.1 was deliberately kept there. If posts show sparse links again, check this first.
+- **Deployment**: `docker_compose.yaml` bind-mounts `./src` and `./config` from the NAS checkout, so `git pull && docker compose restart` ships code/prompt changes; a full `docker compose build` is only needed for Dockerfile changes (cron table, pinned claude CLI version).
 - **`gpt-transcribe`** for audio ($0.0045/min), **`gpt-image-1`** for covers.
 - Cost-estimate constants near the bottom of `summarize.py` are informational only and were updated for Luna.
 

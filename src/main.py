@@ -36,6 +36,8 @@ LANG_REFRESHERS = {
     ],
 }
 from post_to_substack import post_to_substack
+from beta_config import load_beta_config
+from summarize_beta import summarize_for_day_beta
 from summarize import load_articles, summarize_for_day, link_articles_to_summary, strip_summary_marker, split_summary, get_article_sources, reorder_sections
 from ongoing_topics import (
     load_ongoing_topics, save_ongoing_topics, expire_topics,
@@ -102,6 +104,28 @@ def refresh_saved_articles():
         refresh_en_politis()
     except Exception as e:
         print(f"⚠️ Failed to refresh English Politis: {e}")
+
+PROD_ENGLISH_CONFIG = "config/prod_english.json"
+
+
+def summarize_english_for_day(day: date):
+    """English summarization via the claude pipeline (promoted from the beta
+    lane on 2026-09-26 after the 13-24 Sep audits), writing the standard prod
+    filenames. The OpenAI path stays as an automatic fallback so a claude
+    CLI/auth failure can't stop the day's post — with CLAUDE_CODE_OAUTH_TOKEN
+    now production-critical, this is the safety net. If claude fails after
+    writing summary_without_links.txt, the fallback reuses that raw summary
+    and finishes cleanup/linking on the OpenAI side.
+    """
+    try:
+        cfg = load_beta_config(PROD_ENGLISH_CONFIG)
+        summarize_for_day_beta(day, cfg=cfg)
+    except Exception as e:
+        print(f"⚠️ Claude English summarization failed: {e} — falling back to the OpenAI pipeline.")
+        import traceback
+        traceback.print_exc()
+        summarize_for_day(day)
+
 
 def generate_for_date(day: date):
     make_folders(day)
@@ -194,7 +218,7 @@ def generate_for_date(day: date):
         print(f"Summarizing text to {summary_md}...")
         with timing_step("summarization", **log_context):
             refresh_saved_articles()
-            summarize_for_day(day)
+            summarize_english_for_day(day)
         
     # NEW: load from file and generate cover.png in same folder
     if os.path.exists(cover_file):
