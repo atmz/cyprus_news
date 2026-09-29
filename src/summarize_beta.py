@@ -201,9 +201,11 @@ def cleanup_merged_summary_beta(summary_text, deduplication_prompt, model):
             f"{CLEANUP_WORD_BUDGET} words. Cut it to under the budget: first "
             "drop whole minor items (ceremonial appearances, routine visits, "
             "previews, minor international items), then compress remaining "
-            "minor items to one sentence. Keep the day's major stories at "
-            "full detail — attributed positions, figures, quotes — and keep "
-            "all markdown formatting and links exactly as they are.\n\n"
+            "minor items to one sentence. Never remove the Weather section — "
+            "compress it instead — and compress genuine news stories to one "
+            "sentence rather than deleting them. Keep the day's major stories "
+            "at full detail — attributed positions, figures, quotes — and "
+            "keep all markdown formatting and links exactly as they are.\n\n"
             f"SUMMARY:\n{text}\n"
         )
         text2, usage2 = complete(corrective_prompt, system_prompt=system_prompt, model=model)
