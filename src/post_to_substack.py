@@ -388,6 +388,12 @@ def post_to_substack(md_path, publish=False, cover_path="cover.png",
                 line = raw_line.strip()
 
                 # Insert image immediately BEFORE typing the "### Top stories" header
+                if (not image_inserted) and TOP_STORIES_H3_RE.match(line) and not Path(cover_path).expanduser().exists():
+                    # Cover generation can fail (e.g. the image model being retired);
+                    # publish the news without art instead of failing the whole post.
+                    print(f"⚠️ Cover image {cover_path} not found — posting without a cover.")
+                    image_inserted = True
+
                 if (not image_inserted) and TOP_STORIES_H3_RE.match(line):
                     print("🪄 Found '### Top stories' — inserting cover image just before it...")
 
