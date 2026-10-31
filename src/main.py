@@ -43,7 +43,7 @@ from ongoing_topics import (
     load_ongoing_topics, save_ongoing_topics, expire_topics,
     detect_ongoing_topics, update_topics, restructure_summary_with_topics,
 )
-from image import generate_cover_from_md
+from image import generate_cover_from_md, IMAGE_MODEL
 from transcribe import transcribe_for_day
 from timing import timing_step
 from lang_config import load_language_config, get_translation_languages, get_native_summary_languages, get_source_language
@@ -239,7 +239,7 @@ def generate_for_date(day: date):
                     out_dir=str(out_dir),
                     allow_faces=True,     # flip to False if needed on sensitive days
                     lead_subject=None,    # or pass an explicit subject
-                    model="gpt-image-1"
+                    model=IMAGE_MODEL
                 )
         except Exception as e:
             print(f"⚠️ Failed to read {summary_md} for cover generation: {e}")

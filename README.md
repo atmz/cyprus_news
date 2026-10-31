@@ -49,7 +49,7 @@ RIK broadcast (MP4)
         ├──► Russian / Ukrainian / Turkish / Hebrew: translation (GPT-4.1)
         │
         ▼
-  Cover image generation (gpt-image-1)
+  Cover image generation (gpt-image-2.5-flare)
         │
         ▼
   Substack publishing (Playwright)
@@ -124,7 +124,7 @@ The Substack session file is obtained by logging into Substack in a browser and 
 
 - Python 3.11+
 - [Playwright](https://playwright.dev/python/) (browser automation for Substack posting and article scraping)
-- [OpenAI Python SDK](https://github.com/openai/openai-python) (GPT-4.1, Whisper, gpt-image-1)
+- [OpenAI Python SDK](https://github.com/openai/openai-python) (GPT-4.1, Whisper, gpt-image-2.5-flare)
 - [BeautifulSoup4](https://www.crummy.com/software/BeautifulSoup/) (HTML parsing in article loaders)
 - ffmpeg (audio extraction from video)
 

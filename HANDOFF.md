@@ -16,7 +16,7 @@ Context summary for the next agent/session working on this repo.
 - **`gpt-5.6-luna`** for GREEK summarization, translation, ongoing topics — chosen for cost (~90% cheaper than the old gpt-4.1). **Luna rejects any `temperature` argument other than default**; all temperature args were removed. Migrating the Greek lane to claude is the natural next beta experiment.
 - **`gpt-4.1` for article linking on the OpenAI paths only** (`LINK_MODEL_NAME` in `summarize.py`; the claude English lane links with opus-5). An A/B test on identical inputs showed Luna injects ~40% fewer article links (2-4 vs 4-7); gpt-4.1 was deliberately kept there. If posts show sparse links again, check this first.
 - **Deployment**: `docker_compose.yaml` bind-mounts `./src` and `./config` from the NAS checkout, so `git pull && docker compose restart` ships code/prompt changes; a full `docker compose build` is only needed for Dockerfile changes (cron table, pinned claude CLI version).
-- **`gpt-transcribe`** for audio ($0.0045/min), **`gpt-image-1`** for covers.
+- **`gpt-transcribe`** for audio ($0.0045/min), **`gpt-image-2.5-flare`** for covers.
 - Cost-estimate constants near the bottom of `summarize.py` are informational only and were updated for Luna.
 
 ## Fragile things and known failure modes

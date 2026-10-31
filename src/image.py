@@ -1,6 +1,8 @@
 import os, base64, textwrap, logging
 
 IMAGE_LOG_FILENAME = "image_generation.log"
+# gpt-image-1 was retired by OpenAI on 2026-10-23; override via IMAGE_MODEL on the next one.
+IMAGE_MODEL = os.getenv("IMAGE_MODEL", "gpt-image-2.5-flare")
 
 SOCIAL_W = 1200  # OG-friendly
 SOCIAL_H = 628
@@ -38,7 +40,7 @@ def build_image_prompt(day_str: str, headlines_md: str, lead_subject: str | None
 def generate_ai_image_from_headlines(client, day, top_stories_md, out_path,
                                      allow_faces: bool = True,
                                      lead_subject: str | None = None,
-                                     model: str = "gpt-image-1"):
+                                     model: str = IMAGE_MODEL):
     """
     Returns image path on success, None on failure. No local fallback.
     """
@@ -159,7 +161,7 @@ def build_image_prompt(day_str: str, headlines_md: str, lead_subject: str | None
 
 def generate_cover_from_md(client, day, markdown: str, out_dir: str | os.PathLike,
                            allow_faces: bool = True, lead_subject: str | None = None,
-                           model: str = "gpt-image-1") -> str | None:
+                           model: str = IMAGE_MODEL) -> str | None:
     """
     Reads headlines from the markdown text and tries to create cover.png in out_dir.
     Returns the path on success, None on failure.

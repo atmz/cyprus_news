@@ -61,7 +61,7 @@ All loaders follow the same pattern:
 ## Models
 - Summarization and translation: `gpt-4.1`
 - Transcription: `gpt-4o-transcribe`
-- Cover image generation: `gpt-image-1`
+- Cover image generation: `gpt-image-2.5-flare`
 
 ## Known issues / gotchas
 - Hebrew (RTL) link insertion in Substack requires `ArrowLeft` to advance cursor. The `(CM)`/`(IC)` article links in Hebrew may still render imperfectly due to mixed RTL/LTR content.
