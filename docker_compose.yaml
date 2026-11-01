@@ -5,15 +5,11 @@ services:
     build: .
     container_name: cyprus_news
     volumes:
-      # Bind-mount code and prompts from a checkout on the NAS so `git pull`
-      # alone ships code/prompt changes — no image rebuild needed (rebuilds
-      # are still required for Dockerfile/dependency changes, e.g. the cron
-      # table or the pinned claude CLI). Absolute host paths on purpose:
-      # Portainer runs this from /data/compose/<id>, which has no checkout,
-      # so relative ./src failed with "Bind mount failed" and took prod down
-      # on 2026-09-29. Checkout: /volume1/dockerdata/cyprus_news/repo
-      - /volume1/dockerdata/cyprus_news/repo/src:/app/src
-      - /volume1/dockerdata/cyprus_news/repo/config:/app/config
+      # No src/ or config/ bind mounts: code ships in the image (Dockerfile
+      # COPY), so deploying = Portainer "pull and redeploy" with rebuild.
+      # Mounting them broke prod twice — relative ./src failed under
+      # Portainer (/data/compose/<id> has no checkout, 2026-09-29), and a
+      # mounted NAS checkout silently overrode the fresh image with stale code.
       - /volume1/dockerdata/cyprus_news/data:/app/data
       - /volume1/dockerdata/cyprus_news/summaries:/app/summaries
       - /volume1/dockerdata/secrets/cyprus_news:/app/secrets
